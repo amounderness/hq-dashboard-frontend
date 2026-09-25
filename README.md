@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Switchboard: Leeds Explorer
 
-## Getting Started
+This is the first working website slice inside the existing `hq-dashboard-frontend` Git repository. It keeps the original repository history and remote. The previous dashboard starter files that are not used by the new Explorer remain in place for now.
 
-First, run the development server:
+The app currently runs **locally** with the prepared Leeds package. Its map, ward search, year selector, result panel, table, Overview and Data & sources views use the real package. It is not yet a hosted or invited-user service. Forecast, report export, saved views, owner publication and role administration are still outstanding.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Run it locally
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Open the `hq-dashboard-frontend` folder in VS Code.
+2. Open **Terminal → New Terminal**. Check that Node.js 22 is available: `node --version`.
+3. Install the recorded dependencies: `npm ci`. If your `npm` command is broken, run `node "C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js" ci` instead.
+4. Copy `.env.example` to `.env.local` in the same folder. Set `SWITCHBOARD_PACKAGE_DIR` to the absolute path of the `leeds-local-elections-v0.1.0` folder, which contains `manifest.json`. Keep the `SWITCHBOARD_ALLOW_LOCAL_UNAUTHENTICATED=true` setting only for local development.
+5. Run `npm run dev -- --hostname 127.0.0.1`. Open `http://127.0.0.1:3000` in a browser. If port 3000 is busy, Next.js will show its chosen port in the terminal.
+6. Choose **2025**, search for **Morley South**, and confirm it shows the June by-election with unavailable turnout. Switch to **Table**, choose another ward, and confirm that the map returns to that ward.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The app reads the package from outside the Git repository. `.env.local`, generated output and local data folders are ignored by Git. Do not move the package into `public/` or commit it while the package's publication and licence checks remain open.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Code checks
 
-## Learn More
+From the same terminal, run `npm run lint`, `npm run typecheck`, then `npm run build`. The dependency lockfile is committed. The package was developed against Next.js 16.3.6 and React 19.3.0; run security updates before a live release.
 
-To learn more about Next.js, take a look at the following resources:
+## Sign-in and hosting
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Production requests require a valid Cloudflare Access JWT with the configured application audience. When `ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` are absent, pages and API requests return HTTP 503; invalid or missing tokens are denied. The development bypass works only on localhost in development when explicitly enabled. Put Access in front of the entire deployed application, including assets and previews, and allow only invited email accounts. The server still verifies the JWT. This implementation provides a defensive gate but does **not** create or configure a Cloudflare account, an invite list or a login service.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The current package loader uses a local filesystem path, so it is a **development adapter**. Before deployment, implement a private object-storage adapter and publish only a versioned package that has passed its release gates. The application must never serve the current package in production because its manifest has `publication_allowed=false`.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [hosting and release plan](docs/hosting-and-release.md) and [MVP status](docs/mvp-status.md). The original Switchboard specification and Leeds readiness report remain in the separate project workspace.
