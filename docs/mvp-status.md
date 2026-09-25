@@ -2,12 +2,12 @@
 
 | Requirement | Current state | Evidence / next gate |
 |---|---|---|
-| Clean website repository | Existing frontend Git repository retained; app code and lockfile committed on feature/switchboard-leeds-explorer | Commit b5d948c pushed to GitHub; original starter changes remain in history. |
+| Clean website repository | Existing frontend Git repository retained; app code and lockfile committed on feature/switchboard-leeds-explorer | The feature branch is pushed to GitHub; original starter changes remain in history. |
 | Leeds historical results | Connected locally | 2021–2024 and 2026 scheduled ward results, 2025 Morley South by-election. October 2024 Farnley & Wortley source remains rejected. |
 | Interactive Explorer | First slice working | 33 real ward polygons; year change, search, linked panel and table. Browser and API checks passed. |
 | Dashboard | Basic Overview | Coverage figures and current imported release. Notes/history can expand. |
 | Sign-in | Defensive server gate implemented | Cloudflare Access tenant, invitation policy, audience settings, account recovery and real-user checks remain. No production account has been configured. |
-| Data storage / hosting | Candidate design only | Local filesystem adapter now; private hosted storage and provider deployment still needed. No billable service ordered. |
+| Data storage / hosting | Domainless pilot path identified | Owner has a Cloudflare account. A protected `workers.dev` address can be used; private hosted storage and provider deployment are still needed. No billable service ordered. |
 | Source information | Basic view | Package limits shown; add direct source links and component dates to each result. |
 | Pulse | Historical election observations only | Add other approved public reference layers once their source/method and presentation are checked. |
 | Forecast | Unavailable state | Define forecast quantity and evaluate a time-respecting baseline before publishing projections. |
