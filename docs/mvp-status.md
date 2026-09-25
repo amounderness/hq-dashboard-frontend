@@ -2,7 +2,7 @@
 
 | Requirement | Current state | Evidence / next gate |
 |---|---|---|
-| Clean website repository | Existing frontend Git repository retained; app code and lockfile ready to commit | Review diff, commit and push when appropriate; original starter changes are preserved in history. |
+| Clean website repository | Existing frontend Git repository retained; app code and lockfile committed on feature/switchboard-leeds-explorer | Commit b5d948c pushed to GitHub; original starter changes remain in history. |
 | Leeds historical results | Connected locally | 2021–2024 and 2026 scheduled ward results, 2025 Morley South by-election. October 2024 Farnley & Wortley source remains rejected. |
 | Interactive Explorer | First slice working | 33 real ward polygons; year change, search, linked panel and table. Browser and API checks passed. |
 | Dashboard | Basic Overview | Coverage figures and current imported release. Notes/history can expand. |
