@@ -2,7 +2,7 @@
 
 The candidate arrangement for 5–10 invited viewers is one Next.js web app behind Cloudflare Access, with private versioned packages in object storage. The site renders charts and maps from prepared records. Python processing remains local. The owner has a Cloudflare account; a purchased domain is not required for the private pilot.
 
-An initial Worker has been deployed at `https://switchboard-owner-preview.keenanrclough.workers.dev`. It contains only explicitly fictional sample records. On 25 September 2026, Worker-level Access was enabled for all traffic, with an Allow policy for the owner's exact email, and the app's team domain and audience settings were configured. Signed-out requests for the page, data API and favicon redirect to Access. An owner sign-in test remains before calling the preview usable. This address is not the real-data Leeds MVP.
+An initial Worker has been deployed at `https://switchboard-owner-preview.keenanrclough.workers.dev`. It contains only explicitly fictional sample records. On 25 September 2026, Worker-level Access was enabled for all traffic, with an Allow policy for the owner's exact email, and the app's team domain and audience settings were configured. Signed-out requests for the page, data API and favicon redirect to Access. The owner completed a one-time-code sign-in and loaded the live preview; year selection, table view and source notes were checked in Chrome. This address is not the real-data Leeds MVP.
 
 ## Private test address without buying a domain
 
