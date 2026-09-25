@@ -23,8 +23,11 @@ async function readJson<T>(file: string): Promise<T> {
   return JSON.parse(await readFile(file, "utf8")) as T;
 }
 
-export async function getPackage(kind: "manifest" | "wards" | "geo" | "year", year?: string) {
-  if (process.env.SWITCHBOARD_DEMO_MODE === "true") return getDemoPackage(kind, year);
+export async function getPackage(kind: "manifest" | "wards" | "geo" | "year" | "forecast", year?: string) {
+  if (process.env.SWITCHBOARD_DEMO_MODE === "true") {
+    if (kind === "forecast") throw new PackageUnavailable("No Forecast research is available in the fictional preview.");
+    return getDemoPackage(kind, year);
+  }
   if (process.env.SWITCHBOARD_PACKAGE_STORE === "r2") {
     const { getR2Package } = await import("./r2-package");
     return getR2Package(kind, year);
@@ -33,6 +36,7 @@ export async function getPackage(kind: "manifest" | "wards" | "geo" | "year", ye
   if (kind === "manifest") return readJson(path.join(root, "manifest.json"));
   if (kind === "wards") return readJson(path.join(root, "geography", "wards.json"));
   if (kind === "geo") return readJson(path.join(root, "geography", "wards.geojson"));
+  if (kind === "forecast") return readJson(path.join(root, "forecast", "backtest-summary.json"));
   if (!year || !years.has(year)) throw new Error("Unsupported election year.");
   const prefix = path.join(root, "elections", year, "local-council");
   const [events, contests, candidates, parties] = await Promise.all([

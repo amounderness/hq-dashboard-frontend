@@ -1,0 +1,320 @@
+{
+  "scope": "Leeds scheduled local-council candidate votes, 2021-2024",
+  "years": {
+    "2021": {
+      "official_url": "https://datamillnorth.org/download/20jwj/773088bc-22fd-496b-9362-82235b230ced/Results_06May2021.CSV",
+      "official_sha256": "06dcdad0e37aa10f8e86de5b5207494b5712d85c0454b665e554de8fd0b13241",
+      "official_candidate_rows": 184,
+      "package_candidate_rows": 184,
+      "ward_vote_rows_matching": 183,
+      "discrepancies": [
+        {
+          "side": "council_only",
+          "ward": "Kirkstall",
+          "votes": 733,
+          "count": 1,
+          "candidates": [
+            {
+              "surname": "Smith",
+              "forename": "Reiss"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Kirkstall",
+          "votes": 773,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Capitano R.",
+              "party": "Conservative"
+            }
+          ]
+        }
+      ]
+    },
+    "2022": {
+      "official_url": "https://datamillnorth.org/download/20jwj/3d356930-2678-44d8-8d64-cc339e051aa3/Results_05May2022.csv",
+      "official_sha256": "b35feb0ecc7f402a4a3c553f93276c1c2a7eecf2ed0b174100b40eefbb986f06",
+      "official_candidate_rows": 167,
+      "package_candidate_rows": 167,
+      "ward_vote_rows_matching": 167,
+      "discrepancies": []
+    },
+    "2023": {
+      "official_url": "https://datamillnorth.org/download/20jwj/fd9656bf-6ffe-4148-93da-a14ac48a07cd/Results%20for%20Data%20Mill%20North.xlsx",
+      "official_sha256": "e1d87f45327dbe1e0d43d8f80c1a7aaac87fbfe2e6abe73feb827e57f09236b7",
+      "official_candidate_rows": 175,
+      "package_candidate_rows": 175,
+      "ward_vote_rows_matching": 163,
+      "discrepancies": [
+        {
+          "side": "council_only",
+          "ward": "Calverley & Farsley",
+          "votes": 0,
+          "count": 5,
+          "candidates": [
+            {
+              "surname": "Carlill",
+              "forename": "Peter John"
+            },
+            {
+              "surname": "Graham",
+              "forename": "Ellen"
+            },
+            {
+              "surname": "Lees",
+              "forename": "Robert Andrew"
+            },
+            {
+              "surname": "McLeod",
+              "forename": "Stuart"
+            },
+            {
+              "surname": "Singh",
+              "forename": "Jasbir"
+            }
+          ]
+        },
+        {
+          "side": "council_only",
+          "ward": "Headingley & Hyde Park",
+          "votes": 0,
+          "count": 7,
+          "candidates": [
+            {
+              "surname": "Ashford",
+              "forename": "Brandon John"
+            },
+            {
+              "surname": "Goodall",
+              "forename": "Timothy"
+            },
+            {
+              "surname": "Greaux",
+              "forename": "Anthony Joseph"
+            },
+            {
+              "surname": "Hannan",
+              "forename": "Abdul"
+            },
+            {
+              "surname": "Hynam",
+              "forename": "Florian Oscar Alice"
+            },
+            {
+              "surname": "Martin",
+              "forename": "Andrew Stuart"
+            },
+            {
+              "surname": "Tindle",
+              "forename": "Molly"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Headingley & Hyde Park",
+          "votes": 1749,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Goodall, T.",
+              "party": "Green"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Calverley & Farsley",
+          "votes": 3926,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Carlill, P.",
+              "party": "Labour"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Headingley & Hyde Park",
+          "votes": 27,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Greaux, A.",
+              "party": "Independent"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Headingley & Hyde Park",
+          "votes": 48,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Hynam, F.",
+              "party": "TUSC"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Headingley & Hyde Park",
+          "votes": 52,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Tindle, M.",
+              "party": "NIP"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Headingley & Hyde Park",
+          "votes": 119,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Martin, A.",
+              "party": "Conservative"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Calverley & Farsley",
+          "votes": 205,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "McLeod, S.",
+              "party": "Liberal Democrat"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Headingley & Hyde Park",
+          "votes": 145,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Ashford, B.",
+              "party": "Liberal Democrat"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Calverley & Farsley",
+          "votes": 250,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Lees, R.",
+              "party": "YORKS"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Headingley & Hyde Park",
+          "votes": 2029,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Hannan, A.",
+              "party": "Labour"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Calverley & Farsley",
+          "votes": 251,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Graham, E.",
+              "party": "Green"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Calverley & Farsley",
+          "votes": 2536,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Singh, J.",
+              "party": "Conservative"
+            }
+          ]
+        }
+      ]
+    },
+    "2024": {
+      "official_url": "https://datamillnorth.org/download/20jwj/e3x/Results%20from%20LCC%20%26%20WYCA%20Elections%20held%20on%202%20May%202024.xlsx",
+      "official_sha256": "3cd9a03cc96b328a392bd622754f254fe03056e9f0f500eb652e63e3820c8f77",
+      "official_candidate_rows": 185,
+      "package_candidate_rows": 185,
+      "ward_vote_rows_matching": 183,
+      "discrepancies": [
+        {
+          "side": "council_only",
+          "ward": "Roundhay",
+          "votes": 839,
+          "count": 1,
+          "candidates": [
+            {
+              "surname": "Ahad",
+              "forename": "Shazar"
+            }
+          ]
+        },
+        {
+          "side": "council_only",
+          "ward": "Roundhay",
+          "votes": 4039,
+          "count": 1,
+          "candidates": [
+            {
+              "surname": "Martin",
+              "forename": "Lisa"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Roundhay",
+          "votes": 840,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Ahad, S.",
+              "party": "Conservative"
+            }
+          ]
+        },
+        {
+          "side": "package_only",
+          "ward": "Roundhay",
+          "votes": 4040,
+          "count": 1,
+          "candidates": [
+            {
+              "name": "Martin, L.",
+              "party": "Labour"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
