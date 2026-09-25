@@ -1,6 +1,7 @@
 import unittest
 
 from backtest_leeds import blend, evaluate, score
+from party_labels import canonical_party, canonical_vote_counts
 
 
 def poll(year, ward, shares):
@@ -30,6 +31,12 @@ class BacktestTests(unittest.TestCase):
         changed = evaluate(base + [poll(2026, "W1", {"A": .01, "B": .99})])[0]
         self.assertEqual(original, changed)
         self.assertLess(original["training_cutoff"], original["target_date"])
+
+    def test_historical_abbreviations_keep_one_party_identity(self):
+        self.assertEqual(canonical_party("MORL IND"), canonical_party("MBI"))
+        self.assertEqual(canonical_party("G & S IND"), canonical_party("Garforth and Swillington Independents Party"))
+        votes = canonical_vote_counts({"MORL IND": 12, "MBI": 8, "Independent": 4})
+        self.assertEqual(votes, {"Morley Borough Independents": 20, "Independent": 4})
 
 
 if __name__ == "__main__":

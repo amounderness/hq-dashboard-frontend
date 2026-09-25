@@ -13,6 +13,8 @@ from collections import defaultdict
 from datetime import date
 from pathlib import Path
 
+from party_labels import ALIASES, canonical_vote_counts
+
 
 def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -39,12 +41,14 @@ def load_polls(root: Path):
             total = sum(row["candidate_votes"] for row in rows)
             if total <= 0 or total != contest["all_candidate_votes"]:
                 raise ValueError(f"Invalid party vote total: {contest['contest_id']}")
-            shares = {row["party_label"]: row["candidate_votes"] / total for row in rows}
-            if len(shares) != len(rows):
+            raw_votes = {row["party_label"]: row["candidate_votes"] for row in rows}
+            if len(raw_votes) != len(rows):
                 raise ValueError(f"Duplicate party: {contest['contest_id']}")
+            party_votes = canonical_vote_counts(raw_votes)
+            shares = {party: votes / total for party, votes in party_votes.items()}
             polls.append({"ward_code": contest["ward_code"], "contest_id": contest["contest_id"],
                           "date": event["election_date"], "year": year, "votes": total, "shares": shares,
-                          "party_votes": {row["party_label"]: row["candidate_votes"] for row in rows}})
+                          "party_votes": party_votes})
     polls.sort(key=lambda p: (p["date"], p["ward_code"]))
     return polls, input_hashes
 
@@ -90,6 +94,8 @@ def evaluate(polls):
         rows.append({"target_contest": target["contest_id"], "target_date": target["date"],
                      "ward_code": target["ward_code"], "training_cutoff": latest_city_date,
                      "ward_training_contest": own_latest["contest_id"],
+                     "new_party_vote_share": sum(share for party, share in target["shares"].items()
+                                                 if party not in own_latest["shares"]),
                      "actual": target["shares"],
                      "models": {model: {"predicted": prediction, **score(prediction, target["shares"])}
                                 for model, prediction in predictions.items()}})
@@ -103,6 +109,8 @@ def summarize(rows):
     result = {}
     for year, records in sorted(by_year.items()):
         result[year] = {"single_seat_wards": len(records), "models": {}}
+        result[year]["mean_new_party_vote_share"] = round(
+            sum(r["new_party_vote_share"] for r in records) / len(records), 6)
         for model in ("last_ward", "last_city", "fixed_half_blend"):
             result[year]["models"][model] = {
                 "mean_total_variation": round(sum(r["models"][model]["total_variation"] for r in records) / len(records), 6),
@@ -122,7 +130,8 @@ def main():
     summary = summarize(rows)
     report = {"generated_on": date.today().isoformat(), "package_id": read_json(args.package / "manifest.json")["package_id"],
               "purpose": "Research backtest only; no forecast published", "scope": "Leeds scheduled single-seat ward polls only",
-              "method": "Predict each party's share of all candidate-votes using the latest prior ward result, latest prior city result, or a fixed 50:50 blend. Absent parties get zero; no future candidate slate is used.",
+              "method": "Normalize source party abbreviations using the Local Elections Handbook abbreviation tables, then predict each party's share of all candidate-votes using the latest prior ward result, latest prior city result, or a fixed 50:50 blend. Absent parties get zero; no future candidate slate is used.",
+              "party_aliases": ALIASES,
               "exclusions": "By-elections, multi-seat contests, and 2025 (no scheduled poll). Incomplete or rejected sources are not training data.",
               "metrics": {"mean_total_variation": "Mean half-sum of absolute party share errors (0 best, 1 worst)",
                           "winner_accuracy": "Fraction whose highest predicted party equals the highest actual party; single-seat only"},

@@ -12,8 +12,9 @@ import re
 import sys
 from pathlib import Path
 
+from party_labels import ALIASES, canonical_party
 
-RELEASE_ID = "leeds-public-results-v0.2.1"
+RELEASE_ID = "leeds-public-results-v0.2.2"
 ONS_URL = "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/WD_MAY_2025_UK_BFC_V2/FeatureServer/0/query?where=LAD25CD%3D%27E08000035%27&outFields=WD25CD%2CWD25NM%2CLAD25CD&outSR=4326&f=geojson"
 EXPECTED_MATCHES = {"2021": 183, "2022": 167, "2023": 163, "2024": 183}
 EXPECTED_DIFFERENCES = {
@@ -111,6 +112,26 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
             assert candidate_total == party_total == contest["all_candidate_votes"] and candidate_total > 0, cid
             assert contest["ward_code"] in ward_names
         assert all(c["contest_id"] in {x["contest_id"] for x in records["contests"]} for c in records["candidates"])
+        # Preserve source labels on candidates but use one party identity in every
+        # public result, including the contest summary and aggregated party rows.
+        for candidate in records["candidates"]:
+            candidate["party_label"] = canonical_party(candidate["party_label"])
+        normalized_parties = collections.defaultdict(lambda: {"candidate_votes": 0, "candidates": 0, "seats_won": 0})
+        for candidate in records["candidates"]:
+            group = normalized_parties[(candidate["contest_id"], candidate["party_label"])]
+            group["candidate_votes"] += candidate["votes"]
+            group["candidates"] += 1
+            group["seats_won"] += int(candidate["elected"])
+        totals = {contest["contest_id"]: contest["all_candidate_votes"] for contest in records["contests"]}
+        records["party-results"] = [
+            {"contest_id": cid, "party_label": party, **group,
+             "share_of_candidate_votes": group["candidate_votes"] / totals[cid]}
+            for (cid, party), group in sorted(normalized_parties.items())
+        ]
+        for contest in records["contests"]:
+            contest["party_labels_contested"] = sorted({candidate["party_label"] for candidate in candidates_by_contest[contest["contest_id"]]})
+        assert all(sum(p["candidate_votes"] for p in records["party-results"] if p["contest_id"] == cid) == total
+                   for cid, total in totals.items())
         total_candidates += len(records["candidates"])
         total_contests += len(records["contests"])
         for key, value in records.items():
@@ -132,6 +153,8 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
         "boundary": {"source": ONS_URL, "source_sha256": hashlib.sha256(ons_file.read_bytes()).hexdigest(),
                      "credit": "Contains public sector information licensed under the Open Government Licence v3.0. Contains OS data © Crown copyright and database right 2025."},
         "other_results": [s for s in read(dev_root, "sources.json") if s["source_id"] in ("official-2026-workbook", "official-2026-page", "official-morley-south-2025", "rejected-farnley-2024")],
+        "party_aliases": {"mapping": ALIASES,
+                          "basis": "Local Elections Handbook party abbreviation tables, 2021-2024; original candidate party_label_raw and source_party_label_standard retained"},
     }
     write(release, "sources.json", source_manifest, checksums)
     write(release, "validation/official-history-crosscheck.json", crosscheck, checksums)
@@ -144,8 +167,10 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
         "source_package_id": original["package_id"], "generated_on": backtest["generated_on"],
         "method": backtest["method"], "scope": backtest["scope"], "exclusions": backtest["exclusions"],
         "evaluated_wards": backtest["evaluated_wards"], "metrics": backtest["metrics"],
-        "by_year": {year: {"single_seat_wards": row["single_seat_wards"], "models": row["models"]}
+        "by_year": {year: {"single_seat_wards": row["single_seat_wards"],
+                           "mean_new_party_vote_share": row["mean_new_party_vote_share"], "models": row["models"]}
                     for year, row in backtest["by_year"].items()},
+        "party_aliases": backtest["party_aliases"],
         "warning": "Historical tests only. The 2026 holdout was weak. No forecast for a future election has been validated or published.",
     }
     write(release, "forecast/backtest-summary.json", research, checksums)
@@ -161,6 +186,7 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
             "Farnley & Wortley October 2024 by-election omitted because the available declaration is blank.",
             "The by-election register is not certified complete. Latest imported poll is not current councillor composition.",
             "Results from 2021–2024 use the Local Elections Handbook. Fifteen candidate votes differ from the council archive; see Data & sources.",
+            "Historical party abbreviations are harmonised for comparison and display; source labels remain on candidate records.",
             "All years use 2025 ward boundaries for display; historical polygon equivalence is not certified.",
             "No census, Electoral Tribe, party-supplied campaign data, or prospective Forecast outputs are included. Forecast shows historical tests only.",
         ],

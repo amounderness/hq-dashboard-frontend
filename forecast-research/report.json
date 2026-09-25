@@ -1,69 +1,73 @@
 {
   "by_year": {
     "2022": {
+      "mean_new_party_vote_share": 0.007998,
       "models": {
         "fixed_half_blend": {
-          "mean_total_variation": 0.20911,
+          "mean_total_variation": 0.187953,
           "winner_accuracy": 0.741935
         },
         "last_city": {
-          "mean_total_variation": 0.320597,
+          "mean_total_variation": 0.318483,
           "winner_accuracy": 0.580645
         },
         "last_ward": {
-          "mean_total_variation": 0.138221,
-          "winner_accuracy": 0.741935
+          "mean_total_variation": 0.09802,
+          "winner_accuracy": 0.83871
         }
       },
       "single_seat_wards": 31
     },
     "2023": {
+      "mean_new_party_vote_share": 0.014772,
       "models": {
         "fixed_half_blend": {
-          "mean_total_variation": 0.183791,
+          "mean_total_variation": 0.168751,
           "winner_accuracy": 0.8125
         },
         "last_city": {
-          "mean_total_variation": 0.308365,
+          "mean_total_variation": 0.306497,
           "winner_accuracy": 0.65625
         },
         "last_ward": {
-          "mean_total_variation": 0.124099,
-          "winner_accuracy": 0.8125
+          "mean_total_variation": 0.098055,
+          "winner_accuracy": 0.875
         }
       },
       "single_seat_wards": 32
     },
     "2024": {
+      "mean_new_party_vote_share": 0.029914,
       "models": {
         "fixed_half_blend": {
-          "mean_total_variation": 0.195872,
+          "mean_total_variation": 0.173716,
           "winner_accuracy": 0.636364
         },
         "last_city": {
-          "mean_total_variation": 0.310032,
+          "mean_total_variation": 0.307966,
           "winner_accuracy": 0.575758
         },
         "last_ward": {
-          "mean_total_variation": 0.123951,
-          "winner_accuracy": 0.787879
+          "mean_total_variation": 0.08452,
+          "winner_accuracy": 0.878788
         }
       },
       "single_seat_wards": 33
     },
     "2026": {
+      "mean_new_party_vote_share": 0.182683,
       "models": {
         "fixed_half_blend": {
-          "mean_total_variation": 0.380189,
+          "mean_total_variation": 0.362243,
           "winner_accuracy": 0.4
         },
         "last_city": {
-          "mean_total_variation": 0.455273,
+          "mean_total_variation": 0.452533,
           "winner_accuracy": 0.3
         },
         "last_ward": {
-          "mean_total_variation": 0.350023,
-          "winner_accuracy": 0.566667
+          "mean_total_variation": 0.321139,
+          "winner_accuracy": 0.6
         }
       },
       "single_seat_wards": 30
@@ -92,12 +96,30 @@
     "elections/2026/local-council/events.json": "e988f378555f07aee55a4d67bc2eb858e6fa9ef42d8fd4017e9a3044abddf338",
     "elections/2026/local-council/party-results.json": "24f0f6c068a63b051da8b9368760b5cd1787767ef80370be4a58883e6cc3ca4f"
   },
-  "method": "Predict each party's share of all candidate-votes using the latest prior ward result, latest prior city result, or a fixed 50:50 blend. Absent parties get zero; no future candidate slate is used.",
+  "method": "Normalize source party abbreviations using the Local Elections Handbook abbreviation tables, then predict each party's share of all candidate-votes using the latest prior ward result, latest prior city result, or a fixed 50:50 blend. Absent parties get zero; no future candidate slate is used.",
   "metrics": {
     "mean_total_variation": "Mean half-sum of absolute party share errors (0 best, 1 worst)",
     "winner_accuracy": "Fraction whose highest predicted party equals the highest actual party; single-seat only"
   },
   "package_id": "leeds-local-elections-v0.1.0",
+  "party_aliases": {
+    "AGS": "Alliance for Green Socialism",
+    "BREAK": "Breakthrough Party",
+    "FBM": "For Britain Movement",
+    "FREE": "Freedom Alliance",
+    "G & S IND": "Garforth & Swillington Independents Party",
+    "G and S IND": "Garforth & Swillington Independents Party",
+    "GARF IND": "Garforth & Swillington Independents Party",
+    "Garforth and Swillington Independents Party": "Garforth & Swillington Independents Party",
+    "MB IND": "Morley Borough Independents",
+    "MBI": "Morley Borough Independents",
+    "MBOR IND": "Morley Borough Independents",
+    "MORL IND": "Morley Borough Independents",
+    "NIP": "Northern Independence Party",
+    "SOB IND": "Save Our Beeston and Holbeck Independents",
+    "WEP": "Women's Equality Party",
+    "YORKS": "Yorkshire Party"
+  },
   "publication_allowed": false,
   "purpose": "Research backtest only; no forecast published",
   "scope": "Leeds scheduled single-seat ward polls only"

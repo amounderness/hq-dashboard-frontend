@@ -1,16 +1,26 @@
-# First Leeds Forecast backtest · research only
+# Leeds Forecast baseline audit · 25 September 2026
 
-`tools/backtest_leeds.py` reads the local development package and writes `forecast-research/report.json` and `ward-predictions.json`. It uses only **scheduled, single-seat** ward contests. Every prediction for a held-out poll uses results dated strictly earlier than that poll. It does not use the future candidate slate, polls, demographics, a party intention survey, or any private voter record.
+`tools/backtest_leeds.py` tests three simple baselines that Switchboard created for research; the project did not previously contain a finished Forecast model. Each held-out, scheduled, single-seat ward poll is predicted using only results dated before that poll: the latest result in that ward, the latest citywide result, or their fixed 50:50 average. Vote share means candidate votes divided by all candidate votes. By-elections and multi-seat contests are excluded. No future candidate slate, poll, census, private campaign data or other future result is used.
 
-The fixed baselines carry forward the latest ward party vote-share distribution, carry forward the latest citywide distribution, or blend those two 50:50. A party absent from prior results receives zero. Shares use *all candidate-votes* as their denominator. The metric below is mean total-variation distance: 0 is an exact party-share forecast, 1 is maximally wrong. Winner accuracy asks whether the top predicted party matched the actual top party; it is not a seat-count model.
+The first published run had a party-identity error. Source years abbreviate local parties differently, for example `MORL IND`/`MBI`/`MBOR IND`/`MB IND` and `GARF IND`/`G & S IND`/`G and S IND`. We now map those documented Handbook abbreviations to stable party names before scoring and display, while retaining original candidate source labels. The old numbers must not be cited. Mean share error below is total variation: 0 is exact, 1 is maximally wrong. Winner accuracy is the share of single-seat polls whose highest predicted party matched the actual highest party; it is not a seat-count forecast.
 
-| Holdout | Eligible wards | Last ward: share error | Last ward: winner accuracy | 50:50 blend: share error | Citywide: share error |
-|---|---:|---:|---:|---:|---:|
-| 2022 | 31 | 0.138 | 74.2% | 0.209 | 0.321 |
-| 2023 | 32 | 0.124 | 81.3% | 0.184 | 0.308 |
-| 2024 | 33 | 0.124 | 78.8% | 0.196 | 0.310 |
-| 2026 | 30 | **0.350** | **56.7%** | 0.380 | 0.455 |
+| Held-out election | Wards | Prior ward share error | Prior ward winner accuracy | 50:50 share error | Citywide share error | Votes for parties absent from prior ward |
+|---|---:|---:|---:|---:|---:|---:|
+| 2022 | 31 | 0.098 | 83.9% | 0.188 | 0.318 | 0.8% |
+| 2023 | 32 | 0.098 | 87.5% | 0.169 | 0.306 | 1.5% |
+| 2024 | 33 | 0.085 | 87.9% | 0.174 | 0.308 | 3.0% |
+| 2026 | 30 | **0.321** | **60.0%** | 0.362 | 0.453 | **18.3%** |
 
-Across 126 eligible ward elections, last-ward mean share error was 0.181 and winner accuracy 73.0%. The much weaker 2026 result is the key stress test. Multi-seat polls, by-elections and the 2025 fallow scheduled year are excluded; the sample is Leeds only. The tested baselines do not establish reliable 2027 projections, seat totals, or council control. The owner-only Forecast research page now displays aggregate historical test results, clearly labelled as retrospective. It must not display a prospective ward or seat forecast until a stronger model beats these baselines on further time-respecting holdouts.
+Across all 126 tests, the prior-ward baseline has mean share error 0.148 and winner accuracy 80.2%. That aggregate hides the sharp 2026 failure. In the tested 2026 wards, Reform UK took an average 22.1% of votes, versus 1.2% in the prior-ward baseline; the Green average rose from 17.9% to 25.0%. Of the 12 incorrectly predicted winners in 2026, five were Reform UK and five Green. Party-entry and political shifts therefore need explicit modelling. Even with corrected identities, a simple carry-forward model is not suitable as a validated 2027 forecast.
 
-To rerun locally from the Switchboard workspace: `python switchboard-app/tools/backtest_leeds.py packages/leeds-local-elections-v0.1.0 switchboard-app/forecast-research`. Run `python switchboard-app/tools/test_backtest_leeds.py` for the metric and future-leakage checks. The report records SHA-256 hashes of all election inputs.
+## Next model gates
+
+1. Establish an as-of-date input ledger: exact publication time and source for each historic result, candidate list, party presence, polling signal and demographic feature. Prevent later information from entering earlier backtests. Define 2027 pre-nomination and post-nomination forecast versions separately.
+2. Build time-ordered holdouts across more councils and election cycles. Compare every challenger with the corrected prior-ward baseline, including party-share error, winner calibration and performance by party, ward type and year. Report uncertainty and zero/absent-party handling. Use 2026 as a stress test, not a tuned training target.
+3. Start with aggregate ward-level features: candidate/party presence, prior local result, citywide and regional swing, incumbency when sourced, and geography. Evaluate census and Electoral Tribe inputs only after lineage, licence and historical availability are established. Avoid individual voter records.
+4. Pre-register a 2027 freeze date and method. Publish prospective ward shares only after independent holdouts show a material and repeatable gain. Derive seat counts and council control only from calibrated contest-level probabilities, with separate evaluation.
+5. After 6 May 2027, preserve the frozen predictions, ingest certified results, and score the same metrics plus uncertainty coverage and seat outcomes. Record deviations and missing races explicitly.
+
+Leeds City Council lists the next scheduled election as **6 May 2027** and a Calverley and Farsley by-election for **22 October 2026**. The latter is not in this release; its future result must not enter any pre-poll forecast. Source: https://www.leeds.gov.uk/elections/leeds-city-council-elections .
+
+To reproduce: run `python tools/backtest_leeds.py <development-package> forecast-research`, then `python tools/test_backtest_leeds.py`. `report.json` contains input SHA-256 hashes and the complete party-alias mapping; detailed ward predictions stay local. The owner-only site displays the aggregate historical figures, labelled retrospective.
