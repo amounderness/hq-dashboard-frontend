@@ -45,3 +45,6 @@ next-env.d.ts
 /data/
 /public/data/
 /.local-data/
+/dist/
+.vinext/
+.wrangler/

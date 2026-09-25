@@ -1,6 +1,7 @@
 import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { getDemoPackage } from "./demo";
 
 const years = new Set(["2021", "2022", "2023", "2024", "2025", "2026"]);
 
@@ -22,6 +23,7 @@ async function readJson<T>(file: string): Promise<T> {
 }
 
 export async function getPackage(kind: "manifest" | "wards" | "geo" | "year", year?: string) {
+  if (process.env.SWITCHBOARD_DEMO_MODE === "true") return getDemoPackage(kind, year);
   const root = await packageRoot();
   if (kind === "manifest") return readJson(path.join(root, "manifest.json"));
   if (kind === "wards") return readJson(path.join(root, "geography", "wards.json"));

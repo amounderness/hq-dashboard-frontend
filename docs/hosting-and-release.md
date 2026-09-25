@@ -2,6 +2,8 @@
 
 The candidate arrangement for 5–10 invited viewers is one Next.js web app behind Cloudflare Access, with private versioned packages in object storage. The site renders charts and maps from prepared records. Python processing remains local. The owner has a Cloudflare account; a purchased domain is not required for the private pilot.
 
+An initial Worker has been deployed at `https://switchboard-owner-preview.keenanrclough.workers.dev`. It contains only explicitly fictional sample records. As of 25 September 2026, pages and data APIs return HTTP 503 because the Access application audience and team domain are not yet configured; Worker-level Access must also be enabled before this is called a usable private trial. Static assets contain only app code and synthetic examples. This address is not the real-data Leeds MVP.
+
 ## Private test address without buying a domain
 
 Use the Worker's `<worker>.<account>.workers.dev` address for the first private test. Cloudflare permits Access protection on that address and on preview URLs. Protect the **entire Worker**, selecting **All traffic**, so its pages, APIs, assets, and previews use the same policy. A custom domain can be considered later if the pilot becomes a sustained service.
