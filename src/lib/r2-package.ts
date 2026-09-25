@@ -21,7 +21,7 @@ async function sha256(text: string): Promise<string> {
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
 }
 
-export async function getR2PackageFromBucket(bucket: Bucket, kind: "manifest" | "wards" | "geo" | "year" | "forecast", year?: string) {
+export async function getR2PackageFromBucket(bucket: Bucket, kind: "manifest" | "wards" | "geo" | "year" | "forecast" | "pulse" | "history", year?: string) {
   const { value: pointer } = await storedJson<Pointer>(bucket, "active.json");
   if (!pointer || !idPattern.test(pointer.package_id) || !/^[a-f0-9]{64}$/.test(pointer.manifest_sha256)) {
     throw new PackageUnavailable("The active release pointer is invalid.");
@@ -46,6 +46,9 @@ export async function getR2PackageFromBucket(bucket: Bucket, kind: "manifest" | 
   if (kind === "wards") return releaseJson("geography/wards.json");
   if (kind === "geo") return releaseJson("geography/wards.geojson");
   if (kind === "forecast") return releaseJson("forecast/backtest-summary.json");
+  if (kind === "pulse") return releaseJson("pulse/ward-profiles.json");
+  if (kind === "history") return releaseJson("pulse/ward-history.json");
+  if (year === "latest") return releaseJson("pulse/latest-results.json");
   if (!year || !years.has(year) || !manifest.years.includes(Number(year))) throw new PackageUnavailable("The requested election year is unavailable.");
   const [events, contests, candidates, parties] = await Promise.all([
     releaseJson(`elections/${year}/local-council/events.json`),
@@ -56,7 +59,7 @@ export async function getR2PackageFromBucket(bucket: Bucket, kind: "manifest" | 
   return { events, contests, candidates, parties };
 }
 
-export async function getR2Package(kind: "manifest" | "wards" | "geo" | "year" | "forecast", year?: string) {
+export async function getR2Package(kind: "manifest" | "wards" | "geo" | "year" | "forecast" | "pulse" | "history", year?: string) {
   const { env } = await import("cloudflare:workers");
   const bucket = env.SWITCHBOARD_PACKAGES as Bucket | undefined;
   if (!bucket) throw new PackageUnavailable("Private package storage is not configured.");

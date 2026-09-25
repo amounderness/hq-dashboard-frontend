@@ -1,0 +1,12 @@
+export type Ward = { ward_code: string; ward_name: string };
+export type Contest = { contest_id: string; event_id: string; ward_code: string; seats_available: number; turnout_rate: number | null; all_candidate_votes: number; party_labels_contested: string[]; data_quality_note?: string };
+export type Candidate = { contest_id: string; party_label: string; candidate_name: string; votes: number; elected: boolean };
+export type Party = { contest_id: string; party_label: string; share_of_candidate_votes: number; candidate_votes: number; seats_won: number };
+export type Event = { event_id: string; election_date: string; event_kind: string; status: string; ward_code?: string; reason?: string; source_url?: string };
+export type YearData = { events: Event[]; contests: Contest[]; candidates: Candidate[]; parties: Party[] };
+export type CensusMetric = { key: string; label: string; group: string; count: number; denominator: number; share: number };
+export type Tribe = { id: number; name: string; residents: number; share: number };
+export type WardProfile = { ward_code: string; ward_name: string; census_year: number; display_boundary_id: string; population: number; oa_count: number; metrics: CensusMetric[]; tribes: Tribe[]; dominant_tribe_id: number };
+export type WardHistoryItem = { date: string; event_kind: string; status: string; reason?: string; source_url?: string; contest_id?: string; seats_available?: number; winners?: { candidate_name: string; party_label: string }[]; data_quality_note?: string };
+export type WardHistory = Record<string, WardHistoryItem[]>;
+export type MapLayer = "turnout" | "winners" | "tribes";

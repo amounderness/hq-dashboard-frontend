@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(_request: NextRequest, context: { params: Promise<{ year: string }> }) {
   const { year } = await context.params;
-  if (!/^202[1-6]$/.test(year)) return NextResponse.json({ error: "Unsupported election year" }, { status: 404 });
+  if (year !== "latest" && !/^202[1-6]$/.test(year)) return NextResponse.json({ error: "Unsupported election year" }, { status: 404 });
   try {
     return NextResponse.json(await getPackage("year", year), { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {

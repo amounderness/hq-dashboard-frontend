@@ -56,10 +56,13 @@ function yearData(year: string) {
   return { events, contests, candidates, parties };
 }
 
-export function getDemoPackage(kind: "manifest" | "wards" | "geo" | "year", year?: string) {
+export function getDemoPackage(kind: "manifest" | "wards" | "geo" | "year" | "pulse" | "history", year?: string) {
   if (kind === "manifest") return manifest;
   if (kind === "wards") return wards;
   if (kind === "geo") return geo;
+  if (kind === "pulse") return [];
+  if (kind === "history") return {};
+  if (year === "latest") return yearData("2026");
   if (!year || !/^(202[1-6])$/.test(year)) throw new Error("Unsupported demo year.");
   return yearData(year);
 }

@@ -2,7 +2,7 @@
 
 The candidate arrangement for 5–10 invited viewers is one Next.js web app behind Cloudflare Access, with private versioned packages in object storage. The site renders charts and maps from prepared records. Python processing remains local. The owner has a Cloudflare account; a purchased domain is not required for the private pilot.
 
-The owner-only Worker is deployed at `https://switchboard-owner-preview.keenanrclough.workers.dev`. On 25 September 2026, Worker-level Access was enabled for all traffic, with an Allow policy for the owner's exact email, and the app's team domain and audience settings were configured. The owner completed a one-time-code sign-in. The Worker now serves immutable `leeds-public-results-v0.2.1` from a private R2 bucket. Browser checks confirmed the real Leeds map, Morley South 2025 by-election, source credits and aggregate historical Forecast tests. Signed-out requests for the page, Forecast API and favicon redirect to Access. Bucket public access is disabled. The site is a limited public-results pilot, not an operational campaign portal.
+The owner-only Worker is deployed at `https://switchboard-owner-preview.keenanrclough.workers.dev`. On 25 September 2026, Worker-level Access was enabled for all traffic, with an Allow policy for the owner's exact email, and the app's team domain and audience settings were configured. The owner completed a one-time-code sign-in. The Worker serves immutable releases from a private R2 bucket. The active release is `leeds-pulse-v0.3.0`, adding Census and Electoral Tribes context. All 33 objects were read back with matching SHA-256 hashes before activation. Owner-session browser checks confirmed the map, party filters, Census, Tribes and history panels. Signed-out page, Pulse API and favicon requests each redirected to Access with HTTP 302. Bucket public access is disabled. The site remains a limited pilot, not an operational campaign portal.
 
 ## Private test address without buying a domain
 
@@ -14,7 +14,7 @@ The dashboard path for the eventual deployment is Workers & Pages > the Switchbo
 
 ## Required order
 
-1. The limited Leeds release used a new immutable version after source comparison, explicit conflict disclosure, official ONS geometry and removal of unverified census data. Do not flip the flag on the original development package to bypass its gates.
+1. Each limited Leeds release uses a new immutable version after source comparison, explicit conflict disclosure and official ONS geometry. The v0.3.0 Census and Electoral Tribes aggregates have their own source and geography audit. Do not flip the flag on the original development package to bypass its gates.
 2. The private R2 bucket and server-side reader serve the validated Leeds version. Release files were read back and hash-checked before the `active.json` pointer was switched. Keep a known-good previous pointer for rollback.
 3. Protect the entire Worker with Cloudflare Access, including previews and the `workers.dev` address. Restrict its Allow policy to invited email addresses. Record the Access team domain and application audience as server-only settings.
 4. Continue testing in this private environment. Unauthenticated page, API and asset denial and owner viewer access passed. Revoked-user denial, package rollback and backup restore remain to be exercised.

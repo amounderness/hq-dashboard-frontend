@@ -42,6 +42,24 @@ def main(release):
         total_candidates += len(candidates)
         total_contests += len(contests)
     assert (total_candidates, total_contests) == (manifest["candidate_records"], manifest["contests"])
+    if manifest.get("pulse"):
+        profiles = load(release / "pulse/ward-profiles.json")
+        history = load(release / "pulse/ward-history.json")
+        latest = load(release / "pulse/latest-results.json")
+        wards = {row["ward_code"] for row in load(release / "geography/wards.json")}
+        assert len(profiles) == len(wards) == 33
+        assert {row["ward_code"] for row in profiles} == set(history) == wards
+        assert sum(row["population"] for row in profiles) == 811964
+        for row in profiles:
+            assert row["census_year"] == 2021 and row["display_boundary_id"] == "wards-2025"
+            assert len(row["tribes"]) == 7 and sum(t["residents"] for t in row["tribes"]) == row["population"]
+            assert abs(sum(t["share"] for t in row["tribes"]) - 1) < 1e-10
+            assert all(m["count"] <= m["denominator"] and m["denominator"] > 0 for m in row["metrics"])
+        assert len(latest["contests"]) == 33
+        assert {row["ward_code"] for row in latest["contests"]} == wards
+        assert any(row["status"] == "source_rejected" for row in history["E05012648"])
+        assert any(row["status"] == "upcoming" and row["date"] == "2026-10-22" for row in history["E05011389"])
+        assert all(not row["contest_id"].startswith("leeds-local-2026-10-22") for row in latest["contests"])
     print(f"Validated {manifest['package_id']}: {len(manifest['object_sha256']) + 1} objects, "
           f"{total_candidates} candidate records, {total_contests} contests")
 

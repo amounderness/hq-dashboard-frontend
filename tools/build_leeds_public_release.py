@@ -1,6 +1,6 @@
 """Build a limited public-results release from audited local inputs.
 
-Usage: python build_leeds_public_release.py DEV_PACKAGE ONS_GEOJSON CROSSCHECK_JSON BACKTEST_JSON OUTPUT_ROOT
+Usage: python build_leeds_public_release.py DEV_PACKAGE ONS_GEOJSON CROSSCHECK_JSON BACKTEST_JSON PULSE_JSON PULSE_AUDIT_JSON OUTPUT_ROOT
 The output is a staged directory; this script never uploads or activates it.
 """
 
@@ -14,7 +14,7 @@ from pathlib import Path
 
 from party_labels import ALIASES, canonical_party
 
-RELEASE_ID = "leeds-public-results-v0.2.2"
+RELEASE_ID = "leeds-pulse-v0.3.0"
 ONS_URL = "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/WD_MAY_2025_UK_BFC_V2/FeatureServer/0/query?where=LAD25CD%3D%27E08000035%27&outFields=WD25CD%2CWD25NM%2CLAD25CD&outSR=4326&f=geojson"
 EXPECTED_MATCHES = {"2021": 183, "2022": 167, "2023": 163, "2024": 183}
 EXPECTED_DIFFERENCES = {
@@ -60,7 +60,7 @@ def read(root, name):
     return json.loads((root / name).read_text(encoding="utf-8"))
 
 
-def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
+def main(dev_root, ons_file, crosscheck_file, backtest_file, pulse_file, pulse_audit_file, output_root):
     original = read(dev_root, "manifest.json")
     assert original["package_id"] == "leeds-local-elections-v0.1.0"
     assert original["publication_allowed"] is False
@@ -74,6 +74,10 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
     wards = read(dev_root, "geography/wards.json")
     assert len(wards) == 33
     ward_names = {w["ward_code"]: norm(w["ward_name"]) for w in wards}
+    pulse_profiles = json.loads(pulse_file.read_text(encoding="utf-8"))
+    pulse_audit = json.loads(pulse_audit_file.read_text(encoding="utf-8"))
+    assert pulse_audit["ward_count"] == 33 and pulse_audit["oa_count"] == 2607
+    assert {p["ward_code"] for p in pulse_profiles} == set(ward_names)
     response = json.loads(ons_file.read_text(encoding="utf-8"))
     features = []
     for feature in response["features"]:
@@ -95,10 +99,23 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
     write(release, "geography/wards.json", wards, checksums)
     write(release, "geography/wards.geojson", {"type": "FeatureCollection", "features": features}, checksums)
     total_candidates = total_contests = 0
+    all_year_records = []
     for year in original["years"]:
         prefix = f"elections/{year}/local-council/"
         records = {key: read(dev_root, prefix + key + ".json")
                    for key in ("events", "contests", "candidates", "party-results")}
+        if year == 2024:
+            for event in records["events"]:
+                if event["event_id"] == "leeds-local-2024-10-10":
+                    event["source_url"] = "https://datamillnorth.org/download/20jwj/7f3/Farnley%20%26%20Wortley%20ward%20by-election%20-%2010%20October%202024.pdf"
+        if year == 2026:
+            records["events"].append({
+                "event_id": "leeds-local-2026-10-22", "election_date": "2026-10-22", "election_year": 2026,
+                "election_type": "local_council", "authority_code": "E08000035", "event_kind": "by_election",
+                "status": "upcoming", "ward_code": "E05011389",
+                "source_url": "https://www.leeds.gov.uk/elections/leeds-city-council-elections",
+                "reason": "Calverley and Farsley by-election announced; no result yet."
+            })
         candidates_by_contest = collections.defaultdict(list)
         parties_by_contest = collections.defaultdict(list)
         for row in records["candidates"]:
@@ -111,6 +128,15 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
             party_total = sum(x["candidate_votes"] for x in parties_by_contest[cid])
             assert candidate_total == party_total == contest["all_candidate_votes"] and candidate_total > 0, cid
             assert contest["ward_code"] in ward_names
+            quality_notes = {
+                (2021, "Kirkstall"): "Commons Handbook gives the Conservative candidate 773 votes; council archive CSV gives 733. Handbook value is used.",
+                (2023, "Calverley & Farsley"): "Council archive spreadsheet gives zero for all five candidates; Commons Handbook records non-zero votes. Handbook values are used.",
+                (2023, "Headingley & Hyde Park"): "Council archive spreadsheet gives zero for all seven candidates; Commons Handbook records non-zero votes. Handbook values are used.",
+                (2024, "Roundhay"): "Two candidate totals differ by one vote between the council spreadsheet and Commons Handbook. Handbook values are used.",
+            }
+            ward_name = next(w["ward_name"] for w in wards if w["ward_code"] == contest["ward_code"])
+            if (year, ward_name) in quality_notes:
+                contest["data_quality_note"] = quality_notes[(year, ward_name)]
         assert all(c["contest_id"] in {x["contest_id"] for x in records["contests"]} for c in records["candidates"])
         # Preserve source labels on candidates but use one party identity in every
         # public result, including the contest summary and aggregated party rows.
@@ -136,7 +162,42 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
         total_contests += len(records["contests"])
         for key, value in records.items():
             write(release, prefix + key + ".json", value, checksums)
+        all_year_records.append(records)
     assert (total_candidates, total_contests) == (938, 166)
+    write(release, "pulse/ward-profiles.json", pulse_profiles, checksums)
+
+    history = collections.defaultdict(list)
+    latest = {}
+    for records in all_year_records:
+        events = {event["event_id"]: event for event in records["events"]}
+        for event in events.values():
+            if event["status"] in ("source_rejected", "upcoming") and event.get("ward_code"):
+                history[event["ward_code"]].append({
+                    "date": event["election_date"], "event_kind": event["event_kind"], "status": event["status"],
+                    "reason": event.get("reason"), "source_url": event.get("source_url")})
+        for contest in records["contests"]:
+            event = events[contest["event_id"]]
+            cid = contest["contest_id"]
+            winner_rows = [candidate for candidate in records["candidates"] if candidate["contest_id"] == cid and candidate["elected"]]
+            assert len(winner_rows) == contest["seats_available"], cid
+            entry = {"date": event["election_date"], "event_kind": event["event_kind"], "status": "included",
+                     "contest_id": cid, "seats_available": contest["seats_available"],
+                     "winners": [{"candidate_name": candidate["candidate_name"], "party_label": candidate["party_label"]} for candidate in winner_rows],
+                     "data_quality_note": contest.get("data_quality_note")}
+            history[contest["ward_code"]].append(entry)
+            if contest["ward_code"] not in latest or entry["date"] > latest[contest["ward_code"]][0]["date"]:
+                latest[contest["ward_code"]] = (entry, contest, records)
+    assert set(history) == set(ward_names) and set(latest) == set(ward_names)
+    write(release, "pulse/ward-history.json", {ward: sorted(rows, key=lambda row: row["date"], reverse=True)
+                                                  for ward, rows in sorted(history.items())}, checksums)
+    latest_contests = [latest[ward][1] for ward in sorted(latest)]
+    latest_cids = {contest["contest_id"] for contest in latest_contests}
+    latest_events = {record["event_id"]: record for _, contest, records in latest.values()
+                     for record in records["events"] if record["event_id"] == contest["event_id"]}
+    latest_data = {"events": list(latest_events.values()), "contests": latest_contests,
+                   "candidates": [row for records in all_year_records for row in records["candidates"] if row["contest_id"] in latest_cids],
+                   "parties": [row for records in all_year_records for row in records["party-results"] if row["contest_id"] in latest_cids]}
+    write(release, "pulse/latest-results.json", latest_data, checksums)
 
     source_manifest = {
         "historical_results": {
@@ -153,6 +214,15 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
         "boundary": {"source": ONS_URL, "source_sha256": hashlib.sha256(ons_file.read_bytes()).hexdigest(),
                      "credit": "Contains public sector information licensed under the Open Government Licence v3.0. Contains OS data © Crown copyright and database right 2025."},
         "other_results": [s for s in read(dev_root, "sources.json") if s["source_id"] in ("official-2026-workbook", "official-2026-page", "official-morley-south-2025", "rejected-farnley-2024")],
+        "pulse_census_and_tribes": {
+            "description": "Ward-level 2021 Census OA counts and exploratory K=7 neighbourhood classification, allocated to 2025 wards; not current estimates or individual profiles",
+            "audit": pulse_audit,
+            "ons_census": "https://www.ons.gov.uk/census/aboutcensus/censusproducts/topicsummaries",
+            "ons_lookup": "https://www.data.gov.uk/dataset/4cb87107-de5a-4ee5-bc78-d7bd3fb86f67/output-area-2021-to-ward-2025-to-lad-may-2025-best-fit-lookup-in-ew-v3",
+            "licence": "ONS standard Census data and geography: Open Government Licence v3.0; Electoral Tribes K=7 labels and aggregation are project-derived",
+            "upstream_raw_byte_equality": "not_established",
+        },
+        "upcoming_by_election": "https://www.leeds.gov.uk/elections/leeds-city-council-elections",
         "party_aliases": {"mapping": ALIASES,
                           "basis": "Local Elections Handbook party abbreviation tables, 2021-2024; original candidate party_label_raw and source_party_label_standard retained"},
     }
@@ -175,20 +245,26 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
     }
     write(release, "forecast/backtest-summary.json", research, checksums)
     manifest = {
-        "schema_version": "1.0.0", "package_id": RELEASE_ID, "status": "limited_public_results_release",
+        "schema_version": "1.1.0", "package_id": RELEASE_ID, "status": "leeds_pulse_pilot_release",
         "assembled_on": "2026-09-25", "authority": {"code": "E08000035", "name": "Leeds"},
         "years": original["years"], "candidate_records": total_candidates, "contests": total_contests, "wards": len(wards),
         "boundary": {"id": "wards-2025", "edition": 2025, "historical_polygon_equivalence_certified": False},
         "forecast": {"status": "retrospective_backtest_only", "file": "forecast/backtest-summary.json", "reason": "2026 holdout is weak; no validated prospective model"},
-        "census": {"status": "not_included", "reason": "Upstream lineage remains incomplete"},
+        "census": {"status": "included_ward_aggregate", "year": 2021, "boundary_id": "wards-2025", "file": "pulse/ward-profiles.json"},
+        "tribes": {"status": "exploratory_ward_aggregate", "model": "K=7", "file": "pulse/ward-profiles.json"},
+        "pulse": {"latest": "pulse/latest-results.json", "history": "pulse/ward-history.json"},
         "release_limits": [
             "2025 is the Morley South by-election only; no scheduled Leeds council poll took place that year.",
             "Farnley & Wortley October 2024 by-election omitted because the available declaration is blank.",
             "The by-election register is not certified complete. Latest imported poll is not current councillor composition.",
+            "Farnley & Wortley 10 October 2024 declaration is blank; no candidate votes or winner are published from that source.",
+            "Calverley and Farsley 22 October 2026 by-election is upcoming; no result is included.",
             "Results from 2021–2024 use the Local Elections Handbook. Fifteen candidate votes differ from the council archive; see Data & sources.",
             "Historical party abbreviations are harmonised for comparison and display; source labels remain on candidate records.",
             "All years use 2025 ward boundaries for display; historical polygon equivalence is not certified.",
-            "No census, Electoral Tribe, party-supplied campaign data, or prospective Forecast outputs are included. Forecast shows historical tests only.",
+            "Census figures are 2021 counts best-fit to 2025 wards, not 2026 population estimates. The small difference from native Leeds totals reflects the geography assignment and Census perturbation.",
+            "Electoral Tribes are an exploratory seven-group classification of Census output areas, aggregated to wards. They describe neighbourhoods, not individuals or voting intentions.",
+            "No party-supplied campaign data or prospective Forecast outputs are included. Forecast shows historical tests only.",
         ],
         "attribution": ["House of Commons Library; Open Parliament Licence", "Leeds City Council; Open Government Licence v3.0", "Office for National Statistics and Ordnance Survey; Open Government Licence v3.0"],
         "source_links": [
@@ -198,6 +274,9 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
             {"label": "Commons Library 2024 dataset", "url": source_manifest["historical_results"]["pages"][3]},
             {"label": "Leeds City Council results archive", "url": "https://datamillnorth.org/dataset/local-election-results-20jwj"},
             {"label": "ONS 2025 ward boundaries", "url": "https://www.data.gov.uk/dataset/612b175b-987c-4acf-8ca4-1f93c6947928/wards-may-2025-boundaries-uk-bfc-v2"},
+            {"label": "ONS Census 2021 topic summaries", "url": source_manifest["pulse_census_and_tribes"]["ons_census"]},
+            {"label": "ONS OA-to-2025-ward best-fit lookup", "url": source_manifest["pulse_census_and_tribes"]["ons_lookup"]},
+            {"label": "Calverley and Farsley by-election notice", "url": source_manifest["upcoming_by_election"]},
             {"label": "Local Elections Handbook 2021", "url": "https://www.electionscentre.co.uk/wp-content/uploads/2022/04/LEH2021-complete.pdf"},
             {"label": "Local Elections Handbook 2023", "url": "https://www.electionscentre.co.uk/wp-content/uploads/2024/01/LEH-2023-Complete.pdf"},
             {"label": "Local Elections Handbook 2024", "url": "https://www.electionscentre.co.uk/wp-content/uploads/2025/01/LEH2024-Complete.pdf"},
@@ -212,6 +291,6 @@ def main(dev_root, ons_file, crosscheck_file, backtest_file, output_root):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
+    if len(sys.argv) != 8:
         raise SystemExit(__doc__)
     main(*(Path(value) for value in sys.argv[1:]))
