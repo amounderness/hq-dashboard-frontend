@@ -2,7 +2,7 @@
 
 The candidate arrangement for 5–10 invited viewers is one Next.js web app behind Cloudflare Access, with private versioned packages in object storage. The site renders charts and maps from prepared records. Python processing remains local. The owner has a Cloudflare account; a purchased domain is not required for the private pilot.
 
-An initial Worker has been deployed at `https://switchboard-owner-preview.keenanrclough.workers.dev`. It contains only explicitly fictional sample records. On 25 September 2026, Worker-level Access was enabled for all traffic, with an Allow policy for the owner's exact email, and the app's team domain and audience settings were configured. Signed-out requests for the page, data API and favicon redirect to Access. The owner completed a one-time-code sign-in and loaded the live preview; year selection, table view and source notes were checked in Chrome. This address is not the real-data Leeds MVP.
+An initial Worker has been deployed at `https://switchboard-owner-preview.keenanrclough.workers.dev`. It contains only explicitly fictional sample records. On 25 September 2026, Worker-level Access was enabled for all traffic, with an Allow policy for the owner's exact email, and the app's team domain and audience settings were configured. Signed-out requests for the page, data API and favicon redirect to Access. The owner completed a one-time-code sign-in and loaded the live preview; year selection, table view and source notes were checked in Chrome. The fictional package now loads from a private R2 bucket through a Worker binding; bucket public access is disabled. This address is not the real-data Leeds MVP.
 
 ## Private test address without buying a domain
 
@@ -15,7 +15,7 @@ The dashboard path for the eventual deployment is Workers & Pages > the Switchbo
 ## Required order
 
 1. Resolve the package's source, boundary and redistribution checks. Produce a new immutable Leeds version with `publication_allowed=true` only after review. Do not flip the flag on the current archive to bypass its gates.
-2. Create a private storage bucket for released packages. Add a server-side storage adapter so browsers receive only authorized selections. Keep the active manifest/version and a previous known-good version for rollback.
+2. The private R2 bucket and server-side reader are in place and tested with fictional records. Before real-data release, prepare an immutable reviewed package and a previous known-good version. Switch the private `active.json` pointer only after upload, validation and owner review.
 3. Protect the entire Worker with Cloudflare Access, including previews and the `workers.dev` address. Restrict its Allow policy to invited email addresses. Record the Access team domain and application audience as server-only settings.
 4. Deploy first to a private test environment. Verify unauthenticated page, API and asset denial; viewer access; revoked-user denial; no public bucket endpoint; package rollback; and a backup restore.
 5. Compare the actual monthly bill and any tax or currency conversion with the £25 ceiling before committing to the live pilot. Domain cost is zero while using `workers.dev`.

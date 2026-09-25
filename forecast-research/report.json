@@ -1,0 +1,104 @@
+{
+  "by_year": {
+    "2022": {
+      "models": {
+        "fixed_half_blend": {
+          "mean_total_variation": 0.20911,
+          "winner_accuracy": 0.741935
+        },
+        "last_city": {
+          "mean_total_variation": 0.320597,
+          "winner_accuracy": 0.580645
+        },
+        "last_ward": {
+          "mean_total_variation": 0.138221,
+          "winner_accuracy": 0.741935
+        }
+      },
+      "single_seat_wards": 31
+    },
+    "2023": {
+      "models": {
+        "fixed_half_blend": {
+          "mean_total_variation": 0.183791,
+          "winner_accuracy": 0.8125
+        },
+        "last_city": {
+          "mean_total_variation": 0.308365,
+          "winner_accuracy": 0.65625
+        },
+        "last_ward": {
+          "mean_total_variation": 0.124099,
+          "winner_accuracy": 0.8125
+        }
+      },
+      "single_seat_wards": 32
+    },
+    "2024": {
+      "models": {
+        "fixed_half_blend": {
+          "mean_total_variation": 0.195872,
+          "winner_accuracy": 0.636364
+        },
+        "last_city": {
+          "mean_total_variation": 0.310032,
+          "winner_accuracy": 0.575758
+        },
+        "last_ward": {
+          "mean_total_variation": 0.123951,
+          "winner_accuracy": 0.787879
+        }
+      },
+      "single_seat_wards": 33
+    },
+    "2026": {
+      "models": {
+        "fixed_half_blend": {
+          "mean_total_variation": 0.380189,
+          "winner_accuracy": 0.4
+        },
+        "last_city": {
+          "mean_total_variation": 0.455273,
+          "winner_accuracy": 0.3
+        },
+        "last_ward": {
+          "mean_total_variation": 0.350023,
+          "winner_accuracy": 0.566667
+        }
+      },
+      "single_seat_wards": 30
+    }
+  },
+  "evaluated_wards": 126,
+  "exclusions": "By-elections, multi-seat contests, and 2025 (no scheduled poll). Incomplete or rejected sources are not training data.",
+  "generated_on": "2026-09-25",
+  "input_sha256": {
+    "elections/2021/local-council/contests.json": "4b2506dc4c451ff5d5a97371ab6bd113495ec9eff3ce476b4b0d754cbf861110",
+    "elections/2021/local-council/events.json": "27af3443f8a8ee0ca9a14a2be5dd5378a530307ce343b504fef0304191604707",
+    "elections/2021/local-council/party-results.json": "57066cb3b78bd71dd9da21f9dea8adc8e308a8ddf6fa92dc3107b8fa9a373720",
+    "elections/2022/local-council/contests.json": "bfe7681f8044e4d6bebbcdc35f31a537efcc71188c2345ca469b1b3914b4ae02",
+    "elections/2022/local-council/events.json": "87157e2099e7e03d68718cdf0801c7321cdc5fac86ecd5c682a3e9ff671c9c6f",
+    "elections/2022/local-council/party-results.json": "43d02054a2ef362eb392996b0be81b9767bf9fbafc3ce5be5bd75bba70fc4948",
+    "elections/2023/local-council/contests.json": "cfcb699d82b3b07d0b4c5f55b502f7f3cdf86c1282ab208a957e9d40c256aaf3",
+    "elections/2023/local-council/events.json": "2d8af5721e97a24f9df48a68bd27a43655703c4eff2fc10390fda9fcd2059ebf",
+    "elections/2023/local-council/party-results.json": "a22c3da9a2a4e1ddef568d14cbef7a26c69c30fd853d270441fb9129f8b43baf",
+    "elections/2024/local-council/contests.json": "713b36a6a96bd2c9a3884d827c77d4024ff6a4dbccaf52ddfa347925823ab33b",
+    "elections/2024/local-council/events.json": "7bf5ff739a88436608f88253ffdaab8857b942555903f9941706f974e204041e",
+    "elections/2024/local-council/party-results.json": "e9bb81c26aec9082ee1ab742648007cbf54779db4a2c9ba958264f4f19c367af",
+    "elections/2025/local-council/contests.json": "a218db36370965b5d641934900b45e630ca0f3fc27ae997c97759e7e48384356",
+    "elections/2025/local-council/events.json": "4782bb006d3579aa52e11bfdf237fd74fb289fc5d3efee5a46e11d1a77ea2904",
+    "elections/2025/local-council/party-results.json": "cb2f6ca717e26c71c015fdad91e45ba05685b0d073f6691ae554aa3ae5a18977",
+    "elections/2026/local-council/contests.json": "a8827aec0dcbfa6ee2b813ad000153b06de49fd81c9cb1cb28577ada2df015b4",
+    "elections/2026/local-council/events.json": "e988f378555f07aee55a4d67bc2eb858e6fa9ef42d8fd4017e9a3044abddf338",
+    "elections/2026/local-council/party-results.json": "24f0f6c068a63b051da8b9368760b5cd1787767ef80370be4a58883e6cc3ca4f"
+  },
+  "method": "Predict each party's share of all candidate-votes using the latest prior ward result, latest prior city result, or a fixed 50:50 blend. Absent parties get zero; no future candidate slate is used.",
+  "metrics": {
+    "mean_total_variation": "Mean half-sum of absolute party share errors (0 best, 1 worst)",
+    "winner_accuracy": "Fraction whose highest predicted party equals the highest actual party; single-seat only"
+  },
+  "package_id": "leeds-local-elections-v0.1.0",
+  "publication_allowed": false,
+  "purpose": "Research backtest only; no forecast published",
+  "scope": "Leeds scheduled single-seat ward polls only"
+}

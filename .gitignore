@@ -48,3 +48,5 @@ next-env.d.ts
 /dist/
 .vinext/
 .wrangler/
+/forecast-research/ward-predictions.json
+__pycache__/

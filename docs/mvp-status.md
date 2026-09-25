@@ -7,10 +7,10 @@
 | Interactive Explorer | First slice working | 33 real ward polygons; year change, search, linked panel and table. Browser and API checks passed. |
 | Dashboard | Basic Overview | Coverage figures and current imported release. Notes/history can expand. |
 | Sign-in | Owner-only Access policy active | Entire Worker, including previews and assets, requires login by the owner's exact email. App JWT verification is configured. Owner one-time-code login succeeded on 25 September 2026; revocation testing remains. |
-| Data storage / hosting | Synthetic preview deployed | `switchboard-owner-preview.keenanrclough.workers.dev` contains only invented data; signed-out page, API and favicon requests redirect to Access. Real Leeds data still needs private hosted storage and release approval. No billable service ordered. |
+| Data storage / hosting | Private R2 path working with synthetic data | `switchboard-private-packages` has public access disabled; the protected Worker reads an immutable fictional release through its R2 binding. Signed-out page, API and favicon requests redirect to Access. The real Leeds package has not been uploaded or released. R2 was activated with $0 due now and usage charges above its free limits. |
 | Source information | Basic view | Package limits shown; add direct source links and component dates to each result. |
 | Pulse | Historical election observations only | Add other approved public reference layers once their source/method and presentation are checked. |
-| Forecast | Unavailable state | Define forecast quantity and evaluate a time-respecting baseline before publishing projections. |
+| Forecast | Research baseline backtested | 126 single-seat ward elections were evaluated without future inputs. Last-ward winner accuracy fell to 56.7% in the 2026 holdout; no prospective projection is published. See `forecast-backtest-2026-09-25.md`. |
 | Reports and saved views | Pending | Fixed report template with date, source, boundaries and access-controlled export. |
 | Administration | Pending | Owner-only import, validation preview, immutable publish, rollback, access control and audit trail. |
 | Permissions | Viewer gate only | Dataset/role scopes and revocation tests needed before restricted party-fed data. |
