@@ -8,7 +8,9 @@
   "main": "vinext/server/fetch-handler",
   "workers_dev": true,
   "vars": {
-    "SWITCHBOARD_DEMO_MODE": "true"
+    "SWITCHBOARD_DEMO_MODE": "true",
+    "ACCESS_TEAM_DOMAIN": "https://keenanrclough.cloudflareaccess.com",
+    "ACCESS_AUD": "c7ad3f4cbf48f3efc916ee462cb435c758b02767b03ab24651cc688ee9310a26"
   },
   "assets": {
     "directory": "dist/client",

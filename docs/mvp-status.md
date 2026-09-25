@@ -6,8 +6,8 @@
 | Leeds historical results | Connected locally | 2021–2024 and 2026 scheduled ward results, 2025 Morley South by-election. October 2024 Farnley & Wortley source remains rejected. |
 | Interactive Explorer | First slice working | 33 real ward polygons; year change, search, linked panel and table. Browser and API checks passed. |
 | Dashboard | Basic Overview | Coverage figures and current imported release. Notes/history can expand. |
-| Sign-in | Defensive server gate implemented | Cloudflare Access tenant, invitation policy, audience settings, account recovery and real-user checks remain. No production account has been configured. |
-| Data storage / hosting | Synthetic preview deployed, locked | `switchboard-owner-preview.keenanrclough.workers.dev` contains only invented data. Page and API return 503 until Access is configured. Real Leeds data still needs private hosted storage and release approval. No billable service ordered. |
+| Sign-in | Owner-only Access policy active | Entire Worker, including previews and assets, requires login by the owner's exact email. App JWT verification is configured. Owner login and revocation tests remain. |
+| Data storage / hosting | Synthetic preview deployed | `switchboard-owner-preview.keenanrclough.workers.dev` contains only invented data; signed-out page, API and favicon requests redirect to Access. Real Leeds data still needs private hosted storage and release approval. No billable service ordered. |
 | Source information | Basic view | Package limits shown; add direct source links and component dates to each result. |
 | Pulse | Historical election observations only | Add other approved public reference layers once their source/method and presentation are checked. |
 | Forecast | Unavailable state | Define forecast quantity and evaluate a time-respecting baseline before publishing projections. |
