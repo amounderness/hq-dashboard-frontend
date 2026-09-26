@@ -2,11 +2,11 @@ import type { Contest, Party, YearData } from "./pulse-types";
 
 const knownParties: Record<string, string> = {
   "Conservative": "#2473b5",
-  "Labour": "#d34855",
+  "Labour": "#c8102e",
   "Liberal Democrat": "#e49a20",
   "Green": "#269263",
   "Reform UK": "#0e9db5",
-  "SDP": "#ad519b",
+  "SDP": "#d25469",
   "Morley Borough Independents": "#7655a4",
   "Garforth & Swillington Independents Party": "#81703d",
   "Yorkshire Party": "#aa753b",

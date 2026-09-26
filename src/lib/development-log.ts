@@ -72,6 +72,12 @@ export const developmentLog = {
   releases: [
     {
       date: "2026-09-26",
+      title: "Pilot landing page and party colours",
+      category: "Website",
+      summary: "The private site now opens on Overview when no page is specified. SDP uses its rose shade across maps and charts; Labour uses a deeper red so the two parties remain easier to distinguish.",
+    },
+    {
+      date: "2026-09-26",
       title: "Viewer pilot preparation and page alignment",
       category: "Website",
       summary: "Moved short-page content to the top of the workspace and prepared a simple pilot task and feedback form plus an exact-email viewer invitation and revocation guide. Viewer invitations and the pilot itself remain to be tested.",

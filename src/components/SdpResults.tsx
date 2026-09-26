@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { SdpResult, SdpResultsData } from "@/lib/pulse-insight-types";
 import { seatsFilledLabel } from "@/lib/ward-seats";
+import { partyColor } from "@/lib/pulse-colors";
 
 const number = new Intl.NumberFormat("en-GB");
 const pct = (value: number | null | undefined) => value == null ? "Unavailable" : `${(value * 100).toFixed(1)}%`;
@@ -42,7 +43,7 @@ export default function SdpResultsPage({ data, onOpenWard }: { data: SdpResultsD
       <div className="card stat">Seats won<strong>{seats}</strong><span className="muted">Within these results</span></div></div>
     <div className="card sdp-year-chart"><h2>Average SDP share by election year</h2>{byYear.length ? byYear.map(item => {
       const average = item.rows.reduce((sum, row) => sum + row.sdp_share, 0) / item.rows.length;
-      return <div className="year-bar" key={item.year}><span>{item.year}</span><div className="track"><div className="fill" style={{ width: `${Math.min(average * 200, 100)}%`, background: "#ad519b" }} /></div><strong>{pct(average)}</strong><small>{item.rows.length} ward polls</small></div>;
+      return <div className="year-bar" key={item.year}><span>{item.year}</span><div className="track"><div className="fill" style={{ width: `${Math.min(average * 200, 100)}%`, background: partyColor("SDP") }} /></div><strong>{pct(average)}</strong><small>{item.rows.length} ward polls</small></div>;
     }) : <p>No results match these filters.</p>}<p className="footnote">Bars use a 0–50% scale. Different wards and candidate slates are present each year, so the bars are descriptive, not like-for-like trend estimates.</p></div>
     <div className="table-wrap"><table className="results-table"><thead><tr><th>Ward</th><th>Year</th><th>SDP candidates</th><th>SDP votes</th><th>Share</th><th>Turnout</th><th>Seats filled in poll</th><th>Elected party</th></tr></thead><tbody>
       {filtered.map(row => <tr key={row.contest_id}><td><button className="link-button" onClick={() => onOpenWard(row)}>{row.ward_name}</button></td><td>{row.year}</td><td>{row.sdp_candidates.map(item => item.name).join("; ")}{row.sdp_seats_won ? " · elected" : ""}</td><td>{number.format(row.sdp_votes)}</td><td>{pct(row.sdp_share)}</td><td>{pct(row.turnout_rate)}</td><td>{seatsFilledLabel(row.seats_available)}</td><td>{row.winning_parties.join(" and ")}</td></tr>)}

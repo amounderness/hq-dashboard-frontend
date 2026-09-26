@@ -62,7 +62,7 @@ function MetricGroup({ name, profile }: { name: string; profile: WardProfile }) 
 }
 
 export default function Explorer() {
-  const [page, setPage] = useState<Page>("explorer");
+  const [page, setPage] = useState<Page>("overview");
   const [view, setView] = useState<View>("map");
   const [year, setYear] = useState("latest");
   const [ward, setWard] = useState("");
@@ -122,7 +122,7 @@ export default function Explorer() {
   useEffect(() => {
     const syncFromUrl = () => {
       const requested = window.location.hash.slice(1) as Page;
-      setPage(pageIds.includes(requested) ? requested : "explorer");
+      setPage(pageIds.includes(requested) ? requested : "overview");
     };
     syncFromUrl();
     window.addEventListener("hashchange", syncFromUrl);
