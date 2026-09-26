@@ -170,7 +170,7 @@ export default function Explorer() {
   }, [manifest]);
 
   return <>
-    <header className="top"><div><div className="brand">switch<em>board</em></div><div className="strap">Results, context &amp; planning</div></div><div className="account">{isDemo ? "Owner preview · synthetic data" : "Leeds pilot · published results"}</div></header>
+    <header className="top"><a className="brand-lockup" href="#overview" onClick={event => { event.preventDefault(); navigate("overview"); }}><span className="brand-icon" aria-hidden="true" /><span className="brand-copy"><span className="brand">switch<em>board</em></span><span className="strap">Electoral Intelligence</span></span></a><div className="account">{isDemo ? "Owner preview · synthetic data" : "Leeds pilot · published results"}</div></header>
     {isDemo && <div className="notice" role="status"><strong>Fictional preview data.</strong> Every ward shape, result and turnout figure is invented for testing the website.</div>}
     {!isDemo && manifest && <div className="notice" role="status"><strong>Leeds Pulse pilot.</strong> Recorded results, dated council composition, 2021 Census and exploratory neighbourhood groups. Source gaps are flagged; the latest ward result is not a current-seat record or a future forecast.</div>}
     <div className="shell"><nav className="side" aria-label="Main navigation">

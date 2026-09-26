@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-labelledby="title description">
+  <title id="title">Switchboard</title>
+  <desc id="description">Four adjoining ward shapes with white shared borders form a square inside a pale turquoise rounded-square background.</desc>
+  <rect width="180" height="180" rx="29" fill="#E8F2F0"/>
+  <path d="M27 27H92L82 81 27 87Z" fill="#2D797A"/>
+  <path d="M92 27H153V70L119 89 82 81Z" fill="#7BB2AA"/>
+  <path d="M27 87 82 81 92 153H27Z" fill="#5B9D99"/>
+  <path d="M82 81 119 89 153 70V153H92Z" fill="#1D6568"/>
+  <path d="M92 27 82 81 27 87M82 81 119 89 153 70M82 81 92 153" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="butt" stroke-linejoin="round"/>
+  <rect x="27" y="27" width="126" height="126" fill="none" stroke="#FFFFFF" stroke-width="7"/>
+</svg>

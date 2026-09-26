@@ -72,6 +72,13 @@ export const developmentLog = {
   releases: [
     {
       date: "2026-09-26",
+      title: "Switchboard identity and favicon",
+      category: "Website",
+      summary: "Adopted the Ward Mosaic mark, a continuous graphite-and-petrol switchboard wordmark, the Electoral Intelligence subtitle, and a warm white, graphite and deep-petrol interface palette. Published SVG and multi-size ICO favicons; election and party data colours retain their separate meanings.",
+      recordUrl: "https://github.com/amounderness/hq-dashboard-frontend/blob/feature/switchboard-leeds-explorer/docs/brand-direction.md",
+    },
+    {
+      date: "2026-09-26",
       title: "Leeds pilot Overview dashboard",
       category: "Website",
       summary: "Expanded the home page with a clear account of Pulse and Forecast, six dated Leeds and SDP indicators, links into the workspace, and an election timeline that distinguishes confirmed Leeds polling, broad national planning months and the latest possible general-election date. Standardised the Leeds City Council name and improved the header subtitle; the visual palette is unchanged.",

@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Switchboard · Leeds Pulse Pilot",
-  description: "Private electoral information workspace",
+  title: "Switchboard · Electoral Intelligence",
+  description: "Recorded election results, local context and research in one private electoral workspace.",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }, { url: "/favicon.ico", sizes: "any" }],
+    shortcut: "/favicon.ico",
+  },
   robots: { index: false, follow: false },
 };
 

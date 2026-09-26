@@ -1,25 +1,27 @@
-# Switchboard brand direction — decision record
+# Switchboard identity — decision record
 
-Recorded 26 September 2026. This is a design note for discussion, not an instruction to change the live site yet.
+Approved 26 September 2026. The Ward Mosaic, wordmark, subtitle and palette are the site identity for the Leeds pilot.
 
 ## Agreed
 
 - The product and wordmark are **switchboard**, written as one continuous word. The colour change at “board” may remain, but it must not introduce a visual gap or suggest two words.
 - The preferred interface palette is **deep petrol** `#1D6568`, **graphite** `#1E3038`, and **white** `#FFFFFF`. A very light warm neutral such as `#F7F8F6` may be used for the page background. Keep this palette visually separate from the party colours used in election charts and maps.
+- The approved subtitle is **Electoral Intelligence**. It sits beneath the wordmark; the header needs no second slogan.
+- The approved mark is the [Ward Mosaic](brand-icon-ward-mosaic.svg): four touching areas with one set of shared white borders forming a flat square, inside a pale turquoise rounded-square background. No node appears at the centre.
 - The identity should feel clean, professional, analytical and practical for a private electoral workspace.
 
-## Still open
+## Production assets
 
-- **Logo:** The latest working direction returns to the **original Ward Mosaic (02)**. The [fifth refinement](brand-map-icon-round5.svg) keeps its pale turquoise rounded-square background and four tile colours. The central node is removed, and the touching tiles have one set of shared white borders forming a flat square like the Explorer window. A [standalone icon draft](brand-icon-ward-mosaic.svg) is available for closer inspection. No mark has been chosen for the live site. Earlier [third-round](brand-map-icons-round3.svg) and [fourth-round](brand-map-icons-round4.svg) variations remain as comparison history.
-- **Subtitle:** “Results, context & planning” is closer than “Electoral information”, but is not the final wording. The live site currently uses it provisionally. Possible directions to discuss: “Election data for what comes next”; “The electoral picture, in one place”; “From results to readiness”. These are proposals, not approved copy.
-- **Application:** Do not replace the live colour scheme or icon until a direction is selected and checked for legibility, contrast and use on the website.
+- [Brandboard SVG](switchboard-brandboard.svg) and [PNG](switchboard-brandboard.png) show the mark at header, 128, 64, 48, 32 and 16-pixel sizes with the wordmark, subtitle and palette.
+- The website header uses `public/switchboard-mark.svg`; the browser uses `public/favicon.svg` with a multi-size `src/app/favicon.ico` fallback. These are derived from the same approved vector geometry.
+- Petrol is the interface accent; graphite is the primary text colour; white is used for panels; pale turquoise `#E8F2F0` is used for active/navigation surfaces and the icon background. Election-result party colours and the turnout scale remain data colours.
 
-## Current Ward Mosaic refinement
+## Ward Mosaic geometry
 
 - Background: the original very pale turquoise `#E8F2F0`, with a rounded-square outside edge.
 - Inside: four adjoining coloured ward shapes occupy a **flat-edged square**. Their coordinates share boundaries exactly, so the tiles touch; a single white boundary network and white square outline are drawn above them. This avoids doubled strokes and unintended gaps.
 - The central node and all other dots are removed. The four tile shades remain close to the original concept. They are brand marks, not election-result party colours or real Leeds wards.
-- The [fifth sheet](brand-map-icon-round5.svg) shows the icon by itself, beside the continuous one-word wordmark, and at 64, 32 and 24 pixels. At 24 pixels, the white seams scale to just under one pixel. Final visual approval at small size is still needed before making it the site icon.
+- The [fifth sheet](brand-map-icon-round5.svg) records the approved shape before site implementation. At 24 pixels, the white seams scale to just under one pixel.
 
 ## Earlier map-icon shortlist
 
