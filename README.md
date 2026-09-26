@@ -13,6 +13,8 @@ The repository contains the website, package builders and audit documents. Valid
 5. Run `npm run dev -- --hostname 127.0.0.1`, then open the local address printed in the terminal. If port 3000 is busy, use the port Next.js reports.
 6. Open **Development** to see the stage plan and release log. For a factual package, select a ward and change Election view between 2024 and Latest recorded; the map and ward detail should both update. Open **Composition** to see the separate dated council snapshot.
 
+The Development page also has a shareable address: append `#development` to the site's URL. Cloudflare Access still checks the viewer before the page opens.
+
 `.env.local`, local data and build output are ignored by Git. Do not put release files in `public/` or commit them. The fictional mode is for interface testing and is clearly labelled in the site.
 
 ## Check and publish a change
