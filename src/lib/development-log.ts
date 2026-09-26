@@ -72,6 +72,13 @@ export const developmentLog = {
   releases: [
     {
       date: "2026-09-26",
+      title: "Composition CSV numbers",
+      category: "Website",
+      summary: "Verified the downloaded latest-composition CSV against the approved 99-seat snapshot and changed the export so signed seat changes remain usable as numbers in spreadsheets.",
+      recordUrl: "https://github.com/amounderness/hq-dashboard-frontend/blob/feature/switchboard-leeds-explorer/docs/hosting-and-release.md",
+    },
+    {
+      date: "2026-09-26",
       title: "Leeds Pulse v0.6.0 source decisions and seat context",
       category: "Data release",
       summary: "Closed four historical source-choice cases with cited council or Handbook figures, checked by-election coverage against the published council archive, and labelled seats filled per ward poll. Council composition now shows dated changes between saved snapshots, including vacancies and switches, without presenting them as election-only gains.",

@@ -21,3 +21,8 @@ test("spreadsheet formula-looking cells are neutralised", () => {
   assert.equal(csvCell("Labour"), '"Labour"');
   assert.equal(csvCell(null), '""');
 });
+
+test("numeric seat changes stay numeric in CSV", () => {
+  assert.equal(csvDocument([["Party", "Change"], ["Labour", -2], ["Independent", 2], ["SDP", 0]]),
+    '\uFEFF"Party","Change"\r\n"Labour","-2"\r\n"Independent","2"\r\n"SDP","0"\r\n');
+});
