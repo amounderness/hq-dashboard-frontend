@@ -10,11 +10,19 @@ Recorded 26 September 2026. This is a design note for discussion, not an instruc
 
 ## Still open
 
-- **Logo:** The first ballot-box-with-network-nodes sketch was only moderately appealing and is not selected. The first set's Routed S has also been set aside. Compare the revised network/system, mapping and election directions in [the second concept sheet](brand-concepts-round2.svg), then refine a preferred mark at small sizes, in a single colour, and beside the wordmark. [The first sheet](brand-concepts.svg) remains as an earlier exploration.
+- **Logo:** The preferred direction is now a **map icon**, closest to the first Ward Mosaic. The [third concept sheet](brand-map-icons-round3.svg) compares three more organic, node-rich variations inspired by the Explorer. The first ballot/network sketch, Routed S, and the other [second-round directions](brand-concepts-round2.svg) remain earlier exploration rather than selected marks.
 - **Subtitle:** “Results, context & planning” is closer than “Electoral information”, but is not the final wording. The live site currently uses it provisionally. Possible directions to discuss: “Election data for what comes next”; “The electoral picture, in one place”; “From results to readiness”. These are proposals, not approved copy.
 - **Application:** Do not replace the live colour scheme or icon until a direction is selected and checked for legibility, contrast and use on the website.
 
-## Second-round logo exploration
+## Current map-icon exploration
+
+1. **Open Mosaic:** The closest relative of the initial Ward Mosaic. Five adjoining areas use several petrol tones, but the outer silhouette is irregular rather than square. Nodes sit at shared ward junctions.
+2. **Junction Map:** The boundaries themselves read as a connected network. Six nodes mark joins and one ward is selected, linking the map and systems ideas without a separate circuit motif.
+3. **Selected Ward:** A loose cluster of neighbouring areas surrounds one ward with the light-and-dark outline used by the Explorer. Its five nodes sit on the selected ward's corners; this is the most directly tied to the product interaction.
+
+All three are abstract marks, not a real Leeds boundary. Compare them first as icons, then simplify the preferred one for a 24–32-pixel favicon, monochrome use and dark backgrounds. Do not infer the selected ward's data from the icon colours; real party/map colours remain separate.
+
+## Earlier second-round exploration
 
 1. **Switch matrix — networks/systems:** Three input lines are deliberately routed to outputs through a compact matrix of terminals. This replaces the letter-shaped Routed S and makes the “switchboard” concept explicit without becoming a generic hub-and-spoke network diagram. The risk is excessive detail at favicon size; test a simplified six-terminal version before adoption.
 2. **Boundary focus — mapping A:** A highlighted ward is held within a restrained outline of adjacent areas. This is a redesign of the first colourful Ward mosaic, with one clear area of emphasis. It speaks directly to Explorer selection and local focus.
