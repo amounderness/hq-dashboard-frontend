@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 920" role="img" aria-labelledby="title description">
+  <title id="title">Three exploratory Switchboard logo directions</title>
+  <desc id="description">Comparison of a routed S signal path, a ward map mosaic and a ballot changing into result bars. Each uses one continuous switchboard wordmark, graphite for switch and deep petrol for board.</desc>
+  <rect width="1440" height="920" fill="#F7F8F6"/>
+  <g font-family="Arial,Helvetica,sans-serif">
+    <text x="58" y="61" fill="#526078" font-size="17" font-weight="700" letter-spacing="2">SWITCHBOARD · IDENTITY EXPLORATION</text>
+    <text x="58" y="121" fill="#1E3038" font-size="43" font-weight="700" letter-spacing="-1.5">Three ways to express the platform</text>
+    <text x="58" y="157" fill="#526078" font-size="20">Agreed palette and one-word mark. Icons and subtitle remain open for discussion.</text>
+
+    <g id="routed-s">
+      <rect x="58" y="203" width="421" height="615" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="84" y="246" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.5">01 / ROUTED S</text>
+      <rect x="163" y="286" width="210" height="210" rx="43" fill="#E8F2F0"/>
+      <g transform="translate(199 322)" fill="none" stroke="#1D6568" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M131 9H58C34 9 18 27 18 49s17 39 40 39h37c23 0 40 17 40 39s-17 39-40 39H14"/>
+        <circle cx="131" cy="9" r="8" fill="#1D6568" stroke="#FFFFFF" stroke-width="3"/>
+        <circle cx="14" cy="166" r="8" fill="#1D6568" stroke="#FFFFFF" stroke-width="3"/>
+      </g>
+      <text x="84" y="558" fill="#1E3038" font-size="28" font-weight="700">A connected route</text>
+      <text x="84" y="593" fill="#526078" font-size="17">A single path becomes a subtle S:</text>
+      <text x="84" y="618" fill="#526078" font-size="17">switches, systems and a route</text>
+      <text x="84" y="643" fill="#526078" font-size="17">through the evidence.</text>
+      <text x="84" y="724" fill="#1E3038" font-size="38" font-weight="700" letter-spacing="-2.6"><tspan fill="#1E3038">switch</tspan><tspan fill="#1D6568">board</tspan></text>
+      <text x="85" y="752" fill="#74818A" font-size="14" letter-spacing="1.1">SUBTITLE TO BE DECIDED</text>
+    </g>
+
+    <g id="ward-mosaic">
+      <rect x="509" y="203" width="421" height="615" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="535" y="246" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.5">02 / WARD MOSAIC</text>
+      <rect x="614" y="286" width="210" height="210" rx="43" fill="#E8F2F0"/>
+      <g transform="translate(647 319)" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round">
+        <path d="M7 7h67L62 63 7 70z" fill="#2D797A"/>
+        <path d="M80 7h64v44l-38 26-39-13z" fill="#7BB2AA"/>
+        <path d="M7 78l53-8 12 69H7z" fill="#5B9D99"/>
+        <path d="M69 73l36 11 39-27v82H80z" fill="#1D6568"/>
+        <circle cx="68" cy="70" r="13" fill="#1E3038" stroke="#FFFFFF" stroke-width="5"/>
+      </g>
+      <text x="535" y="558" fill="#1E3038" font-size="28" font-weight="700">A mapped picture</text>
+      <text x="535" y="593" fill="#526078" font-size="17">Local areas connect around one</text>
+      <text x="535" y="618" fill="#526078" font-size="17">focus point: geography, layers</text>
+      <text x="535" y="643" fill="#526078" font-size="17">and exploration.</text>
+      <text x="535" y="724" fill="#1E3038" font-size="38" font-weight="700" letter-spacing="-2.6"><tspan fill="#1E3038">switch</tspan><tspan fill="#1D6568">board</tspan></text>
+      <text x="536" y="752" fill="#74818A" font-size="14" letter-spacing="1.1">SUBTITLE TO BE DECIDED</text>
+    </g>
+
+    <g id="ballot-to-bars">
+      <rect x="960" y="203" width="421" height="615" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="986" y="246" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.5">03 / BALLOT TO BARS</text>
+      <rect x="1065" y="286" width="210" height="210" rx="43" fill="#E8F2F0"/>
+      <g transform="translate(1092 307)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M42 8h80l19 19v87H42z" fill="#FFFFFF" stroke="#1D6568" stroke-width="8"/>
+        <path d="M122 8v19h19" stroke="#1D6568" stroke-width="8"/>
+        <path d="m61 53 12 12 24-26" stroke="#1D6568" stroke-width="9"/>
+        <path d="M38 165v-27h22v27M78 165v-43h22v43M118 165v-32h22v32" fill="#1D6568" stroke="#1D6568" stroke-width="5"/>
+        <path d="M26 166h130" stroke="#1E3038" stroke-width="7"/>
+      </g>
+      <text x="986" y="558" fill="#1E3038" font-size="28" font-weight="700">From votes to insight</text>
+      <text x="986" y="593" fill="#526078" font-size="17">A marked ballot and result bars:</text>
+      <text x="986" y="618" fill="#526078" font-size="17">the most direct reference to</text>
+      <text x="986" y="643" fill="#526078" font-size="17">elections and analysis.</text>
+      <text x="986" y="724" fill="#1E3038" font-size="38" font-weight="700" letter-spacing="-2.6"><tspan fill="#1E3038">switch</tspan><tspan fill="#1D6568">board</tspan></text>
+      <text x="987" y="752" fill="#74818A" font-size="14" letter-spacing="1.1">SUBTITLE TO BE DECIDED</text>
+    </g>
+
+    <rect x="58" y="850" width="25" height="25" rx="5" fill="#1D6568"/>
+    <text x="94" y="869" fill="#526078" font-size="16">Deep petrol #1D6568</text>
+    <rect x="353" y="850" width="25" height="25" rx="5" fill="#1E3038"/>
+    <text x="389" y="869" fill="#526078" font-size="16">Graphite #1E3038</text>
+    <rect x="626" y="850" width="25" height="25" rx="5" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+    <text x="662" y="869" fill="#526078" font-size="16">White #FFFFFF</text>
+    <text x="1380" y="869" text-anchor="end" fill="#74818A" font-size="15">Concepts for discussion · not applied to the live site</text>
+  </g>
+</svg>
