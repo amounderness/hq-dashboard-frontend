@@ -20,7 +20,7 @@ The dashboard path for the eventual deployment is Workers & Pages > the Switchbo
 4. Continue testing in this private environment. Unauthenticated page, API and asset denial and owner viewer access passed. Revoked-user denial, package rollback and backup restore remain to be exercised.
 5. Compare the actual monthly bill and any tax or currency conversion with the £25 ceiling before committing to the live pilot. Domain cost is zero while using `workers.dev`.
 
-The code verifies Access JWT signatures, issuer and audience for production requests. This does not yet enforce different role or dataset permissions: every account in the Access app would have the same viewer scope. Add server-side role checks before any restricted datasets or upload features are enabled.
+The code verifies Access JWT signatures, issuer and audience for production requests. Owner release actions have an additional server-side exact-email check; ordinary signed-in viewers cannot use those APIs. The published public-results dataset currently has one viewer scope. Add separate dataset permissions before accepting restricted party-fed or individual-level data.
 
 Cloudflare documents Access protection for Workers and a free Workers tier. The app now uses vinext for deployment and the Worker R2 binding for private package reads. Provider choices can change if compatibility, cost or security checks warrant it.
 

@@ -10,6 +10,7 @@
   "vars": {
     "SWITCHBOARD_DEMO_MODE": "false",
     "SWITCHBOARD_PACKAGE_STORE": "r2",
+    "SWITCHBOARD_OWNER_EMAIL": "keenanrclough@gmail.com",
     "ACCESS_TEAM_DOMAIN": "https://keenanrclough.cloudflareaccess.com",
     "ACCESS_AUD": "c7ad3f4cbf48f3efc916ee462cb435c758b02767b03ab24651cc688ee9310a26"
   },

@@ -12,7 +12,7 @@ Switchboard is a private **owner-only Leeds Pulse pilot**, not yet a complete vo
 | Development and releases | A portal page shows the current stage plan and dated release history. Its editorial record is updated with each published change. | Keep release notes and stage status aligned with evidence, tests and actual publication. |
 | Sign-in and storage | Owner-only Cloudflare Access on the whole Worker; immutable private R2 release objects with SHA-256 checks. | Exercise invited viewer sign-in and revocation, rollback and backup restore. |
 | Forecast | Historical test summary only. | Defer prospective modelling as requested. |
-| Reports and administration | Proposed release workflow documented; no owner import/approval screen, audit log or exports yet. | Build server-side roles and owner release controls before restricted data or operational releases. |
+| Reports and administration | Owner-only package-folder staging, hash and election validation, approval, activation, rollback for screen-managed releases and private audit records are implemented. Ward, council-composition and SDP report views can be printed or downloaded as CSV. | Live owner-flow and viewer-denial checks; source-file ingestion, record-level differences and independent backup restore remain. |
 
 “Latest recorded” for a ward means the latest **imported poll**. The council composition tab is a separate **dated council snapshot**, not a derivation from those ward polls. A vacant seat is counted as a vacancy. Historical election results are displayed on 2025 ward shapes; exact historical polygon equivalence has not been verified. The package contains no individual voter or party-supplied data.
 
