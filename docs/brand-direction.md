@@ -10,11 +10,17 @@ Recorded 26 September 2026. This is a design note for discussion, not an instruc
 
 ## Still open
 
-- **Logo:** The preferred direction is now a **map icon**, closest to the first Ward Mosaic. The [third concept sheet](brand-map-icons-round3.svg) compares three more organic, node-rich variations inspired by the Explorer. The first ballot/network sketch, Routed S, and the other [second-round directions](brand-concepts-round2.svg) remain earlier exploration rather than selected marks.
+- **Logo:** The shortlist is now **Open Mosaic (01)** and **Selected Ward (03)** from [the third concept sheet](brand-map-icons-round3.svg). The [fourth concept sheet](brand-map-icons-round4.svg) redraws both without nodes, with flat square sides and a small corner radius like the Explorer window. No mark has been chosen for the live site. The first ballot/network sketch, Routed S, and the other [second-round directions](brand-concepts-round2.svg) remain earlier exploration.
 - **Subtitle:** “Results, context & planning” is closer than “Electoral information”, but is not the final wording. The live site currently uses it provisionally. Possible directions to discuss: “Election data for what comes next”; “The electoral picture, in one place”; “From results to readiness”. These are proposals, not approved copy.
 - **Application:** Do not replace the live colour scheme or icon until a direction is selected and checked for legibility, contrast and use on the website.
 
-## Current map-icon exploration
+## Current map-icon shortlist
+
+- **01 / Balanced Mosaic:** Five adjoining areas, each large enough to read when the icon is reduced. It keeps the friendly multi-area feel of the first Ward Mosaic; the centre uses deep petrol, but no ward is explicitly selected.
+- **03 / Selected Ward:** Neighbouring areas use quieter shades; one central ward uses deep petrol with a single white outline. This is closest to the Explorer's selection behaviour. The earlier nodes and double outline have been removed.
+- Both have a square outer frame with **flat sides and lightly rounded corners**, rather than the organic third-round silhouette. The [fourth sheet](brand-map-icons-round4.svg) includes 64, 32 and 24-pixel vector previews. At 24 pixels, the internal seams and frame are about 1.1 pixels and the selected outline about 1.3 pixels; this remains an exploratory size check, not final favicon approval.
+
+## Earlier third-round map exploration
 
 1. **Open Mosaic:** The closest relative of the initial Ward Mosaic. Five adjoining areas use several petrol tones, but the outer silhouette is irregular rather than square. Nodes sit at shared ward junctions.
 2. **Junction Map:** The boundaries themselves read as a connected network. Six nodes mark joins and one ward is selected, linking the map and systems ideas without a separate circuit motif.

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1250 840" role="img" aria-labelledby="title description">
+  <title id="title">Switchboard map icon refinement: mosaic and selected ward</title>
+  <desc id="description">Two square ward-map icons with slightly rounded corners and no nodes. Concept 01 is a balanced five-area mosaic. Concept 03 highlights one selected ward. Each is shown large and at 64, 32 and 24 pixel sizes.</desc>
+  <defs>
+    <clipPath id="mosaic-crop"><rect x="4" y="4" width="172" height="172" rx="12"/></clipPath>
+    <clipPath id="focus-crop"><rect x="4" y="4" width="172" height="172" rx="12"/></clipPath>
+
+    <symbol id="mosaic-icon" viewBox="0 0 180 180">
+      <g clip-path="url(#mosaic-crop)" stroke="#FFFFFF" stroke-width="8" stroke-linejoin="round">
+        <path d="M0 0h89L75 65 50 79 0 84Z" fill="#6FA8A2"/>
+        <path d="M89 0h91v64l-57 16-48-15Z" fill="#2E7E7E"/>
+        <path d="M0 84 50 79l40 39-7 62H0Z" fill="#95C1B7"/>
+        <path d="M50 79 75 65l48 15-9 53-24-15Z" fill="#1D6568"/>
+        <path d="m123 80 57-16v116H83l7-62 24 15Z" fill="#4E9290"/>
+      </g>
+      <rect x="4" y="4" width="172" height="172" rx="12" fill="none" stroke="#1E3038" stroke-width="8"/>
+    </symbol>
+
+    <symbol id="selected-icon" viewBox="0 0 180 180">
+      <g clip-path="url(#focus-crop)" stroke="#FFFFFF" stroke-width="8" stroke-linejoin="round">
+        <path d="M0 0h85L70 65 49 78 0 83Z" fill="#9FC4BA"/>
+        <path d="M85 0h95v67l-58 7-52-9Z" fill="#78ABA5"/>
+        <path d="M0 83 49 78l15 38 18 64H0Z" fill="#B7D2C7"/>
+        <path d="m122 74 58-7v113H82l12-44 41-21Z" fill="#86B3AA"/>
+      </g>
+      <path d="m49 78 21-13 52 9 13 41-41 21-30-20Z" fill="#1D6568" stroke="#FFFFFF" stroke-width="10" stroke-linejoin="round"/>
+      <rect x="4" y="4" width="172" height="172" rx="12" fill="none" stroke="#1E3038" stroke-width="8"/>
+    </symbol>
+  </defs>
+
+  <rect width="1250" height="840" fill="#F7F8F6"/>
+  <g font-family="Arial,Helvetica,sans-serif">
+    <text x="55" y="56" fill="#526078" font-size="17" font-weight="700" letter-spacing="2">SWITCHBOARD / MAP ICON REFINEMENT 04</text>
+    <text x="55" y="110" fill="#1E3038" font-size="42" font-weight="700" letter-spacing="-1.3">Two simpler Explorer-inspired marks</text>
+    <text x="55" y="145" fill="#526078" font-size="19">No nodes. Flat sides. Lightly rounded corners. Compare the shapes at favicon sizes.</text>
+    <text x="966" y="103" font-size="38" font-weight="700" letter-spacing="-2.3"><tspan fill="#1E3038">switch</tspan><tspan fill="#1D6568">board</tspan></text>
+    <text x="969" y="136" fill="#74818A" font-size="13" letter-spacing="1.2">ONE CONTINUOUS WORD</text>
+
+    <g id="concept-01">
+      <rect x="55" y="190" width="545" height="565" rx="17" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="83" y="232" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.2">01 / BALANCED MOSAIC</text>
+      <use href="#mosaic-icon" x="216" y="266" width="222" height="222"/>
+      <text x="83" y="538" fill="#1E3038" font-size="26" font-weight="700">The original idea, reduced</text>
+      <text x="83" y="574" fill="#526078" font-size="17">Five adjoining areas carry the map idea.</text>
+      <text x="83" y="600" fill="#526078" font-size="17">The centre stays dark, with no extra</text>
+      <text x="83" y="626" fill="#526078" font-size="17">points competing with the boundaries.</text>
+      <line x1="83" y1="650" x2="572" y2="650" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="83" y="693" fill="#526078" font-size="14">Native-size checks</text>
+      <use href="#mosaic-icon" x="246" y="664" width="64" height="64"/>
+      <use href="#mosaic-icon" x="365" y="680" width="32" height="32"/>
+      <use href="#mosaic-icon" x="470" y="684" width="24" height="24"/>
+      <text x="263" y="741" fill="#526078" font-size="13">64</text>
+      <text x="373" y="741" fill="#526078" font-size="13">32</text>
+      <text x="475" y="741" fill="#526078" font-size="13">24 px</text>
+    </g>
+
+    <g id="concept-03">
+      <rect x="650" y="190" width="545" height="565" rx="17" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="678" y="232" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.2">03 / SELECTED WARD</text>
+      <use href="#selected-icon" x="811" y="266" width="222" height="222"/>
+      <text x="678" y="538" fill="#1E3038" font-size="26" font-weight="700">A clear Explorer selection</text>
+      <text x="678" y="574" fill="#526078" font-size="17">Muted neighbours frame one active ward.</text>
+      <text x="678" y="600" fill="#526078" font-size="17">A single white outline replaces the</text>
+      <text x="678" y="626" fill="#526078" font-size="17">earlier double border and nodes.</text>
+      <line x1="678" y1="650" x2="1167" y2="650" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="678" y="693" fill="#526078" font-size="14">Native-size checks</text>
+      <use href="#selected-icon" x="841" y="664" width="64" height="64"/>
+      <use href="#selected-icon" x="960" y="680" width="32" height="32"/>
+      <use href="#selected-icon" x="1065" y="684" width="24" height="24"/>
+      <text x="858" y="741" fill="#526078" font-size="13">64</text>
+      <text x="968" y="741" fill="#526078" font-size="13">32</text>
+      <text x="1070" y="741" fill="#526078" font-size="13">24 px</text>
+    </g>
+
+    <text x="55" y="802" fill="#526078" font-size="15">These are abstract regions, not real Leeds wards. Colours are brand colours, not election-result party colours.</text>
+    <text x="1195" y="802" text-anchor="end" fill="#74818A" font-size="14">Review draft · live site unchanged</text>
+  </g>
+</svg>
