@@ -1,0 +1,37 @@
+{
+  "authority": "Leeds City Council",
+  "seat_total": 99,
+  "retrieved_on": "2026-09-26",
+  "snapshots": [
+    {
+      "key": "2021", "as_of": "2021-05-08", "label": "After the 2021 council election", "source_kind": "official_post_election",
+      "source_url": "https://news.leeds.gov.uk/news/new-political-make-up-of-leeds-city-council-1",
+      "seats": {"Labour": 54, "Conservative": 24, "Liberal Democrat": 8, "Morley Borough Independents": 6, "Garforth & Swillington Independents Party": 3, "Green": 3, "Independent": 1}
+    },
+    {
+      "key": "2022", "as_of": "2022-05-06", "label": "After the 2022 council election", "source_kind": "official_post_election",
+      "source_url": "https://news.leeds.gov.uk/news/new-political-make-up-of-leeds-city-council-2",
+      "seats": {"Labour": 58, "Conservative": 21, "Liberal Democrat": 7, "Morley Borough Independents": 6, "Garforth & Swillington Independents Party": 3, "Green": 3, "SDP": 1}
+    },
+    {
+      "key": "2023", "as_of": "2023-05-05", "label": "After the 2023 council election", "source_kind": "official_post_election",
+      "source_url": "https://news.leeds.gov.uk/news/new-political-make-up-of-leeds-city-council-3",
+      "seats": {"Labour": 61, "Conservative": 18, "Liberal Democrat": 6, "Morley Borough Independents": 6, "Garforth & Swillington Independents Party": 3, "Green": 3, "SDP": 2}
+    },
+    {
+      "key": "2024", "as_of": "2024-05-03", "label": "After the 2024 council election", "source_kind": "official_post_election",
+      "source_url": "https://news.leeds.gov.uk/news/new-political-make-up-of-leeds-city-council-4",
+      "seats": {"Labour": 61, "Conservative": 15, "Liberal Democrat": 6, "Green": 5, "Morley Borough Independents": 4, "Garforth & Swillington Independents Party": 3, "SDP": 3, "Independent": 2}
+    },
+    {
+      "key": "2026", "as_of": "2026-05-08", "label": "After the 2026 council election", "source_kind": "official_post_election",
+      "source_url": "https://news.leeds.gov.uk/news/new-political-make-up-of-leeds-city-council-5",
+      "seats": {"Labour": 48, "Conservative": 14, "Green": 11, "Reform UK": 10, "Liberal Democrat": 6, "Garforth & Swillington Independents Party": 3, "Morley Borough Independents": 3, "SDP": 3, "Independent": 1}
+    },
+    {
+      "key": "latest", "as_of": "2026-09-26", "label": "Latest council-published composition retrieved 26 September 2026", "source_kind": "official_current_page_snapshot",
+      "source_url": "https://www.leeds.gov.uk/councillors-and-democracy/councillors-and-committees",
+      "seats": {"Labour": 46, "Conservative": 14, "Green": 10, "Reform UK": 10, "Liberal Democrat": 6, "Garforth & Swillington Independents Party": 3, "Morley Borough Independents": 3, "SDP": 3, "Independent": 3, "Vacancy": 1}
+    }
+  ]
+}

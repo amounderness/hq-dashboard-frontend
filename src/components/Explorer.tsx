@@ -3,18 +3,23 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FeatureCollection, Geometry } from "geojson";
 import PulseMap from "./PulseMap";
+import CompositionView from "./CompositionView";
+import TribesResearchPage from "./TribesResearch";
+import SdpResultsPage from "./SdpResults";
 import { partyColor, tribeColors, winningParties } from "@/lib/pulse-colors";
 import type { Candidate, MapLayer, Ward, WardHistory, WardProfile, YearData } from "@/lib/pulse-types";
+import type { CompositionData, SdpResult, SdpResultsData, TribeResearch } from "@/lib/pulse-insight-types";
 
 type PackageManifest = {
   package_id: string; assembled_on: string; candidate_records: number; contests: number; wards: number;
   release_limits: string[]; publication_allowed: boolean; demo?: boolean;
   attribution?: string[]; source_links?: { label: string; url: string }[];
   forecast?: { status: string }; pulse?: { latest: string; history: string };
+  composition?: { file: string }; sdp_results?: { file: string }; tribes_research?: { file: string };
 };
 type Backtest = { status: string; model: string; exclusions: string; evaluated_wards: number; warning: string; by_year: Record<string, { single_seat_wards: number; mean_new_party_vote_share?: number; models: Record<string, { mean_total_variation: number; winner_accuracy: number }> }> };
-type Page = "overview" | "explorer" | "forecast" | "sources";
-type View = "map" | "table";
+type Page = "overview" | "explorer" | "tribesResearch" | "sdpResults" | "forecast" | "sources";
+type View = "map" | "table" | "composition";
 type DetailTab = "results" | "census" | "tribes" | "history";
 
 const years = ["latest", "2026", "2025", "2024", "2023", "2022", "2021"];
@@ -23,10 +28,17 @@ const pct = (value: number | null | undefined) => value == null ? "Unavailable" 
 const dateText = (value: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${value}T12:00:00Z`));
 
 async function api<T>(path: string): Promise<T> {
-  const response = await fetch(path, { cache: "no-store", credentials: "same-origin" });
-  const payload = await response.json();
-  if (!response.ok) throw new Error(payload.error || `Request failed (${response.status})`);
-  return payload as T;
+  try {
+    const response = await fetch(path, { cache: "no-store", credentials: "same-origin", redirect: "manual" });
+    if (response.type === "opaqueredirect") throw new Error("Your sign-in has expired. Reload Switchboard to sign in again.");
+    if (!response.headers.get("content-type")?.includes("application/json")) throw new Error("The data request reached a sign-in page. Reload Switchboard to sign in again.");
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || `Request failed (${response.status})`);
+    return payload as T;
+  } catch (error) {
+    if (error instanceof TypeError) throw new Error("Connection or sign-in expired. Reload Switchboard to retry.");
+    throw error;
+  }
 }
 
 function Swatch({ color }: { color: string }) {
@@ -46,7 +58,6 @@ export default function Explorer() {
   const [view, setView] = useState<View>("map");
   const [year, setYear] = useState("latest");
   const [ward, setWard] = useState("");
-  const [search, setSearch] = useState("");
   const [layer, setLayer] = useState<MapLayer>("turnout");
   const [winningParty, setWinningParty] = useState("");
   const [sdpContestedOnly, setSdpContestedOnly] = useState(false);
@@ -58,6 +69,10 @@ export default function Explorer() {
   const [history, setHistory] = useState<WardHistory>({});
   const [dataState, setDataState] = useState<{ year: string; data: YearData } | null>(null);
   const [backtest, setBacktest] = useState<Backtest | null>(null);
+  const [composition, setComposition] = useState<CompositionData | null>(null);
+  const [tribesResearch, setTribesResearch] = useState<TribeResearch | null>(null);
+  const [sdpResults, setSdpResults] = useState<SdpResultsData | null>(null);
+  const [insightError, setInsightError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pulseError, setPulseError] = useState<string | null>(null);
   const [forecastError, setForecastError] = useState<string | null>(null);
@@ -66,6 +81,7 @@ export default function Explorer() {
   const profile = profiles.find(item => item.ward_code === ward);
   const historyRows = history[ward] ?? [];
   const selectedName = wards.find(item => item.ward_code === ward)?.ward_name ?? "Select a ward";
+  const sortedWards = useMemo(() => [...wards].sort((a, b) => a.ward_name.localeCompare(b.ward_name, "en-GB")), [wards]);
   const contest = data?.contests.find(item => item.ward_code === ward);
   const election = data?.events.find(item => item.event_id === contest?.event_id);
   const parties = (data?.parties.filter(item => item.contest_id === contest?.contest_id) ?? []).sort((a, b) => b.share_of_candidate_votes - a.share_of_candidate_votes);
@@ -82,9 +98,7 @@ export default function Explorer() {
 
   const selectWard = useCallback((code: string) => {
     setWard(code);
-    const match = wards.find(item => item.ward_code === code);
-    if (match) setSearch(match.ward_name);
-  }, [wards]);
+  }, []);
 
   useEffect(() => {
     let live = true;
@@ -92,11 +106,16 @@ export default function Explorer() {
       .then(([loadedManifest, loadedWards, loadedGeometry]) => {
         if (!live) return;
         setManifest(loadedManifest); setWards(loadedWards); setGeometry(loadedGeometry);
-        if (loadedWards.length) { setWard(loadedWards[0].ward_code); setSearch(loadedWards[0].ward_name); }
+        if (loadedWards.length) setWard(loadedWards[0].ward_code);
         if (loadedManifest.pulse) {
           Promise.all([api<WardProfile[]>("/api/package/pulse"), api<WardHistory>("/api/package/history")])
             .then(([loadedProfiles, loadedHistory]) => { if (live) { setProfiles(loadedProfiles); setHistory(loadedHistory); } })
             .catch(cause => { if (live) setPulseError(cause.message); });
+        }
+        if (loadedManifest.composition && loadedManifest.sdp_results && loadedManifest.tribes_research) {
+          Promise.all([api<CompositionData>("/api/package/composition"), api<SdpResultsData>("/api/package/sdp-results"), api<TribeResearch>("/api/package/tribes-research")])
+            .then(([loadedComposition, loadedSdp, loadedResearch]) => { if (live) { setComposition(loadedComposition); setSdpResults(loadedSdp); setTribesResearch(loadedResearch); } })
+            .catch(cause => { if (live) setInsightError(cause.message); });
         }
       }).catch(cause => { if (live) setError(cause.message); });
     return () => { live = false; };
@@ -115,22 +134,12 @@ export default function Explorer() {
     return () => { live = false; };
   }, [manifest]);
 
-  function chooseSearch(value: string) {
-    setSearch(value);
-    const exact = wards.find(item => item.ward_name.toLowerCase() === value.toLowerCase());
-    if (exact) setWard(exact.ward_code);
-  }
-  function chooseFirstSearchMatch() {
-    const match = wards.find(item => item.ward_name.toLowerCase().includes(search.toLowerCase()));
-    if (match) selectWard(match.ward_code);
-  }
-
   return <>
     <header className="top"><div><div className="brand">switch<em>board</em></div><div className="strap">Electoral information</div></div><div className="account">{isDemo ? "Owner preview · synthetic data" : "Leeds pilot · published results"}</div></header>
     {isDemo && <div className="notice" role="status"><strong>Fictional preview data.</strong> Every ward shape, result and turnout figure is invented for testing the website.</div>}
-    {!isDemo && manifest && <div className="notice" role="status"><strong>Leeds Pulse pilot.</strong> Recorded results, 2021 Census and exploratory neighbourhood groups. Gaps and source differences are flagged; this is not current council composition or a future forecast.</div>}
+    {!isDemo && manifest && <div className="notice" role="status"><strong>Leeds Pulse pilot.</strong> Recorded results, dated council composition, 2021 Census and exploratory neighbourhood groups. Source gaps are flagged; the latest ward result is not a current-seat record or a future forecast.</div>}
     <div className="shell"><nav className="side" aria-label="Main navigation">
-      {([["overview", "Overview"], ["explorer", "Explorer"], ["forecast", "Forecast research"], ["sources", "Data & sources"]] as const).map(([id, label]) =>
+      {([["overview", "Overview"], ["explorer", "Explorer"], ["sdpResults", "SDP Results"], ["tribesResearch", "Electoral Tribes"], ["forecast", "Forecast research"], ["sources", "Data & sources"]] as const).map(([id, label]) =>
         <a key={id} href={`#${id}`} className={page === id ? "active" : ""} aria-current={page === id ? "page" : undefined} onClick={event => { event.preventDefault(); setPage(id); }}>{label}</a>)}
       <div className="side-note">{isDemo ? "SYNTHETIC PREVIEW" : "LEEDS PILOT"}<br />Viewer workspace<br /><br />Reports and administration are still in development.</div>
     </nav><main className="content">
@@ -150,17 +159,18 @@ export default function Explorer() {
       {page === "explorer" && <>
         <div className="heading"><div><div className="eyebrow">{isDemo ? "Synthetic sample" : "England / Leeds / Local council"}</div><h1>Explore Leeds</h1><p>Results, Census and neighbourhood context in one place.</p></div><span className="badge">Pulse · {isDemo ? "Fictional sample" : "Recorded information"}</span></div>
         <div className="toolbar">
-          <label className="field search">Find a ward<input list="ward-options" type="search" value={search} onChange={event => chooseSearch(event.target.value)} onKeyDown={event => { if (event.key === "Enter") chooseFirstSearchMatch(); }} placeholder="Search Leeds wards…" /><datalist id="ward-options">{wards.map(item => <option key={item.ward_code} value={item.ward_name} />)}</datalist></label>
+          {view !== "composition" && <label className="field search">Find a ward<select value={ward} onChange={event => selectWard(event.target.value)}><option value="">Select a ward</option>{sortedWards.map(item => <option key={item.ward_code} value={item.ward_code}>{item.ward_name}</option>)}</select></label>}
           <label className="field">Election view<select value={year} onChange={event => { setError(null); setWinningParty(""); setYear(event.target.value); }}><option value="latest">Latest recorded</option>{years.slice(1).map(value => <option key={value} value={value}>{value}</option>)}</select></label>
-          <label className="field">Map colour<select value={layer} onChange={event => { setLayer(event.target.value as MapLayer); setWinningParty(""); }}><option value="turnout">Turnout</option><option value="winners">Winning party</option>{profiles.length > 0 && <option value="tribes">Electoral Tribes</option>}</select></label>
-          {layer === "winners" && <label className="field">Show winners<select value={winningParty} onChange={event => setWinningParty(event.target.value)}><option value="">All parties</option>{winnerOptions.map(party => <option key={party} value={party}>{party}</option>)}</select></label>}
-          <label className="contested-filter"><input type="checkbox" checked={sdpContestedOnly} onChange={event => setSdpContestedOnly(event.target.checked)} />SDP contested only</label>
-          <div className="switch" aria-label="Explorer view"><button className={view === "map" ? "active" : ""} aria-pressed={view === "map"} onClick={() => setView("map")}>Map</button><button className={view === "table" ? "active" : ""} aria-pressed={view === "table"} onClick={() => setView("table")}>Table</button></div>
+          {view !== "composition" && <label className="field">Map colour<select value={layer} onChange={event => { setLayer(event.target.value as MapLayer); setWinningParty(""); }}><option value="turnout">Turnout</option><option value="winners">Winning party</option>{profiles.length > 0 && <option value="tribes">Electoral Tribes</option>}</select></label>}
+          {view !== "composition" && layer === "winners" && <label className="field">Show winners<select value={winningParty} onChange={event => setWinningParty(event.target.value)}><option value="">All parties</option>{winnerOptions.map(party => <option key={party} value={party}>{party}</option>)}</select></label>}
+          {view !== "composition" && <label className="contested-filter"><input type="checkbox" checked={sdpContestedOnly} onChange={event => setSdpContestedOnly(event.target.checked)} />SDP contested only</label>}
+          <div className="switch" aria-label="Explorer view"><button className={view === "map" ? "active" : ""} aria-pressed={view === "map"} onClick={() => setView("map")}>Map</button><button className={view === "table" ? "active" : ""} aria-pressed={view === "table"} onClick={() => setView("table")}>Table</button><button className={view === "composition" ? "active" : ""} aria-pressed={view === "composition"} onClick={() => setView("composition")}>Composition</button></div>
         </div>
-        {error && <div className="notice error" role="alert">Unable to load results: {error}</div>}
+        {error && <div className="notice error" role="alert">Unable to load results: {error} <button className="link-button retry-link" onClick={() => window.location.reload()}>Reload and sign in</button></div>}
         {pulseError && <div className="notice error" role="alert">Ward Census and Tribes context is unavailable: {pulseError}</div>}
+        {insightError && <div className="notice error" role="alert">Composition and research views are unavailable: {insightError} <button className="link-button retry-link" onClick={() => window.location.reload()}>Reload and sign in</button></div>}
         {!data && !error && <p role="status">Loading {year === "latest" ? "latest" : year} results…</p>}
-        {data && geometry && (view === "map" ? <div className="work">
+        {view === "composition" ? (composition ? <CompositionView data={composition} year={year} /> : !insightError && <p role="status">Loading council composition…</p>) : data && geometry && (view === "map" ? <div className="work">
           <div className="map-pane"><div className="map-heading"><strong>{layer === "turnout" ? "Turnout by ward" : layer === "winners" ? "Elected party by ward" : "Dominant neighbourhood group"}</strong><span>2025 boundaries</span></div>
             <PulseMap wards={wards} geometry={geometry} data={data} profiles={profiles} layer={layer} winningParty={winningParty} sdpContestedOnly={sdpContestedOnly} selected={ward} onSelect={selectWard} />
             <div className="legend" aria-label="Map legend">{layer === "turnout" ? <><span>Lower turnout</span><span className="gradient" aria-hidden="true" /><span>Higher turnout</span><span>Grey: no result</span></> : layer === "winners" ? <>{winnerOptions.map(party => <span className="legend-item" key={party}><Swatch color={partyColor(party)} />{party}</span>)}<span className="legend-item"><span className="party-swatch mixed-swatch" />Split seats</span><span>Grey: no result</span></> : <>{profiles[0]?.tribes.map(tribe => <span className="legend-item" key={tribe.id}><Swatch color={tribeColors[tribe.id]} />{tribe.name}</span>)}</> }</div>
@@ -184,8 +194,12 @@ export default function Explorer() {
             {detailTab === "history" && (historyRows.length ? <ol className="history-list">{historyRows.map((item, index) => <li key={`${item.date}-${index}`}><strong>{dateText(item.date)}</strong><span>{item.event_kind === "by_election" ? "By-election" : "Council election"} · {item.status === "included" ? "Recorded" : item.status === "upcoming" ? "Announced, no result yet" : "Result source rejected"}</span>{item.winners?.length ? <small>Elected: {item.winners.map(winner => `${winner.candidate_name} (${winner.party_label})`).join("; ")}</small> : null}{item.reason && <small>{item.reason}</small>}{item.data_quality_note && <small>{item.data_quality_note}</small>}{item.source_url && <a href={item.source_url} target="_blank" rel="noreferrer">Source notice</a>}</li>)}</ol> : <p className="sub">{isDemo ? "No historical timeline in the fictional preview." : "Loading ward history…"}</p>)}
           </aside>
         </div> : <div className="table-wrap"><table className="results-table"><thead><tr><th>Ward</th><th>Poll date</th><th>Elected party</th><th>Seats</th><th>Turnout</th><th>2021 residents</th></tr></thead><tbody>{visibleWards.map(item => { const row = data.contests.find(contest => contest.ward_code === item.ward_code); const event = data.events.find(event => event.event_id === row?.event_id); const elected = winningParties(row, data); const context = profiles.find(profile => profile.ward_code === item.ward_code); return <tr key={item.ward_code}><td><button className="link-button" onClick={() => { selectWard(item.ward_code); setView("map"); setDetailTab("results"); }}>{item.ward_name}</button></td><td>{event ? dateText(event.election_date) : "No imported poll"}</td><td>{elected.map(party => <span className="winner-chip" key={party}><Swatch color={partyColor(party)} />{party}</span>)}</td><td>{row?.seats_available ?? "—"}</td><td>{pct(row?.turnout_rate)}</td><td>{context ? number.format(context.population) : "—"}</td></tr>; })}</tbody></table></div>)}
-        <div className="under"><span>{year === "latest" ? "Latest recorded" : year} · {data?.contests.length ?? 0} ward poll(s) in this view{winningParty && layer === "winners" ? ` · ${visibleWards.length} with ${winningParty} winning` : ""}{sdpContestedOnly ? ` · ${visibleWards.length} matching SDP contested filter` : ""}</span><button className="link-button" onClick={() => setPage("sources")}>Coverage & sources</button></div>
+        <div className="under"><span>{view === "composition" ? "Council-published, dated composition snapshots" : <>{year === "latest" ? "Latest recorded" : year} · {data?.contests.length ?? 0} ward poll(s) in this view{winningParty && layer === "winners" ? ` · ${visibleWards.length} with ${winningParty} winning` : ""}{sdpContestedOnly ? ` · ${visibleWards.length} matching SDP contested filter` : ""}</>}</span><button className="link-button" onClick={() => setPage("sources")}>Coverage & sources</button></div>
       </>}
+
+      {page === "sdpResults" && (sdpResults ? <SdpResultsPage data={sdpResults} onOpenWard={(row: SdpResult) => { setYear(String(row.year)); selectWard(row.ward_code); setView("map"); setDetailTab("results"); setPage("explorer"); }} /> : <div role="status">{isDemo ? "SDP results are unavailable in the fictional preview." : insightError ? `Unable to load SDP results: ${insightError}` : "Loading SDP results…"}</div>)}
+
+      {page === "tribesResearch" && (tribesResearch ? <TribesResearchPage research={tribesResearch} onExplore={() => { setLayer("tribes"); setView("map"); setPage("explorer"); }} /> : <div role="status">{isDemo ? "Electoral Tribes research is unavailable in the fictional preview." : insightError ? `Unable to load Electoral Tribes research: ${insightError}` : "Loading Electoral Tribes research…"}</div>)}
 
       {page === "forecast" && <><div className="eyebrow">Forecast / retrospective research</div><h1>Historical model tests</h1><p className="muted">Simple benchmarks tested against past elections. No future election forecast has been validated.</p><div className="card"><h2>Latest prior ward result</h2>{isDemo ? <p>The fictional preview has no model tests.</p> : forecastError ? <p role="alert">Unable to load historical tests: {forecastError}</p> : !backtest ? <p role="status">Loading historical tests…</p> : <><p>{backtest.evaluated_wards} single-seat ward polls tested.</p><div className="table-wrap"><table className="results-table"><thead><tr><th>Election</th><th>Wards</th><th>Average share error</th><th>Winner correct</th></tr></thead><tbody>{Object.entries(backtest.by_year).map(([testYear, result]) => <tr key={testYear}><td>{testYear}</td><td>{result.single_seat_wards}</td><td>{pct(result.models.last_ward.mean_total_variation)}</td><td>{pct(result.models.last_ward.winner_accuracy)}</td></tr>)}</tbody></table></div><p className="notice">{backtest.warning}</p><p className="footnote">{backtest.exclusions}</p></>}</div></>}
 

@@ -23,9 +23,9 @@ async function readJson<T>(file: string): Promise<T> {
   return JSON.parse(await readFile(file, "utf8")) as T;
 }
 
-export async function getPackage(kind: "manifest" | "wards" | "geo" | "year" | "forecast" | "pulse" | "history", year?: string) {
+export async function getPackage(kind: "manifest" | "wards" | "geo" | "year" | "forecast" | "pulse" | "history" | "composition" | "sdp-results" | "tribes-research", year?: string) {
   if (process.env.SWITCHBOARD_DEMO_MODE === "true") {
-    if (kind === "forecast") throw new PackageUnavailable("No Forecast research is available in the fictional preview.");
+    if (kind === "forecast" || kind === "composition" || kind === "sdp-results" || kind === "tribes-research") throw new PackageUnavailable("This resource is unavailable in the fictional preview.");
     return getDemoPackage(kind, year);
   }
   if (process.env.SWITCHBOARD_PACKAGE_STORE === "r2") {
@@ -39,6 +39,9 @@ export async function getPackage(kind: "manifest" | "wards" | "geo" | "year" | "
   if (kind === "forecast") return readJson(path.join(root, "forecast", "backtest-summary.json"));
   if (kind === "pulse") return readJson(path.join(root, "pulse", "ward-profiles.json"));
   if (kind === "history") return readJson(path.join(root, "pulse", "ward-history.json"));
+  if (kind === "composition") return readJson(path.join(root, "pulse", "composition.json"));
+  if (kind === "sdp-results") return readJson(path.join(root, "pulse", "sdp-results.json"));
+  if (kind === "tribes-research") return readJson(path.join(root, "pulse", "tribes-research.json"));
   if (year === "latest") return readJson(path.join(root, "pulse", "latest-results.json"));
   if (!year || !years.has(year)) throw new Error("Unsupported election year.");
   const prefix = path.join(root, "elections", year, "local-council");
