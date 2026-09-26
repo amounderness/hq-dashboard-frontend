@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1120" role="img" aria-labelledby="title description">
+  <title id="title">Switchboard second-round logo concepts</title>
+  <desc id="description">Five exploratory logo marks: a switch matrix for networks and systems, two redesigned mapping marks, and two redesigned election and data marks. The switchboard wordmark is continuous, graphite followed by deep petrol.</desc>
+  <rect width="1440" height="1120" fill="#F7F8F6"/>
+  <g font-family="Arial,Helvetica,sans-serif">
+    <text x="60" y="60" fill="#526078" font-size="17" font-weight="700" letter-spacing="2">SWITCHBOARD / LOGO EXPLORATION 02</text>
+    <text x="60" y="113" fill="#1E3038" font-size="41" font-weight="700" letter-spacing="-1.4">Networks · places · election evidence</text>
+    <text x="60" y="148" fill="#526078" font-size="19">One new systems direction and two redesigns each for mapping and elections.</text>
+    <text x="1008" y="114" font-size="49" font-weight="700" letter-spacing="-3"><tspan fill="#1E3038">switch</tspan><tspan fill="#1D6568">board</tspan></text>
+    <text x="1011" y="148" fill="#74818A" font-size="14" letter-spacing="1.3">ONE WORD · SUBTITLE OPEN</text>
+
+    <g id="switch-matrix">
+      <rect x="60" y="205" width="420" height="397" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="84" y="245" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.1">01 / NETWORKS &amp; SYSTEMS</text>
+      <rect x="184" y="269" width="172" height="172" rx="36" fill="#E8F2F0"/>
+      <g transform="translate(195 278)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 31h120M16 115h120" stroke="#1E3038" stroke-width="9"/>
+        <path d="M16 73h120M62 31v42M101 73v42" stroke="#1D6568" stroke-width="9"/>
+        <g fill="#FFFFFF" stroke="#1D6568" stroke-width="6"><circle cx="16" cy="31" r="8"/><circle cx="16" cy="73" r="8"/><circle cx="16" cy="115" r="8"/><circle cx="136" cy="31" r="8"/><circle cx="136" cy="73" r="8"/><circle cx="136" cy="115" r="8"/></g>
+      </g>
+      <text x="84" y="491" fill="#1E3038" font-size="25" font-weight="700">Switch matrix</text>
+      <text x="84" y="522" fill="#526078" font-size="16">Inputs deliberately route to outputs:</text>
+      <text x="84" y="546" fill="#526078" font-size="16">a system that connects evidence.</text>
+      <text x="84" y="578" fill="#1D6568" font-size="14" font-weight="700">TECHNICAL · MODULAR · NON-LITERAL</text>
+    </g>
+
+    <g id="boundary-focus">
+      <rect x="510" y="205" width="420" height="397" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="534" y="245" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.1">02A / MAPPING REDESIGN</text>
+      <rect x="634" y="269" width="172" height="172" rx="36" fill="#E8F2F0"/>
+      <g transform="translate(650 283)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 27 87 12l46 31-12 81-57 20-50-26z" stroke="#1E3038" stroke-width="8"/>
+        <path d="M17 70 53 63 87 12M14 118l31-30 9-25M53 63l37-9 31-22M45 88l26 25 50 11M90 54l17 32 14 38" stroke="#7CA5A2" stroke-width="5"/>
+        <path d="m53 63 37-9 17 32-36 27-26-25z" fill="#1D6568" stroke="#FFFFFF" stroke-width="5"/>
+      </g>
+      <text x="534" y="491" fill="#1E3038" font-size="25" font-weight="700">Boundary focus</text>
+      <text x="534" y="522" fill="#526078" font-size="16">One chosen ward is clear within its</text>
+      <text x="534" y="546" fill="#526078" font-size="16">neighbours, like the Explorer map.</text>
+      <text x="534" y="578" fill="#1D6568" font-size="14" font-weight="700">LOCAL · FOCUSED · EXPLORABLE</text>
+    </g>
+
+    <g id="marked-ledger">
+      <rect x="960" y="205" width="420" height="397" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="984" y="245" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.1">03A / ELECTIONS REDESIGN</text>
+      <rect x="1084" y="269" width="172" height="172" rx="36" fill="#E8F2F0"/>
+      <g transform="translate(1106 286)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="12" y="10" width="125" height="133" rx="11" fill="#FFFFFF" stroke="#1E3038" stroke-width="8"/>
+        <rect x="28" y="30" width="30" height="30" rx="4" stroke="#1D6568" stroke-width="6"/>
+        <path d="m34 45 8 8 20-25" stroke="#1D6568" stroke-width="7"/>
+        <path d="M75 40h42M29 83h87M29 105h61M29 127h75" stroke="#1D6568" stroke-width="8"/>
+      </g>
+      <text x="984" y="491" fill="#1E3038" font-size="25" font-weight="700">Marked ledger</text>
+      <text x="984" y="522" fill="#526078" font-size="16">A selected candidate and result lines:</text>
+      <text x="984" y="546" fill="#526078" font-size="16">the election becomes a usable record.</text>
+      <text x="984" y="578" fill="#1D6568" font-size="14" font-weight="700">ELECTORAL · EVIDENCE-LED · DIRECT</text>
+    </g>
+
+    <g id="design-tests">
+      <rect x="60" y="626" width="420" height="397" rx="18" fill="#1E3038"/>
+      <text x="84" y="668" fill="#A8CECB" font-size="15" font-weight="700" letter-spacing="1.1">HOW TO JUDGE THESE</text>
+      <text x="84" y="716" fill="#FFFFFF" font-size="27" font-weight="700">Choose the right idea,</text>
+      <text x="84" y="750" fill="#FFFFFF" font-size="27" font-weight="700">then simplify it.</text>
+      <text x="84" y="798" fill="#DDE8E8" font-size="17">1. Recognisable at favicon size?</text>
+      <text x="84" y="835" fill="#DDE8E8" font-size="17">2. Clear in one colour?</text>
+      <text x="84" y="872" fill="#DDE8E8" font-size="17">3. Useful beyond Leeds?</text>
+      <text x="84" y="909" fill="#DDE8E8" font-size="17">4. Still distinct beside the wordmark?</text>
+      <text x="84" y="984" fill="#A8CECB" font-size="15">No logo or subtitle has been selected.</text>
+    </g>
+
+    <g id="layered-boundaries">
+      <rect x="510" y="626" width="420" height="397" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="534" y="666" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.1">02B / MAPPING REDESIGN</text>
+      <rect x="634" y="690" width="172" height="172" rx="36" fill="#E8F2F0"/>
+      <g transform="translate(649 703)" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 14h86l31 39-10 74-66 20-43-31z" fill="#FFFFFF" stroke="#1E3038" stroke-width="8"/>
+        <path d="M63 14 55 68l-37 48M106 14 89 66l48-13M55 68l34-2 38 61M55 68l6 79" fill="none" stroke="#1E3038" stroke-width="6"/>
+        <path d="m55 68 34-2 38 61-66 20z" fill="#1D6568" stroke="#FFFFFF" stroke-width="5"/>
+      </g>
+      <text x="534" y="912" fill="#1E3038" font-size="25" font-weight="700">Layered boundaries</text>
+      <text x="534" y="943" fill="#526078" font-size="16">A quieter, outline-led regional tile</text>
+      <text x="534" y="967" fill="#526078" font-size="16">with one area brought forward.</text>
+      <text x="534" y="999" fill="#1D6568" font-size="14" font-weight="700">CARTOGRAPHIC · INSTITUTIONAL</text>
+    </g>
+
+    <g id="tally-to-chart">
+      <rect x="960" y="626" width="420" height="397" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+      <text x="984" y="666" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.1">03B / ELECTIONS REDESIGN</text>
+      <rect x="1084" y="690" width="172" height="172" rx="36" fill="#E8F2F0"/>
+      <g transform="translate(1098 710)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 30v64M39 30v64M56 30v64M73 30v64M17 91l60-64" stroke="#1E3038" stroke-width="8"/>
+        <path d="M94 128V81h13v47M116 128V52h13v76M138 128V67h13v61" fill="#1D6568" stroke="#1D6568" stroke-width="6"/>
+        <path d="M15 129h139" stroke="#1E3038" stroke-width="7"/>
+      </g>
+      <text x="984" y="912" fill="#1E3038" font-size="25" font-weight="700">Tally to chart</text>
+      <text x="984" y="943" fill="#526078" font-size="16">Counting marks become a chart:</text>
+      <text x="984" y="967" fill="#526078" font-size="16">elections translated into analysis.</text>
+      <text x="984" y="999" fill="#1D6568" font-size="14" font-weight="700">ELECTORAL · ABSTRACT · ANALYTICAL</text>
+    </g>
+
+    <rect x="60" y="1060" width="21" height="21" rx="4" fill="#1D6568"/>
+    <text x="90" y="1077" fill="#526078" font-size="15">Deep petrol #1D6568</text>
+    <rect x="325" y="1060" width="21" height="21" rx="4" fill="#1E3038"/>
+    <text x="355" y="1077" fill="#526078" font-size="15">Graphite #1E3038</text>
+    <rect x="575" y="1060" width="21" height="21" rx="4" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+    <text x="605" y="1077" fill="#526078" font-size="15">White #FFFFFF</text>
+    <text x="1380" y="1077" text-anchor="end" fill="#74818A" font-size="15">Explorations only · live site unchanged</text>
+  </g>
+</svg>

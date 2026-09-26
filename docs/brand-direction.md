@@ -10,14 +10,16 @@ Recorded 26 September 2026. This is a design note for discussion, not an instruc
 
 ## Still open
 
-- **Logo:** The first ballot-box-with-network-nodes sketch was only moderately appealing and is not selected. Compare the three new directions in [the concept sheet](brand-concepts.svg), then refine one at small sizes, in a single colour, and beside the wordmark.
+- **Logo:** The first ballot-box-with-network-nodes sketch was only moderately appealing and is not selected. The first set's Routed S has also been set aside. Compare the revised network/system, mapping and election directions in [the second concept sheet](brand-concepts-round2.svg), then refine a preferred mark at small sizes, in a single colour, and beside the wordmark. [The first sheet](brand-concepts.svg) remains as an earlier exploration.
 - **Subtitle:** “Results, context & planning” is closer than “Electoral information”, but is not the final wording. The live site currently uses it provisionally. Possible directions to discuss: “Election data for what comes next”; “The electoral picture, in one place”; “From results to readiness”. These are proposals, not approved copy.
 - **Application:** Do not replace the live colour scheme or icon until a direction is selected and checked for legibility, contrast and use on the website.
 
-## Three logo directions
+## Second-round logo exploration
 
-1. **Routed S:** One continuous signal path between terminals forms a subtle S. It refers to switches, connected information and a system that routes users from data to insight. It is the most distinctive product mark and least dependent on a literal election symbol.
-2. **Ward mosaic:** Irregular adjacent areas form a bounded map tile, with a focus point at their junction. It suggests the Explorer, local geography and the way many units of evidence form a larger picture. It is the most geographic option.
-3. **Ballot to bars:** A marked ballot sits above three result bars. It expresses the path from elections to recorded evidence, without reusing the previous ballot-box/network drawing. It is the most immediately electoral option.
+1. **Switch matrix — networks/systems:** Three input lines are deliberately routed to outputs through a compact matrix of terminals. This replaces the letter-shaped Routed S and makes the “switchboard” concept explicit without becoming a generic hub-and-spoke network diagram. The risk is excessive detail at favicon size; test a simplified six-terminal version before adoption.
+2. **Boundary focus — mapping A:** A highlighted ward is held within a restrained outline of adjacent areas. This is a redesign of the first colourful Ward mosaic, with one clear area of emphasis. It speaks directly to Explorer selection and local focus.
+3. **Layered boundaries — mapping B:** A quieter outline-only regional tile uses connected boundary segments, with one filled area. This explores a more institutional, cartographic feel. It should be checked for resemblance to a map icon rather than a real Leeds ward.
+4. **Marked ledger — elections A:** A single election record combines a marked selection and horizontal result bars. It replaces the earlier ballot-above-bars arrangement and aims to read as “recorded election evidence”, not a ballot box.
+5. **Tally to chart — elections B:** Tally strokes and chart columns share the same geometry. This is more abstract and less dependent on a paper-ballot metaphor, while still signalling counting and analysis.
 
-All three are exploratory vector drafts; none is a production logo. The preferred symbol should remain recognisable at 24–32 pixels and in monochrome, with no reliance on fine detail or colour alone.
+These are exploratory vector drafts, not production logos. The preferred symbol should be recognisable at 24–32 pixels and in monochrome, with no reliance on fine detail or colour alone. The tests to make next are a favicon, a header lockup, a dark-background inversion and a screen-reader-friendly text alternative.
