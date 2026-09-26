@@ -1,5 +1,7 @@
 # Leeds source-issue register · 26 September 2026
 
+**Historical v0.5.0 record.** The four vote-source decisions and the defined council-archive event reconciliation were closed in [the v0.6.0 source decision record](leeds-source-decisions-v0.6.0-2026-09-26.md). The blank Farnley council declaration and approximate Morley turnout remain labelled source limitations.
+
 This register records the source decision for staged `leeds-pulse-v0.5.0`. Secondary figures are included only with visible caveats. The original official files remain unchanged.
 
 | Issue | Current evidence and decision | Closure evidence needed |

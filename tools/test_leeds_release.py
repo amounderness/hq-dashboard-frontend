@@ -58,7 +58,7 @@ def main(release):
         assert len(latest["contests"]) == 33
         assert {row["ward_code"] for row in latest["contests"]} == wards
         farnley = next(row for row in history["E05012648"] if row["date"] == "2024-10-10")
-        if manifest["package_id"] == "leeds-pulse-v0.5.0":
+        if manifest["package_id"] == "leeds-pulse-v0.5.0" or manifest.get("history_source_decisions_resolved"):
             assert farnley["status"] == "included" and "secondary local report" in farnley["data_quality_note"]
         else:
             assert farnley["status"] == "source_rejected"

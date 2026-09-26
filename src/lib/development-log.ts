@@ -25,8 +25,8 @@ export const developmentLog = {
       title: "Close Leeds source gaps and clarify Forecast",
       period: "Pilot foundation",
       status: "Completed",
-      purpose: "Publish the Farnley & Wortley by-election with a secondary-source caveat, label approximate Morley South turnout, record the remaining historical vote differences and event-coverage limit, and explain Forecast's research status.",
-      doneWhen: "The pilot package passes validation; each source exception and remaining limitation is visible in results, exports and a dated audit.",
+      purpose: "Publish both recorded by-elections with source labels, close the four historical vote-source choices, reconcile events against the council's published archive, and explain Forecast's research status.",
+      doneWhen: "The pilot package passes validation; each chosen source, remaining caveat and event check is visible in results, exports and a dated audit.",
     },
     {
       id: "release-controls",
@@ -70,6 +70,13 @@ export const developmentLog = {
     },
   ] satisfies DevelopmentStage[],
   releases: [
+    {
+      date: "2026-09-26",
+      title: "Leeds Pulse v0.6.0 source decisions and seat context",
+      category: "Data release",
+      summary: "Closed four historical source-choice cases with cited council or Handbook figures, checked by-election coverage against the published council archive, and labelled seats filled per ward poll. Council composition now shows dated changes between saved snapshots, including vacancies and switches, without presenting them as election-only gains.",
+      recordUrl: "https://github.com/amounderness/hq-dashboard-frontend/blob/feature/switchboard-leeds-explorer/docs/leeds-source-decisions-v0.6.0-2026-09-26.md",
+    },
     {
       date: "2026-09-26",
       title: "Leeds Pulse v0.5.0 and pilot release rehearsal",

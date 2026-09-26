@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { SdpResult, SdpResultsData } from "@/lib/pulse-insight-types";
+import { seatsFilledLabel } from "@/lib/ward-seats";
 
 const number = new Intl.NumberFormat("en-GB");
 const pct = (value: number | null | undefined) => value == null ? "Unavailable" : `${(value * 100).toFixed(1)}%`;
@@ -43,9 +44,9 @@ export default function SdpResultsPage({ data, onOpenWard }: { data: SdpResultsD
       const average = item.rows.reduce((sum, row) => sum + row.sdp_share, 0) / item.rows.length;
       return <div className="year-bar" key={item.year}><span>{item.year}</span><div className="track"><div className="fill" style={{ width: `${Math.min(average * 200, 100)}%`, background: "#ad519b" }} /></div><strong>{pct(average)}</strong><small>{item.rows.length} ward polls</small></div>;
     }) : <p>No results match these filters.</p>}<p className="footnote">Bars use a 0–50% scale. Different wards and candidate slates are present each year, so the bars are descriptive, not like-for-like trend estimates.</p></div>
-    <div className="table-wrap"><table className="results-table"><thead><tr><th>Ward</th><th>Year</th><th>SDP candidates</th><th>SDP votes</th><th>Share</th><th>Turnout</th><th>Elected party</th></tr></thead><tbody>
-      {filtered.map(row => <tr key={row.contest_id}><td><button className="link-button" onClick={() => onOpenWard(row)}>{row.ward_name}</button></td><td>{row.year}</td><td>{row.sdp_candidates.map(item => item.name).join("; ")}{row.sdp_seats_won ? " · elected" : ""}</td><td>{number.format(row.sdp_votes)}</td><td>{pct(row.sdp_share)}</td><td>{pct(row.turnout_rate)}</td><td>{row.winning_parties.join(" and ")}</td></tr>)}
-      {!filtered.length && <tr><td colSpan={7}>No recorded SDP results match these filters.</td></tr>}
+    <div className="table-wrap"><table className="results-table"><thead><tr><th>Ward</th><th>Year</th><th>SDP candidates</th><th>SDP votes</th><th>Share</th><th>Turnout</th><th>Seats filled in poll</th><th>Elected party</th></tr></thead><tbody>
+      {filtered.map(row => <tr key={row.contest_id}><td><button className="link-button" onClick={() => onOpenWard(row)}>{row.ward_name}</button></td><td>{row.year}</td><td>{row.sdp_candidates.map(item => item.name).join("; ")}{row.sdp_seats_won ? " · elected" : ""}</td><td>{number.format(row.sdp_votes)}</td><td>{pct(row.sdp_share)}</td><td>{pct(row.turnout_rate)}</td><td>{seatsFilledLabel(row.seats_available)}</td><td>{row.winning_parties.join(" and ")}</td></tr>)}
+      {!filtered.length && <tr><td colSpan={8}>No recorded SDP results match these filters.</td></tr>}
     </tbody></table></div>
     <p className="footnote">{data.scope} {data.rows.some(row => row.date === "2024-10-10" && row.ward_code === "E05012648") ? "The October 2024 Farnley & Wortley row uses a labelled secondary local report because the council declaration is blank." : "The October 2024 Farnley & Wortley result is excluded because its council declaration is blank."} Missing sources are not treated as zero SDP votes. Ward Tribe profiles can be explored separately; association with party results has not been established as a voter-level relationship.</p>
   </>;
