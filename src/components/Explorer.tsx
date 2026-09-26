@@ -10,6 +10,7 @@ import DevelopmentPage from "./DevelopmentPage";
 import ForecastPage from "./ForecastPage";
 import ReportsPage from "./ReportsPage";
 import ReleaseAdminPage from "./ReleaseAdminPage";
+import OverviewPage from "./OverviewPage";
 import { seatsFilledLabel } from "@/lib/ward-seats";
 import SourceIssues from "./SourceIssues";
 import { partyColor, tribeColors, winningParties } from "@/lib/pulse-colors";
@@ -107,7 +108,6 @@ export default function Explorer() {
     if (data && winningParty && layer === "winners" && !winningParties(wardContest, data).includes(winningParty)) return false;
     return true;
   });
-  const upcoming = Object.entries(history).flatMap(([code, rows]) => rows.filter(row => row.status === "upcoming").map(row => ({ ward_code: code, ...row })));
 
   const selectWard = useCallback((code: string) => {
     setWard(code);
@@ -170,7 +170,7 @@ export default function Explorer() {
   }, [manifest]);
 
   return <>
-    <header className="top"><div><div className="brand">switch<em>board</em></div><div className="strap">Electoral information</div></div><div className="account">{isDemo ? "Owner preview · synthetic data" : "Leeds pilot · published results"}</div></header>
+    <header className="top"><div><div className="brand">switch<em>board</em></div><div className="strap">Results, context &amp; planning</div></div><div className="account">{isDemo ? "Owner preview · synthetic data" : "Leeds pilot · published results"}</div></header>
     {isDemo && <div className="notice" role="status"><strong>Fictional preview data.</strong> Every ward shape, result and turnout figure is invented for testing the website.</div>}
     {!isDemo && manifest && <div className="notice" role="status"><strong>Leeds Pulse pilot.</strong> Recorded results, dated council composition, 2021 Census and exploratory neighbourhood groups. Source gaps are flagged; the latest ward result is not a current-seat record or a future forecast.</div>}
     <div className="shell"><nav className="side" aria-label="Main navigation">
@@ -178,22 +178,10 @@ export default function Explorer() {
         <a key={id} href={`#${id}`} className={page === id ? "active" : ""} aria-current={page === id ? "page" : undefined} onClick={event => { event.preventDefault(); navigate(id); }}>{label}</a>)}
       <div className="side-note">{isDemo ? "SYNTHETIC PREVIEW" : "LEEDS PILOT"}<br />Viewer workspace<br /><br />Release actions require owner sign-in.</div>
     </nav><main className="content">
-      {page === "overview" && <>
-        <div className="eyebrow">{isDemo ? "Owner preview" : "Leeds Pulse pilot"}</div><h1>Your electoral workspace</h1>
-        <p className="muted">{isDemo ? "Explore the interface using invented records." : "Explore recorded Leeds elections alongside ward-level Census and neighbourhood context."}</p>
-        <div className="stats">
-          <div className="card stat">Wards<strong>{manifest?.wards ?? "—"}</strong><span className="muted">Leeds local council</span></div>
-          <div className="card stat">Imported contests<strong>{manifest?.contests ?? "—"}</strong><span className="muted">2021–2026 result package</span></div>
-          <div className="card stat">2021 Census residents<strong>{profiles.length ? number.format(profiles.reduce((total, item) => total + item.population, 0)) : "—"}</strong><span className="muted">Best-fit to 2025 wards</span></div>
-        </div>
-        <div className="stack"><div className="card"><h2>Explore the wards</h2><p>View turnout or winning parties on the map, compare candidate results, and inspect Census and Electoral Tribes context.</p><button className="button" onClick={() => navigate("explorer")}>Open Explorer</button></div>
-          {!isDemo && upcoming.map(item => <div className="card" key={`${item.ward_code}-${item.date}`}><h2>Announced by-election</h2><p>{wards.find(ward => ward.ward_code === item.ward_code)?.ward_name} · {dateText(item.date)}. No result has been imported.</p><button className="link-button" onClick={() => { selectWard(item.ward_code); setDetailTab("history"); navigate("explorer"); }}>See ward history</button></div>)}
-          <div className="card"><h2>Data status</h2><p>{isDemo ? "This workspace uses fictional records." : manifest?.history_source_decisions_resolved ? "Four historical result discrepancies now have documented publication choices. Farnley & Wortley 2024 uses a labelled secondary local report because the council declaration is blank; Morley South 2025 turnout is approximate." : farnleyImported ? "The Farnley & Wortley 2024 by-election uses a clearly labelled local report because the council declaration is blank. Four other scheduled ward results have documented source disagreements." : "The council-hosted Farnley & Wortley 2024 by-election declaration is blank; this package excludes that result. Four scheduled ward results have documented source disagreements."}</p><button className="link-button" onClick={() => navigate("sources")}>View sources and limits</button></div>
-          <div className="card"><h2>Development &amp; releases</h2><p>See the Leeds pilot plan, what is being checked next, and a dated history of published changes.</p><button className="link-button" onClick={() => navigate("development")}>View development plan</button></div></div>
-      </>}
+      {page === "overview" && <OverviewPage isDemo={isDemo} manifest={manifest} profiles={profiles} sdpResults={sdpResults} wards={wards} history={history} onNavigate={navigate} onOpenWardHistory={code => { selectWard(code); setDetailTab("history"); navigate("explorer"); }} />}
 
       {page === "explorer" && <>
-        <div className="heading"><div><div className="eyebrow">{isDemo ? "Synthetic sample" : "England / Leeds / Local council"}</div><h1>Explore Leeds</h1><p>Results, Census and neighbourhood context in one place.</p></div><span className="badge">Pulse · {isDemo ? "Fictional sample" : "Recorded information"}</span></div>
+        <div className="heading"><div><div className="eyebrow">{isDemo ? "Synthetic sample" : "England / Leeds City Council"}</div><h1>Explore Leeds</h1><p>Results, Census and neighbourhood context in one place.</p></div><span className="badge">Pulse · {isDemo ? "Fictional sample" : "Recorded information"}</span></div>
         <div className="toolbar">
           {view !== "composition" && <label className="field search">Find a ward<select value={ward} onChange={event => selectWard(event.target.value)}><option value="">Select a ward</option>{sortedWards.map(item => <option key={item.ward_code} value={item.ward_code}>{item.ward_name}</option>)}</select></label>}
           <label className="field">Election view<select value={year} onChange={event => { setError(null); setWinningParty(""); setSelectedPoll(""); setYear(event.target.value); }}><option value="latest">Latest recorded</option>{years.slice(1).map(value => <option key={value} value={value}>{value}</option>)}</select></label>
@@ -243,7 +231,7 @@ export default function Explorer() {
       {page === "reports" && <ReportsPage packageId={manifest?.package_id ?? "Unavailable"} sourceDecisionsResolved={!!manifest?.history_source_decisions_resolved} year={year} setYear={setYear} ward={ward} setWard={setWard} wards={wards} data={data} profiles={profiles} history={history} composition={composition} sdp={sdpResults} />}
       {page === "ownerReleases" && (isOwner ? <ReleaseAdminPage /> : <p className="notice">Owner access is required for release controls.</p>)}
 
-      {page === "sources" && <><div className="eyebrow">Publication details</div><h1>Data & sources</h1><p className="muted">Definitions, dates and gaps behind the Explorer.</p><div className="card"><h2>{isDemo ? "Synthetic owner preview" : "Leeds · local council"}</h2><p>{manifest ? `${number.format(manifest.candidate_records)} candidate records · ${manifest.contests} contests · ${manifest.wards} wards` : "Package unavailable"}</p><p>{isDemo ? "Every record and shape is invented." : "Election results are shown on 2025 ward boundaries. Census data are 2021 output-area aggregates assigned to those wards using the official best-fit lookup; they are not current population estimates. Electoral Tribes are an exploratory seven-group classification, not measured political support."}</p><h3>Coverage limits</h3><ul>{manifest?.release_limits.map((limit, index) => <li key={index}>{limit}</li>)}</ul>{!isDemo && manifest?.source_links && <><h3>Source documents</h3><ul>{manifest.source_links.map(source => <li key={`${source.label}-${source.url}`}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></>}{!isDemo && manifest?.attribution && <><h3>Attribution</h3><ul>{manifest.attribution.map(credit => <li key={credit}>{credit}</li>)}</ul></>}<p className="footnote">{isDemo ? "Fictional preview." : `Release: ${manifest?.package_id ?? "unavailable"}. No party-supplied data or individual voter records.`}</p></div>{!isDemo && <SourceIssues farnleyImported={farnleyImported} morleyApproxTurnout={morleyApproxTurnout} sourceDecisionsResolved={!!manifest?.history_source_decisions_resolved} />}</>}
+      {page === "sources" && <><div className="eyebrow">Publication details</div><h1>Data & sources</h1><p className="muted">Definitions, dates and gaps behind the Explorer.</p><div className="card"><h2>{isDemo ? "Synthetic owner preview" : "Leeds City Council"}</h2><p>{manifest ? `${number.format(manifest.candidate_records)} candidate records · ${manifest.contests} contests · ${manifest.wards} wards` : "Package unavailable"}</p><p>{isDemo ? "Every record and shape is invented." : "Election results are shown on 2025 ward boundaries. Census data are 2021 output-area aggregates assigned to those wards using the official best-fit lookup; they are not current population estimates. Electoral Tribes are an exploratory seven-group classification, not measured political support."}</p><h3>Coverage limits</h3><ul>{manifest?.release_limits.map((limit, index) => <li key={index}>{limit}</li>)}</ul>{!isDemo && manifest?.source_links && <><h3>Source documents</h3><ul>{manifest.source_links.map(source => <li key={`${source.label}-${source.url}`}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></>}{!isDemo && manifest?.attribution && <><h3>Attribution</h3><ul>{manifest.attribution.map(credit => <li key={credit}>{credit}</li>)}</ul></>}<p className="footnote">{isDemo ? "Fictional preview." : `Release: ${manifest?.package_id ?? "unavailable"}. No party-supplied data or individual voter records.`}</p></div>{!isDemo && <SourceIssues farnleyImported={farnleyImported} morleyApproxTurnout={morleyApproxTurnout} sourceDecisionsResolved={!!manifest?.history_source_decisions_resolved} />}</>}
       {page === "development" && <DevelopmentPage currentPackage={isDemo ? "Fictional preview" : manifest?.package_id} onExplore={() => navigate("explorer")} onSources={() => navigate("sources")} />}
     </main></div>
   </>;

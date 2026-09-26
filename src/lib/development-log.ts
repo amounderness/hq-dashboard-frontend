@@ -72,6 +72,12 @@ export const developmentLog = {
   releases: [
     {
       date: "2026-09-26",
+      title: "Leeds pilot Overview dashboard",
+      category: "Website",
+      summary: "Expanded the home page with a clear account of Pulse and Forecast, six dated Leeds and SDP indicators, links into the workspace, and an election timeline that distinguishes confirmed Leeds polling, broad national planning months and the latest possible general-election date. Standardised the Leeds City Council name and improved the header subtitle; the visual palette is unchanged.",
+    },
+    {
+      date: "2026-09-26",
       title: "Pilot landing page and party colours",
       category: "Website",
       summary: "The private site now opens on Overview when no page is specified. SDP uses its rose shade across maps and charts; Labour uses a deeper red so the two parties remain easier to distinguish.",
