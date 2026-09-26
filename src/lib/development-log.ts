@@ -72,6 +72,13 @@ export const developmentLog = {
   releases: [
     {
       date: "2026-09-26",
+      title: "Viewer pilot preparation and page alignment",
+      category: "Website",
+      summary: "Moved short-page content to the top of the workspace and prepared a simple pilot task and feedback form plus an exact-email viewer invitation and revocation guide. Viewer invitations and the pilot itself remain to be tested.",
+      recordUrl: "https://github.com/amounderness/hq-dashboard-frontend/blob/feature/switchboard-leeds-explorer/docs/pilot-viewer-access.md",
+    },
+    {
+      date: "2026-09-26",
       title: "Composition CSV numbers",
       category: "Website",
       summary: "Verified the downloaded latest-composition CSV against the approved 99-seat snapshot and changed the export so signed seat changes remain usable as numbers in spreadsheets.",
