@@ -6,6 +6,7 @@ import PulseMap from "./PulseMap";
 import CompositionView from "./CompositionView";
 import TribesResearchPage from "./TribesResearch";
 import SdpResultsPage from "./SdpResults";
+import DevelopmentPage from "./DevelopmentPage";
 import { partyColor, tribeColors, winningParties } from "@/lib/pulse-colors";
 import type { Candidate, MapLayer, Ward, WardHistory, WardProfile, YearData } from "@/lib/pulse-types";
 import type { CompositionData, SdpResult, SdpResultsData, TribeResearch } from "@/lib/pulse-insight-types";
@@ -18,7 +19,7 @@ type PackageManifest = {
   composition?: { file: string }; sdp_results?: { file: string }; tribes_research?: { file: string };
 };
 type Backtest = { status: string; model: string; exclusions: string; evaluated_wards: number; warning: string; by_year: Record<string, { single_seat_wards: number; mean_new_party_vote_share?: number; models: Record<string, { mean_total_variation: number; winner_accuracy: number }> }> };
-type Page = "overview" | "explorer" | "tribesResearch" | "sdpResults" | "forecast" | "sources";
+type Page = "overview" | "explorer" | "tribesResearch" | "sdpResults" | "forecast" | "sources" | "development";
 type View = "map" | "table" | "composition";
 type DetailTab = "results" | "census" | "tribes" | "history";
 
@@ -139,7 +140,7 @@ export default function Explorer() {
     {isDemo && <div className="notice" role="status"><strong>Fictional preview data.</strong> Every ward shape, result and turnout figure is invented for testing the website.</div>}
     {!isDemo && manifest && <div className="notice" role="status"><strong>Leeds Pulse pilot.</strong> Recorded results, dated council composition, 2021 Census and exploratory neighbourhood groups. Source gaps are flagged; the latest ward result is not a current-seat record or a future forecast.</div>}
     <div className="shell"><nav className="side" aria-label="Main navigation">
-      {([["overview", "Overview"], ["explorer", "Explorer"], ["sdpResults", "SDP Results"], ["tribesResearch", "Electoral Tribes"], ["forecast", "Forecast research"], ["sources", "Data & sources"]] as const).map(([id, label]) =>
+      {([["overview", "Overview"], ["explorer", "Explorer"], ["sdpResults", "SDP Results"], ["tribesResearch", "Electoral Tribes"], ["forecast", "Forecast research"], ["sources", "Data & sources"], ["development", "Development"]] as const).map(([id, label]) =>
         <a key={id} href={`#${id}`} className={page === id ? "active" : ""} aria-current={page === id ? "page" : undefined} onClick={event => { event.preventDefault(); setPage(id); }}>{label}</a>)}
       <div className="side-note">{isDemo ? "SYNTHETIC PREVIEW" : "LEEDS PILOT"}<br />Viewer workspace<br /><br />Reports and administration are still in development.</div>
     </nav><main className="content">
@@ -153,7 +154,8 @@ export default function Explorer() {
         </div>
         <div className="stack"><div className="card"><h2>Explore the wards</h2><p>View turnout or winning parties on the map, compare candidate results, and inspect Census and Electoral Tribes context.</p><button className="button" onClick={() => setPage("explorer")}>Open Explorer</button></div>
           {!isDemo && upcoming.map(item => <div className="card" key={`${item.ward_code}-${item.date}`}><h2>Announced by-election</h2><p>{wards.find(ward => ward.ward_code === item.ward_code)?.ward_name} · {dateText(item.date)}. No result has been imported.</p><button className="link-button" onClick={() => { selectWard(item.ward_code); setDetailTab("history"); setPage("explorer"); }}>See ward history</button></div>)}
-          <div className="card"><h2>Data status</h2><p>{isDemo ? "This workspace uses fictional records." : "The Farnley & Wortley 2024 by-election declaration is blank, and four scheduled ward results have documented source disagreements. These appear as explicit notes in the Explorer."}</p><button className="link-button" onClick={() => setPage("sources")}>View sources and limits</button></div></div>
+          <div className="card"><h2>Data status</h2><p>{isDemo ? "This workspace uses fictional records." : "The Farnley & Wortley 2024 by-election declaration is blank, and four scheduled ward results have documented source disagreements. These appear as explicit notes in the Explorer."}</p><button className="link-button" onClick={() => setPage("sources")}>View sources and limits</button></div>
+          <div className="card"><h2>Development &amp; releases</h2><p>See the Leeds pilot plan, what is being checked next, and a dated history of published changes.</p><button className="link-button" onClick={() => setPage("development")}>View development plan</button></div></div>
       </>}
 
       {page === "explorer" && <>
@@ -204,6 +206,7 @@ export default function Explorer() {
       {page === "forecast" && <><div className="eyebrow">Forecast / retrospective research</div><h1>Historical model tests</h1><p className="muted">Simple benchmarks tested against past elections. No future election forecast has been validated.</p><div className="card"><h2>Latest prior ward result</h2>{isDemo ? <p>The fictional preview has no model tests.</p> : forecastError ? <p role="alert">Unable to load historical tests: {forecastError}</p> : !backtest ? <p role="status">Loading historical tests…</p> : <><p>{backtest.evaluated_wards} single-seat ward polls tested.</p><div className="table-wrap"><table className="results-table"><thead><tr><th>Election</th><th>Wards</th><th>Average share error</th><th>Winner correct</th></tr></thead><tbody>{Object.entries(backtest.by_year).map(([testYear, result]) => <tr key={testYear}><td>{testYear}</td><td>{result.single_seat_wards}</td><td>{pct(result.models.last_ward.mean_total_variation)}</td><td>{pct(result.models.last_ward.winner_accuracy)}</td></tr>)}</tbody></table></div><p className="notice">{backtest.warning}</p><p className="footnote">{backtest.exclusions}</p></>}</div></>}
 
       {page === "sources" && <><div className="eyebrow">Publication details</div><h1>Data & sources</h1><p className="muted">Definitions, dates and gaps behind the Explorer.</p><div className="card"><h2>{isDemo ? "Synthetic owner preview" : "Leeds · local council"}</h2><p>{manifest ? `${number.format(manifest.candidate_records)} candidate records · ${manifest.contests} contests · ${manifest.wards} wards` : "Package unavailable"}</p><p>{isDemo ? "Every record and shape is invented." : "Election results are shown on 2025 ward boundaries. Census data are 2021 output-area aggregates assigned to those wards using the official best-fit lookup; they are not current population estimates. Electoral Tribes are an exploratory seven-group classification, not measured political support."}</p><h3>Coverage limits</h3><ul>{manifest?.release_limits.map((limit, index) => <li key={index}>{limit}</li>)}</ul>{!isDemo && manifest?.source_links && <><h3>Source documents</h3><ul>{manifest.source_links.map(source => <li key={`${source.label}-${source.url}`}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></>}{!isDemo && manifest?.attribution && <><h3>Attribution</h3><ul>{manifest.attribution.map(credit => <li key={credit}>{credit}</li>)}</ul></>}<p className="footnote">{isDemo ? "Fictional preview." : `Release: ${manifest?.package_id ?? "unavailable"}. No party-supplied data or individual voter records.`}</p></div></>}
+      {page === "development" && <DevelopmentPage currentPackage={isDemo ? "Fictional preview" : manifest?.package_id} onExplore={() => setPage("explorer")} onSources={() => setPage("sources")} />}
     </main></div>
   </>;
 }
