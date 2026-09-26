@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 760" role="img" aria-labelledby="title description">
+  <title id="title">Switchboard Ward Mosaic icon refinement</title>
+  <desc id="description">A single refined version of the original Ward Mosaic: four touching tiles with shared white borders forming a flat square, no central node, inside a pale turquoise rounded-square background. The icon is shown large, next to the one-word wordmark, and at 64, 32 and 24 pixels.</desc>
+  <defs>
+    <symbol id="ward-mosaic" viewBox="0 0 180 180">
+      <rect width="180" height="180" rx="29" fill="#E8F2F0"/>
+      <path d="M27 27H92L82 81 27 87Z" fill="#2D797A"/>
+      <path d="M92 27H153V70L119 89 82 81Z" fill="#7BB2AA"/>
+      <path d="M27 87 82 81 92 153H27Z" fill="#5B9D99"/>
+      <path d="M82 81 119 89 153 70V153H92Z" fill="#1D6568"/>
+      <path d="M92 27 82 81 27 87M82 81 119 89 153 70M82 81 92 153" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="butt" stroke-linejoin="round"/>
+      <rect x="27" y="27" width="126" height="126" fill="none" stroke="#FFFFFF" stroke-width="7"/>
+    </symbol>
+  </defs>
+
+  <rect width="1160" height="760" fill="#F7F8F6"/>
+  <g font-family="Arial,Helvetica,sans-serif">
+    <text x="55" y="55" fill="#526078" font-size="16" font-weight="700" letter-spacing="2">SWITCHBOARD / WARD MOSAIC REFINEMENT 05</text>
+    <text x="55" y="107" fill="#1E3038" font-size="42" font-weight="700" letter-spacing="-1.3">Back to the original map mark</text>
+    <text x="55" y="143" fill="#526078" font-size="19">One pale rounded background. One flat square of touching wards. No node.</text>
+
+    <rect x="55" y="183" width="400" height="502" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+    <text x="82" y="224" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.3">ICON BY ITSELF</text>
+    <use href="#ward-mosaic" x="118" y="266" width="274" height="274"/>
+    <text x="82" y="599" fill="#1E3038" font-size="23" font-weight="700">Four joined areas</text>
+    <text x="82" y="631" fill="#526078" font-size="16">White shared seams meet the white</text>
+    <text x="82" y="655" fill="#526078" font-size="16">outer edge without tile spacing.</text>
+
+    <rect x="482" y="183" width="623" height="180" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+    <text x="509" y="224" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.3">HEADER LOCKUP</text>
+    <use href="#ward-mosaic" x="509" y="246" width="86" height="86"/>
+    <text x="615" y="301" font-size="54" font-weight="700" letter-spacing="-3.2"><tspan fill="#1E3038">switch</tspan><tspan fill="#1D6568">board</tspan></text>
+    <text x="617" y="331" fill="#74818A" font-size="13" letter-spacing="1.2">SUBTITLE STILL TO BE DECIDED</text>
+
+    <rect x="482" y="383" width="623" height="302" rx="18" fill="#FFFFFF" stroke="#DCE3E2" stroke-width="2"/>
+    <text x="509" y="424" fill="#526078" font-size="15" font-weight="700" letter-spacing="1.3">SMALL-SIZE COMPARISON</text>
+    <text x="509" y="454" fill="#526078" font-size="16">The same vector mark at 64, 32 and 24 pixels.</text>
+    <use href="#ward-mosaic" x="557" y="493" width="64" height="64"/>
+    <use href="#ward-mosaic" x="730" y="509" width="32" height="32"/>
+    <use href="#ward-mosaic" x="879" y="513" width="24" height="24"/>
+    <text x="573" y="590" fill="#526078" font-size="14">64 px</text>
+    <text x="732" y="590" fill="#526078" font-size="14">32 px</text>
+    <text x="875" y="590" fill="#526078" font-size="14">24 px</text>
+    <text x="509" y="649" fill="#526078" font-size="15">At 24 px, the shared white seams are about 1 px wide.</text>
+
+    <text x="55" y="725" fill="#526078" font-size="15">Abstract ward shapes, not a real Leeds map. Party colours remain separate from the brand palette.</text>
+    <text x="1105" y="725" text-anchor="end" fill="#74818A" font-size="14">Draft · live site unchanged</text>
+  </g>
+</svg>

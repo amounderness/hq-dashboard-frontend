@@ -10,11 +10,18 @@ Recorded 26 September 2026. This is a design note for discussion, not an instruc
 
 ## Still open
 
-- **Logo:** The shortlist is now **Open Mosaic (01)** and **Selected Ward (03)** from [the third concept sheet](brand-map-icons-round3.svg). The [fourth concept sheet](brand-map-icons-round4.svg) redraws both without nodes, with flat square sides and a small corner radius like the Explorer window. No mark has been chosen for the live site. The first ballot/network sketch, Routed S, and the other [second-round directions](brand-concepts-round2.svg) remain earlier exploration.
+- **Logo:** The latest working direction returns to the **original Ward Mosaic (02)**. The [fifth refinement](brand-map-icon-round5.svg) keeps its pale turquoise rounded-square background and four tile colours. The central node is removed, and the touching tiles have one set of shared white borders forming a flat square like the Explorer window. A [standalone icon draft](brand-icon-ward-mosaic.svg) is available for closer inspection. No mark has been chosen for the live site. Earlier [third-round](brand-map-icons-round3.svg) and [fourth-round](brand-map-icons-round4.svg) variations remain as comparison history.
 - **Subtitle:** “Results, context & planning” is closer than “Electoral information”, but is not the final wording. The live site currently uses it provisionally. Possible directions to discuss: “Election data for what comes next”; “The electoral picture, in one place”; “From results to readiness”. These are proposals, not approved copy.
 - **Application:** Do not replace the live colour scheme or icon until a direction is selected and checked for legibility, contrast and use on the website.
 
-## Current map-icon shortlist
+## Current Ward Mosaic refinement
+
+- Background: the original very pale turquoise `#E8F2F0`, with a rounded-square outside edge.
+- Inside: four adjoining coloured ward shapes occupy a **flat-edged square**. Their coordinates share boundaries exactly, so the tiles touch; a single white boundary network and white square outline are drawn above them. This avoids doubled strokes and unintended gaps.
+- The central node and all other dots are removed. The four tile shades remain close to the original concept. They are brand marks, not election-result party colours or real Leeds wards.
+- The [fifth sheet](brand-map-icon-round5.svg) shows the icon by itself, beside the continuous one-word wordmark, and at 64, 32 and 24 pixels. At 24 pixels, the white seams scale to just under one pixel. Final visual approval at small size is still needed before making it the site icon.
+
+## Earlier map-icon shortlist
 
 - **01 / Balanced Mosaic:** Five adjoining areas, each large enough to read when the icon is reduced. It keeps the friendly multi-area feel of the first Ward Mosaic; the centre uses deep petrol, but no ward is explicitly selected.
 - **03 / Selected Ward:** Neighbouring areas use quieter shades; one central ward uses deep petrol with a single white outline. This is closest to the Explorer's selection behaviour. The earlier nodes and double outline have been removed.
