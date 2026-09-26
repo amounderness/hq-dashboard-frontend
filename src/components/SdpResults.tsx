@@ -47,6 +47,6 @@ export default function SdpResultsPage({ data, onOpenWard }: { data: SdpResultsD
       {filtered.map(row => <tr key={row.contest_id}><td><button className="link-button" onClick={() => onOpenWard(row)}>{row.ward_name}</button></td><td>{row.year}</td><td>{row.sdp_candidates.map(item => item.name).join("; ")}{row.sdp_seats_won ? " · elected" : ""}</td><td>{number.format(row.sdp_votes)}</td><td>{pct(row.sdp_share)}</td><td>{pct(row.turnout_rate)}</td><td>{row.winning_parties.join(" and ")}</td></tr>)}
       {!filtered.length && <tr><td colSpan={7}>No recorded SDP results match these filters.</td></tr>}
     </tbody></table></div>
-    <p className="footnote">{data.scope} A missing or rejected source, including the October 2024 Farnley &amp; Wortley declaration, is not treated as zero SDP votes. Ward Tribe profiles can be explored separately; association with party results has not been established as a voter-level relationship.</p>
+    <p className="footnote">{data.scope} {data.rows.some(row => row.date === "2024-10-10" && row.ward_code === "E05012648") ? "The October 2024 Farnley & Wortley row uses a labelled secondary local report because the council declaration is blank." : "The October 2024 Farnley & Wortley result is excluded because its council declaration is blank."} Missing sources are not treated as zero SDP votes. Ward Tribe profiles can be explored separately; association with party results has not been established as a voter-level relationship.</p>
   </>;
 }

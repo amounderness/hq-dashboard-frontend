@@ -2,7 +2,7 @@ export type DevelopmentStage = {
   id: string;
   title: string;
   period: string;
-  status: "In progress" | "Next" | "Planned" | "Later" | "Deferred";
+  status: "Completed" | "In progress" | "Next" | "Planned" | "Later" | "Deferred";
   purpose: string;
   doneWhen: string;
 };
@@ -23,32 +23,32 @@ export const developmentLog = {
     {
       id: "leeds-quality",
       title: "Close Leeds source gaps and clarify Forecast",
-      period: "Now",
-      status: "In progress",
-      purpose: "Resolve or explicitly document the rejected Farnley & Wortley 2024 by-election declaration, historical vote differences and by-election coverage. Explain what Forecast currently tests and what it does not yet predict.",
-      doneWhen: "Every Leeds exception has a traceable source decision; any corrected package passes validation and has a dated audit. Forecast accurately describes its research status.",
+      period: "Pilot foundation",
+      status: "Completed",
+      purpose: "Publish the Farnley & Wortley by-election with a secondary-source caveat, label approximate Morley South turnout, record the remaining historical vote differences and event-coverage limit, and explain Forecast's research status.",
+      doneWhen: "The pilot package passes validation; each source exception and remaining limitation is visible in results, exports and a dated audit.",
     },
     {
       id: "release-controls",
       title: "Build owner release controls",
-      period: "Next",
-      status: "In progress",
-      purpose: "Add owner-only import staging, validation differences, approval, activation, rollback and a durable audit trail. Test backup restore and role boundaries.",
-      doneWhen: "An owner can review and reverse a test release through the interface, with the original sources and decisions traceable.",
+      period: "Pilot foundation",
+      status: "Completed",
+      purpose: "Give the owner immutable package staging, hash and election validation, reviewable differences, approval, activation, rollback and an audit trail.",
+      doneWhen: "A live checked release can be activated, rolled back and restored through the owner screen; unsigned requests remain behind Access.",
     },
     {
       id: "reports",
       title: "Add reports and exports",
-      period: "Before the viewer pilot",
-      status: "In progress",
+      period: "Pilot foundation",
+      status: "Completed",
       purpose: "Create useful ward and council summaries from the approved package, with clear source dates, definitions and release version on every export.",
-      doneWhen: "Pilot users can export the agreed summaries, and permissions and figures are checked against the on-screen view.",
+      doneWhen: "Ward, composition and SDP summaries can be printed or exported as CSV with package, source and quality context; figures match the published views.",
     },
     {
       id: "viewer-pilot",
       title: "Run a small viewer pilot",
-      period: "After release and report checks",
-      status: "Planned",
+      period: "Next",
+      status: "Next",
       purpose: "Invite a small group of named viewers to try the Explorer, SDP Results, Electoral Tribes, reports and exports. Gather feedback on clarity, missing information and usability.",
       doneWhen: "Invited viewers complete agreed tasks, access and revocation are tested, and feedback is logged and prioritised.",
     },
@@ -70,6 +70,13 @@ export const developmentLog = {
     },
   ] satisfies DevelopmentStage[],
   releases: [
+    {
+      date: "2026-09-26",
+      title: "Leeds Pulse v0.5.0 and pilot release rehearsal",
+      category: "Data release",
+      summary: "Published the Farnley & Wortley 2024 by-election from a clearly labelled local secondary report and approximate Morley South 2025 turnout. Added both 2024 Farnley polls to the Explorer and reports. Validated 35 data objects, exercised owner approval, activation and rollback, and restored v0.5.0 as the live package.",
+      recordUrl: "https://github.com/amounderness/hq-dashboard-frontend/blob/feature/switchboard-leeds-explorer/docs/leeds-pulse-v0.5.0-audit-2026-09-26.md",
+    },
     {
       date: "2026-09-26",
       title: "Forecast clarity, owner releases and reports",

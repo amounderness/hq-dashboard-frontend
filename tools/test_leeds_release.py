@@ -57,7 +57,11 @@ def main(release):
             assert all(m["count"] <= m["denominator"] and m["denominator"] > 0 for m in row["metrics"])
         assert len(latest["contests"]) == 33
         assert {row["ward_code"] for row in latest["contests"]} == wards
-        assert any(row["status"] == "source_rejected" for row in history["E05012648"])
+        farnley = next(row for row in history["E05012648"] if row["date"] == "2024-10-10")
+        if manifest["package_id"] == "leeds-pulse-v0.5.0":
+            assert farnley["status"] == "included" and "secondary local report" in farnley["data_quality_note"]
+        else:
+            assert farnley["status"] == "source_rejected"
         assert any(row["status"] == "upcoming" and row["date"] == "2026-10-22" for row in history["E05011389"])
         assert all(not row["contest_id"].startswith("leeds-local-2026-10-22") for row in latest["contests"])
     print(f"Validated {manifest['package_id']}: {len(manifest['object_sha256']) + 1} objects, "

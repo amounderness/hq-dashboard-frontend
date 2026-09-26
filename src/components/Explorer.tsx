@@ -64,6 +64,7 @@ export default function Explorer() {
   const [view, setView] = useState<View>("map");
   const [year, setYear] = useState("latest");
   const [ward, setWard] = useState("");
+  const [selectedPoll, setSelectedPoll] = useState("");
   const [layer, setLayer] = useState<MapLayer>("turnout");
   const [winningParty, setWinningParty] = useState("");
   const [sdpContestedOnly, setSdpContestedOnly] = useState(false);
@@ -87,9 +88,12 @@ export default function Explorer() {
   const isDemo = manifest?.demo === true;
   const profile = profiles.find(item => item.ward_code === ward);
   const historyRows = history[ward] ?? [];
+  const farnleyImported = history["E05012648"]?.some(item => item.date === "2024-10-10" && item.status === "included") ?? false;
+  const morleyApproxTurnout = history["E05011407"]?.some(item => item.date === "2025-06-12" && item.data_quality_note?.includes("31.7%")) ?? false;
   const selectedName = wards.find(item => item.ward_code === ward)?.ward_name ?? "Select a ward";
   const sortedWards = useMemo(() => [...wards].sort((a, b) => a.ward_name.localeCompare(b.ward_name, "en-GB")), [wards]);
-  const contest = data?.contests.find(item => item.ward_code === ward);
+  const wardContests = data?.contests.filter(item => item.ward_code === ward) ?? [];
+  const contest = wardContests.find(item => item.contest_id === selectedPoll) ?? wardContests[0];
   const election = data?.events.find(item => item.event_id === contest?.event_id);
   const parties = (data?.parties.filter(item => item.contest_id === contest?.contest_id) ?? []).sort((a, b) => b.share_of_candidate_votes - a.share_of_candidate_votes);
   const candidates = (data?.candidates.filter(item => item.contest_id === contest?.contest_id) ?? []).sort((a, b) => b.votes - a.votes);
@@ -105,6 +109,7 @@ export default function Explorer() {
 
   const selectWard = useCallback((code: string) => {
     setWard(code);
+    setSelectedPoll("");
   }, []);
 
   const navigate = useCallback((next: Page) => {
@@ -181,7 +186,7 @@ export default function Explorer() {
         </div>
         <div className="stack"><div className="card"><h2>Explore the wards</h2><p>View turnout or winning parties on the map, compare candidate results, and inspect Census and Electoral Tribes context.</p><button className="button" onClick={() => navigate("explorer")}>Open Explorer</button></div>
           {!isDemo && upcoming.map(item => <div className="card" key={`${item.ward_code}-${item.date}`}><h2>Announced by-election</h2><p>{wards.find(ward => ward.ward_code === item.ward_code)?.ward_name} · {dateText(item.date)}. No result has been imported.</p><button className="link-button" onClick={() => { selectWard(item.ward_code); setDetailTab("history"); navigate("explorer"); }}>See ward history</button></div>)}
-          <div className="card"><h2>Data status</h2><p>{isDemo ? "This workspace uses fictional records." : "The Farnley & Wortley 2024 by-election declaration is blank, and four scheduled ward results have documented source disagreements. These appear as explicit notes in the Explorer."}</p><button className="link-button" onClick={() => navigate("sources")}>View sources and limits</button></div>
+          <div className="card"><h2>Data status</h2><p>{isDemo ? "This workspace uses fictional records." : farnleyImported ? "The Farnley & Wortley 2024 by-election uses a clearly labelled local report because the council declaration is blank. Four other scheduled ward results have documented source disagreements." : "The council-hosted Farnley & Wortley 2024 by-election declaration is blank; this package excludes that result. Four scheduled ward results have documented source disagreements."}</p><button className="link-button" onClick={() => navigate("sources")}>View sources and limits</button></div>
           <div className="card"><h2>Development &amp; releases</h2><p>See the Leeds pilot plan, what is being checked next, and a dated history of published changes.</p><button className="link-button" onClick={() => navigate("development")}>View development plan</button></div></div>
       </>}
 
@@ -189,7 +194,7 @@ export default function Explorer() {
         <div className="heading"><div><div className="eyebrow">{isDemo ? "Synthetic sample" : "England / Leeds / Local council"}</div><h1>Explore Leeds</h1><p>Results, Census and neighbourhood context in one place.</p></div><span className="badge">Pulse · {isDemo ? "Fictional sample" : "Recorded information"}</span></div>
         <div className="toolbar">
           {view !== "composition" && <label className="field search">Find a ward<select value={ward} onChange={event => selectWard(event.target.value)}><option value="">Select a ward</option>{sortedWards.map(item => <option key={item.ward_code} value={item.ward_code}>{item.ward_name}</option>)}</select></label>}
-          <label className="field">Election view<select value={year} onChange={event => { setError(null); setWinningParty(""); setYear(event.target.value); }}><option value="latest">Latest recorded</option>{years.slice(1).map(value => <option key={value} value={value}>{value}</option>)}</select></label>
+          <label className="field">Election view<select value={year} onChange={event => { setError(null); setWinningParty(""); setSelectedPoll(""); setYear(event.target.value); }}><option value="latest">Latest recorded</option>{years.slice(1).map(value => <option key={value} value={value}>{value}</option>)}</select></label>
           {view !== "composition" && <label className="field">Map colour<select value={layer} onChange={event => { setLayer(event.target.value as MapLayer); setWinningParty(""); }}><option value="turnout">Turnout</option><option value="winners">Winning party</option>{profiles.length > 0 && <option value="tribes">Electoral Tribes</option>}</select></label>}
           {view !== "composition" && layer === "winners" && <label className="field">Show winners<select value={winningParty} onChange={event => setWinningParty(event.target.value)}><option value="">All parties</option>{winnerOptions.map(party => <option key={party} value={party}>{party}</option>)}</select></label>}
           {view !== "composition" && <label className="contested-filter"><input type="checkbox" checked={sdpContestedOnly} onChange={event => setSdpContestedOnly(event.target.checked)} />SDP contested only</label>}
@@ -208,6 +213,7 @@ export default function Explorer() {
           <aside className="detail" aria-live="polite"><div className="kicker">Ward / {isDemo ? "fictional sample" : "Leeds"}</div><h2>{selectedName}</h2>
             <div className="detail-tabs" role="group" aria-label="Ward information">{([["results", "Results"], ["census", "Census"], ["tribes", "Tribes"], ["history", "History"]] as const).map(([id, label]) => <button key={id} className={detailTab === id ? "active" : ""} aria-pressed={detailTab === id} onClick={() => setDetailTab(id)}>{label}</button>)}</div>
             {detailTab === "results" && <><p className="sub">{contest && election ? `${dateText(election.election_date)} · ${election.event_kind === "by_election" ? "By-election" : "Council election"}` : "No imported result in this view"}</p>
+              {wardContests.length > 1 && <label className="field">Poll in this year<select value={contest?.contest_id ?? ""} onChange={event => setSelectedPoll(event.target.value)}>{wardContests.map(item => { const poll = data?.events.find(event => event.event_id === item.event_id); return <option key={item.contest_id} value={item.contest_id}>{poll ? `${dateText(poll.election_date)} · ${poll.event_kind === "by_election" ? "By-election" : "Council election"}` : item.contest_id}</option>; })}</select></label>}
               {contest ? <><div className="meta"><div><span>Turnout</span><strong>{pct(contest.turnout_rate)}</strong></div><div><span>Seats elected</span><strong>{contest.seats_available}</strong></div></div>
                 <p className="winner-line"><strong>Elected:</strong> {winners.length ? winners.join(" and ") : "Unavailable"}</p>
                 <h3>Party vote shares</h3>{parties.map(party => <div className="result" key={party.party_label}><div className="result-label"><span><Swatch color={partyColor(party.party_label)} />{party.party_label}{party.seats_won > 0 ? " ✓" : ""}</span><span>{pct(party.share_of_candidate_votes)}</span></div><div className="track"><div className="fill" style={{ width: `${party.share_of_candidate_votes * 100}%`, background: partyColor(party.party_label) }} /></div></div>)}
@@ -235,7 +241,7 @@ export default function Explorer() {
       {page === "reports" && <ReportsPage packageId={manifest?.package_id ?? "Unavailable"} year={year} setYear={setYear} ward={ward} setWard={setWard} wards={wards} data={data} profiles={profiles} history={history} composition={composition} sdp={sdpResults} />}
       {page === "ownerReleases" && (isOwner ? <ReleaseAdminPage /> : <p className="notice">Owner access is required for release controls.</p>)}
 
-      {page === "sources" && <><div className="eyebrow">Publication details</div><h1>Data & sources</h1><p className="muted">Definitions, dates and gaps behind the Explorer.</p><div className="card"><h2>{isDemo ? "Synthetic owner preview" : "Leeds · local council"}</h2><p>{manifest ? `${number.format(manifest.candidate_records)} candidate records · ${manifest.contests} contests · ${manifest.wards} wards` : "Package unavailable"}</p><p>{isDemo ? "Every record and shape is invented." : "Election results are shown on 2025 ward boundaries. Census data are 2021 output-area aggregates assigned to those wards using the official best-fit lookup; they are not current population estimates. Electoral Tribes are an exploratory seven-group classification, not measured political support."}</p><h3>Coverage limits</h3><ul>{manifest?.release_limits.map((limit, index) => <li key={index}>{limit}</li>)}</ul>{!isDemo && manifest?.source_links && <><h3>Source documents</h3><ul>{manifest.source_links.map(source => <li key={`${source.label}-${source.url}`}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></>}{!isDemo && manifest?.attribution && <><h3>Attribution</h3><ul>{manifest.attribution.map(credit => <li key={credit}>{credit}</li>)}</ul></>}<p className="footnote">{isDemo ? "Fictional preview." : `Release: ${manifest?.package_id ?? "unavailable"}. No party-supplied data or individual voter records.`}</p></div>{!isDemo && <SourceIssues />}</>}
+      {page === "sources" && <><div className="eyebrow">Publication details</div><h1>Data & sources</h1><p className="muted">Definitions, dates and gaps behind the Explorer.</p><div className="card"><h2>{isDemo ? "Synthetic owner preview" : "Leeds · local council"}</h2><p>{manifest ? `${number.format(manifest.candidate_records)} candidate records · ${manifest.contests} contests · ${manifest.wards} wards` : "Package unavailable"}</p><p>{isDemo ? "Every record and shape is invented." : "Election results are shown on 2025 ward boundaries. Census data are 2021 output-area aggregates assigned to those wards using the official best-fit lookup; they are not current population estimates. Electoral Tribes are an exploratory seven-group classification, not measured political support."}</p><h3>Coverage limits</h3><ul>{manifest?.release_limits.map((limit, index) => <li key={index}>{limit}</li>)}</ul>{!isDemo && manifest?.source_links && <><h3>Source documents</h3><ul>{manifest.source_links.map(source => <li key={`${source.label}-${source.url}`}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></>}{!isDemo && manifest?.attribution && <><h3>Attribution</h3><ul>{manifest.attribution.map(credit => <li key={credit}>{credit}</li>)}</ul></>}<p className="footnote">{isDemo ? "Fictional preview." : `Release: ${manifest?.package_id ?? "unavailable"}. No party-supplied data or individual voter records.`}</p></div>{!isDemo && <SourceIssues farnleyImported={farnleyImported} morleyApproxTurnout={morleyApproxTurnout} />}</>}
       {page === "development" && <DevelopmentPage currentPackage={isDemo ? "Fictional preview" : manifest?.package_id} onExplore={() => navigate("explorer")} onSources={() => navigate("sources")} />}
     </main></div>
   </>;

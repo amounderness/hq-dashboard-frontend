@@ -23,6 +23,9 @@ export default function ReleaseAdminPage() {
   const [reason, setReason] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const picker = useRef<HTMLInputElement>(null);
+  const canRollback = state?.audit.some(item => item.action === "activated" &&
+    item.to?.package_id === state.active.package_id &&
+    item.to?.manifest_sha256 === state.active.manifest_sha256) ?? false;
   useEffect(() => { picker.current?.setAttribute("webkitdirectory", ""); }, []);
   async function refresh() {
     try { setState(await request() as State); setError(""); }
@@ -39,6 +42,7 @@ export default function ReleaseAdminPage() {
       const checked = result as { package_id?: string; objects_checked?: number; contests?: number; candidates?: number };
       setMessage(name === "validate" ? `Validation passed for ${checked.package_id}: ${checked.objects_checked} checked files, ${checked.contests} contests and ${checked.candidates} candidate records.` : `${name.replace("-", " ")} completed.`);
       await refresh();
+      if (name === "activate" || name === "rollback") window.location.reload();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Release action failed."); }
     finally { setBusy(false); }
   }
@@ -79,7 +83,7 @@ export default function ReleaseAdminPage() {
       <section className="card release-stage"><h2>2 · Review and approve</h2><label className="field">Decision reason<textarea value={reason} onChange={event => setReason(event.target.value)} placeholder="Describe the source review and why this release is ready…" rows={3} /></label><p className="footnote">Approval records the exact manifest hash and owner identity. Activation repeats all checks and requires this approval.</p>
         <div className="table-wrap"><table className="results-table"><thead><tr><th>Package and differences from live</th><th>Assembled</th><th>Records</th><th>Status</th><th>Actions</th></tr></thead><tbody>{state.releases.map(item => <tr key={item.package_id}><td><strong>{item.package_id}</strong><details><summary>{item.changed_paths.length} changed · {item.added_paths.length} added · {item.removed_paths.length} removed objects</summary><p className="footnote">Changed: {item.changed_paths.join(", ") || "none"}</p><p className="footnote">Added: {item.added_paths.join(", ") || "none"}</p><p className="footnote">Removed: {item.removed_paths.join(", ") || "none"}</p><strong>Release limits</strong><ul>{item.release_limits.map(limit => <li key={limit}>{limit}</li>)}</ul></details></td><td>{item.assembled_on ?? "—"}</td><td>{item.wards} wards · {item.contests} contests · {item.candidate_records} candidates</td><td>{item.active ? "Live" : item.approved ? "Approved here" : "Not approved here"}</td><td><div className="release-actions"><button className="link-button" disabled={busy} onClick={() => void action("validate", item.package_id)}>Validate</button>{!item.approved && !item.active && <button className="link-button" disabled={busy || reason.trim().length < 12} onClick={() => void action("approve", item.package_id)}>Approve</button>}{item.approved && !item.active && <button className="link-button" disabled={busy || reason.trim().length < 12} onClick={() => void action("activate", item.package_id)}>Activate</button>}</div></td></tr>)}</tbody></table></div>
       </section>
-      <section className="card release-stage"><h2>3 · Recover and audit</h2><p>Rollback restores the previous package recorded by these controls, after checking its objects again. The pre-existing manual recovery route remains documented for releases activated before this screen existed.</p><button className="button" disabled={busy || reason.trim().length < 12} onClick={() => void action("rollback")}>Rollback last activation</button><h3>Recent owner actions</h3><div className="table-wrap"><table className="results-table"><thead><tr><th>When</th><th>Action</th><th>From → to</th><th>Reason</th></tr></thead><tbody>{state.audit.map(item => <tr key={item.id}><td>{new Date(item.at).toLocaleString("en-GB")}</td><td>{item.action}</td><td>{item.from?.package_id ?? "—"} → {item.to?.package_id ?? "—"}</td><td>{item.reason}</td></tr>)}</tbody></table></div></section>
+      <section className="card release-stage"><h2>3 · Recover and audit</h2><p>Rollback restores the previous package recorded by these controls, after checking its objects again. The pre-existing manual recovery route remains documented for releases activated before this screen existed.</p><button className="button" disabled={busy || reason.trim().length < 12 || !canRollback} onClick={() => void action("rollback")}>Rollback last activation</button><h3>Recent owner actions</h3><div className="table-wrap"><table className="results-table"><thead><tr><th>When</th><th>Action</th><th>From → to</th><th>Reason</th></tr></thead><tbody>{state.audit.map(item => <tr key={item.id}><td>{new Date(item.at).toLocaleString("en-GB")}</td><td>{item.action}</td><td>{item.from?.package_id ?? "—"} → {item.to?.package_id ?? "—"}</td><td>{item.reason}</td></tr>)}</tbody></table></div></section>
     </>}
   </>;
 }
