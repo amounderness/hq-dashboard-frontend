@@ -16,6 +16,18 @@ YORKSHIRE = "E12000003"
 YEARS = list(range(2021, 2027))
 
 
+def party_name(label: str) -> str:
+    return {
+        "Social Democratic Party": "SDP",
+        "Labour Party": "Labour",
+        "Conservative Party": "Conservative",
+        "Liberal Democrats": "Liberal Democrat",
+        "Green Party": "Green",
+        "Trade Unionist and Socialist Coalition": "TUSC",
+        "UK Independence Party (UKIP)": "UKIP",
+    }.get(label, label)
+
+
 def compact(value):
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
@@ -59,21 +71,7 @@ def main(root: Path):
             "SELECT type_id,label,elected_area_type,notes FROM election_type ORDER BY type_id")]
         object_hashes = {key: value for key, value in manifest["object_sha256"].items()
                          if not key.startswith("results/")}
-        object_hashes["catalog.json"] = write(pilot / "catalog.json", {
-            "schema_version": 1, "country": "England", "pilot_region": YORKSHIRE,
-            "election_types": election_types, "years": YEARS,
-            "geography_summary": geography_summary,
-            "regions": regions, "authorities": authorities, "pilot_wards": wards,
-            "sources": sources,
-            "coverage_definition": {
-                "not_audited": "No election result source has been audited for this authority and year; this is not evidence of no election.",
-                "checked_published": "The audited Leeds release contains results for this year.",
-                "partial_by_election_only": "Only an audited by-election appears for this year.",
-                "secondary_source_staged": "Ordinary election records from a secondary compilation; council checks and by-election coverage remain open.",
-                "no_record_in_annual_source": "No ordinary poll record was found in the pinned annual compilation; by-elections and scheduling still need verification.",
-                "not_released": "The council is indexed nationally but its results are outside this pilot release.",
-            },
-        })
+        activity = {}
         result_council_years = 0
         pilot_contests = 0
         for authority in [a for a in authorities if a["region_code"] == YORKSHIRE]:
@@ -102,6 +100,27 @@ def main(root: Path):
                 "LEFT JOIN source_record s ON s.source_id=cr.source_id "
                 "WHERE e.authority_id=? AND substr(e.election_date,1,4)=?",
                 (code, str(year)))]
+            contest_codes = {contest["contest_id"]: contest["ward_code"] for contest in contests}
+            sdp_wards = sorted({contest_codes[candidate["contest_id"]] for candidate in candidates
+                                if party_name(candidate["party_label"]) == "SDP"})
+            winner_counts = {}
+            party_candidate_votes = {}
+            for candidate in candidates:
+                party = party_name(candidate["party_label"])
+                if candidate["votes"] is not None:
+                    party_candidate_votes[party] = party_candidate_votes.get(party, 0) + candidate["votes"]
+                if candidate["elected"]:
+                    winner_counts[party] = winner_counts.get(party, 0) + 1
+            known_turnout = [contest["turnout_rate"] for contest in contests if contest["turnout_rate"] is not None]
+            activity.setdefault(code, {})[str(year)] = {
+                "contest_count": len(contests),
+                "sdp_contested_wards": sdp_wards,
+                "winner_counts": winner_counts,
+                "party_candidate_votes": party_candidate_votes,
+                "candidate_votes": sum(party_candidate_votes.values()),
+                "mean_recorded_turnout": sum(known_turnout) / len(known_turnout) if known_turnout else None,
+                "turnout_contests": len(known_turnout),
+            }
             object_hashes[f"results/{code}/{year}.json"] = write(
                 pilot / "results" / code / f"{year}.json", {
                     "authority_code": code, "year": year, "election_type": "local_council",
@@ -111,6 +130,21 @@ def main(root: Path):
                 })
             result_council_years += 1
             pilot_contests += len(contests)
+        object_hashes["catalog.json"] = write(pilot / "catalog.json", {
+            "schema_version": 1, "country": "England", "pilot_region": YORKSHIRE,
+            "election_types": election_types, "years": YEARS,
+            "geography_summary": geography_summary,
+            "regions": regions, "authorities": authorities, "pilot_wards": wards,
+            "activity": activity, "sources": sources,
+            "coverage_definition": {
+                "not_audited": "No election result source has been audited for this authority and year; this is not evidence of no election.",
+                "checked_published": "The audited Leeds release contains results for this year.",
+                "partial_by_election_only": "Only an audited by-election appears for this year.",
+                "secondary_source_staged": "Ordinary election records from a secondary compilation; council checks and by-election coverage remain open.",
+                "no_record_in_annual_source": "No ordinary poll record was found in the pinned annual compilation; by-elections and scheduling still need verification.",
+                "not_released": "The council is indexed nationally but its results are outside this pilot release.",
+            },
+        })
         manifest["object_sha256"] = object_hashes
         manifest["release_status"] = "staged_not_published"
         manifest["limits"] = [

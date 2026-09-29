@@ -4,7 +4,7 @@
 
 **Gate 2 window:** 16 October–13 November 2026
 
-**Status:** Local staging candidate. The live Leeds pilot is unchanged. This document does not approve publication of the regional results.
+**Status:** Local staging candidate `explorer-v2-yh-2026-09-29-rc3`. The live Leeds pilot is unchanged. This document does not approve publication of the regional results.
 
 ## What now works
 
@@ -13,8 +13,9 @@
 - Seven election categories are defined: council, parish, local-authority mayor, combined-authority mayor, London mayor, London Assembly constituency, and London Assembly list. Round and ballot-option tables allow future multi-round and party-list records. **Only council result ingestion and viewing are implemented today.** A defined type is not evidence that its historical results have been collected.
 - The national local store has 17,670 council contests and 101,086 candidate records across 2021–2026. Of 835 council-year records in the pinned secondary database, 783 matched current English areas or explicit name aliases; 50 Scottish/Welsh 2022 records and two new Surrey authority records are quarantined for separate geography work. The store also retains the independently audited Leeds release, including its by-elections.
 - The v2 pilot package releases **only Yorkshire and Humber**: 54 council-years, 1,278 contests and 7,809 candidate records. Six Leeds council-years come from the audited Leeds v0.6.0 release; 48 others are staged secondary-source records. Thirty-six Yorkshire and Humber council-years have *no record in the annual compilation*; that is not a statement that no ordinary poll or by-election occurred.
-- The explorer shows England's regions with the eight non-pilot regions greyed out. Yorkshire and Humber opens to councils and current wards, with year selection, source links, status labels, candidate votes and explicit historical-boundary caveats. Unmapped historical wards remain selectable in a separate list but are not highlighted on the current map.
+- The explorer shows England's regions with the eight non-pilot regions greyed out. Yorkshire and Humber opens to councils and current wards. Map, Table and Composition views share year and geography selection. The map colours imported winners or recorded turnout, and the SDP-contested filter works at region, council and ward level. The sidebar separates Results, Census, Electoral Tribes and History; Census, Tribes and verified council composition remain Leeds-only. Unmapped historical wards remain selectable in a separate list but are not highlighted on the current map.
 - The package has per-object SHA-256 checks, a verified manifest, a stable release ID and a local `staged_not_published` release record. The application reader also checks manifest and object hashes before serving an activated R2 package. The pilot feature flag is off in the live site.
+- The 29 September owner-test candidate passed package checks (54 council-years, 1,278 contests, 7,809 candidates), TypeScript, ESLint, Next.js and Cloudflare-target builds. A localhost smoke test loaded nine regions, 410 pilot wards, and Leeds and non-Leeds council results. Browser interaction and owner access on the live Worker remain to be tested.
 
 ## Source and interpretation rules
 
@@ -54,7 +55,7 @@ The working store, source downloads and release packages are under ignored `data
 | Annual council results since 2021 | Matched English council records staged; secondary source and winner caveats visible | Compare sampled council declarations, resolve the two Surrey authority IDs and check the 4,625 national unmatched wards before any wider release. |
 | By-elections and absence | Leeds audited; regional annual source is not exhaustive | Reconcile each pilot council's event list, mark verified no-poll years separately, and import missing by-elections. |
 | Release safety | Checksummed package and local staging record pass | Add owner-only R2 staging, approval, activation and rollback controls; test protected assets and role visibility. |
-| Explorer usability | Region → council → ward, year and source status work locally | Add council-tier filters, quick search, tested keyboard and narrow-screen behaviour, and faster map/record loading for larger regions. |
+| Explorer usability | Map, Table and Composition views, winner/turnout colours, SDP-contested filter and separated detail tabs work locally | Test keyboard, narrow-screen and larger-council behaviour in a browser; add quick search and council-tier filters. |
 | February 2027 readiness | Yorkshire and Humber is the first expansion | Agree the councils campaigners need first, run source checks by priority, then release council/region slices incrementally instead of waiting until after the 2027 locals. |
 
 **Gate 2 decision:** treat this as an early implementation and test asset, not a completed national product. The browser can use the staging package locally; the ongoing Leeds trial remains on its existing release until the regional source and release-control checks are completed.

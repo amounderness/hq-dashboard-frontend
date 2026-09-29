@@ -176,13 +176,13 @@ export default function Explorer() {
     {isDemo && <div className="notice" role="status"><strong>Fictional preview data.</strong> Every ward shape, result and turnout figure is invented for testing the website.</div>}
     {!isDemo && manifest && page !== "explorerV2" && <div className="notice" role="status"><strong>Leeds Pulse pilot.</strong> Recorded results, dated council composition, 2021 Census and exploratory neighbourhood groups. Source gaps are flagged; the latest ward result is not a current-seat record or a future forecast.</div>}
     <div className="shell"><nav className="side" aria-label="Main navigation">
-      {([["overview", "Overview"], ["explorer", "Explorer"], ["explorerV2", "Explorer v2 · pilot"], ["sdpResults", "SDP Results"], ["tribesResearch", "Electoral Tribes"], ["forecast", "Forecast"], ["reports", "Reports"], ["ownerReleases", "Owner releases"], ["sources", "Data & sources"], ["development", "Development"]] as const).filter(([id]) => (id !== "ownerReleases" || isOwner) && (id !== "explorerV2" || explorerV2Enabled)).map(([id, label]) =>
+      {([["overview", "Overview"], ["explorer", "Explorer"], ["explorerV2", "Explorer v2 · owner test"], ["sdpResults", "SDP Results"], ["tribesResearch", "Electoral Tribes"], ["forecast", "Forecast"], ["reports", "Reports"], ["ownerReleases", "Owner releases"], ["sources", "Data & sources"], ["development", "Development"]] as const).filter(([id]) => (id !== "ownerReleases" || isOwner) && (id !== "explorerV2" || (explorerV2Enabled && (isOwner || process.env.NODE_ENV === "development")))).map(([id, label]) =>
         <a key={id} href={`#${id}`} className={page === id ? "active" : ""} aria-current={page === id ? "page" : undefined} onClick={event => { event.preventDefault(); navigate(id); }}>{label}</a>)}
       <div className="side-note">{isDemo ? "SYNTHETIC PREVIEW" : page === "explorerV2" ? "REGIONAL STAGING" : "LEEDS PILOT"}<br />Viewer workspace<br /><br />Release actions require owner sign-in.</div>
     </nav><main className="content">
       {page === "overview" && <OverviewPage isDemo={isDemo} manifest={manifest} profiles={profiles} sdpResults={sdpResults} wards={wards} history={history} onNavigate={navigate} onOpenWardHistory={code => { selectWard(code); setDetailTab("history"); navigate("explorer"); }} />}
 
-      {page === "explorerV2" && explorerV2Enabled && <ExplorerV2Page />}
+      {page === "explorerV2" && explorerV2Enabled && (isOwner || process.env.NODE_ENV === "development" ? <ExplorerV2Page profiles={profiles} history={history} composition={composition} /> : <p className="notice">Explorer v2 is available to the owner during testing.</p>)}
 
       {page === "explorer" && <>
         <div className="heading"><div><div className="eyebrow">{isDemo ? "Synthetic sample" : "England / Leeds City Council"}</div><h1>Explore Leeds</h1><p>Results, Census and neighbourhood context in one place.</p></div><span className="badge">Pulse · {isDemo ? "Fictional sample" : "Recorded information"}</span></div>

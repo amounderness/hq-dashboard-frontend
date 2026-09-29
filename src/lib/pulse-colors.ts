@@ -17,7 +17,22 @@ const knownParties: Record<string, string> = {
 const otherColors = ["#6e7892", "#a57447", "#4a8792", "#a05b69", "#6c8e54", "#976e9c"];
 export const tribeColors = ["#7c64bd", "#8b764e", "#377b9e", "#ba6c91", "#79a44c", "#45a590", "#bc7062"];
 
+const partyAliases: Record<string, string> = {
+  "Social Democratic Party": "SDP",
+  "Labour Party": "Labour",
+  "Conservative Party": "Conservative",
+  "Liberal Democrats": "Liberal Democrat",
+  "Green Party": "Green",
+  "Trade Unionist and Socialist Coalition": "TUSC",
+  "UK Independence Party (UKIP)": "UKIP",
+};
+
+export function canonicalParty(party: string): string {
+  return partyAliases[party.trim()] ?? party.trim();
+}
+
 export function partyColor(party: string): string {
+  party = canonicalParty(party);
   if (knownParties[party]) return knownParties[party];
   let hash = 0;
   for (const character of party) hash = ((hash * 31) + character.charCodeAt(0)) >>> 0;

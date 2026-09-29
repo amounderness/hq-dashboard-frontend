@@ -3,31 +3,38 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { geoArea, geoMercator, geoPath } from "d3-geo";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
-import { partyColor } from "@/lib/pulse-colors";
+import { canonicalParty, partyColor, tribeColors } from "@/lib/pulse-colors";
+import type { WardHistory, WardProfile } from "@/lib/pulse-types";
+import type { CompositionData } from "@/lib/pulse-insight-types";
+import CompositionView from "./CompositionView";
 
 type Coverage = { status: string; reason: string; source_url: string | null };
+type Activity = { contest_count: number; sdp_contested_wards: string[]; winner_counts: Record<string, number>; party_candidate_votes: Record<string, number>; candidate_votes: number; mean_recorded_turnout: number | null; turnout_contests: number };
 type Area = { code: string; name: string; status: string; region_code?: string; authority_code?: string; ward_count?: number; coverage?: Record<string, Coverage> };
-type Source = { source_id: string; publisher: string; url: string; vintage: string };
-type Catalog = { schema_version: number; country: string; pilot_region: string; years: number[]; regions: Area[]; authorities: Area[]; pilot_wards: Area[]; sources: Source[]; geography_summary: Record<string, number>; election_types: { type_id: string; label: string }[] };
-type Result = {
-  authority_code: string; year: number; coverage: string; explanation?: string; source_release?: string;
-  events: { event_id: string; election_date: string; event_kind: string; status: string; source_url?: string }[];
-  contests: { contest_id: string; event_id: string; ward_code: string; ward_name: string; seats_available: number; electorate: number | null; turnout_rate: number | null; candidate_votes: number; quality_note?: string; comparability_note?: string; display_boundary_id?: string | null }[];
-  candidates: { result_id: string; contest_id: string; candidate_name: string; party_label: string; votes: number | null; elected: number; source_url?: string }[];
-};
+type Catalog = { schema_version: number; country: string; pilot_region: string; years: number[]; regions: Area[]; authorities: Area[]; pilot_wards: Area[]; activity: Record<string, Record<string, Activity>>; geography_summary: Record<string, number>; election_types: { type_id: string; label: string }[] };
+type Contest = { contest_id: string; event_id: string; ward_code: string; ward_name: string; seats_available: number; electorate: number | null; turnout_rate: number | null; candidate_votes: number; quality_note?: string; comparability_note?: string; display_boundary_id?: string | null };
+type Candidate = { result_id: string; contest_id: string; candidate_name: string; party_label: string; votes: number | null; elected: number };
+type Result = { authority_code: string; year: number; coverage: string; explanation?: string; source_release?: string; events: { event_id: string; election_date: string; event_kind: string; status: string; source_url?: string }[]; contests: Contest[]; candidates: Candidate[] };
 type Geo = FeatureCollection<Geometry, { code: string; name: string }>;
+type View = "map" | "table" | "composition";
+type Layer = "winners" | "turnout";
+type DetailTab = "results" | "census" | "tribes" | "history";
 
 const YORKSHIRE = "E12000003";
-const asPercent = (value: number | null) => value == null ? "Not available" : `${(value * 100).toFixed(1)}%`;
+const LEEDS = "E08000035";
+const displayAreaName = (code: string, name: string) => code === LEEDS ? "Leeds City Council" : name;
+const number = new Intl.NumberFormat("en-GB");
+const percent = (value: number | null | undefined) => value == null ? "Unavailable" : `${(value * 100).toFixed(1)}%`;
 const coverageLabel = (status?: string) => status === "checked_published" ? "Audited Leeds release"
-  : status === "partial_by_election_only" ? "Audited by-election only"
+  : status === "partial_by_election_only" ? "By-election only"
   : status === "secondary_source_staged" ? "Secondary source · review needed"
-  : status === "no_record_in_annual_source" ? "No annual record · verify events"
-  : "No result source imported";
+  : status === "no_record_in_annual_source" ? "No annual record · check events"
+  : "No imported result";
+const dateText = (value: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${value}T12:00:00Z`));
 
 async function load<T>(path: string): Promise<T> {
   const response = await fetch(path, { credentials: "same-origin", cache: "no-store", redirect: "manual" });
-  if (response.type === "opaqueredirect") throw new Error("Sign-in expired. Reload the page and sign in again.");
+  if (response.type === "opaqueredirect" || !response.headers.get("content-type")?.includes("application/json")) throw new Error("Sign-in expired. Reload and sign in again.");
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || `Data request failed (${response.status}).`);
   return data as T;
@@ -41,8 +48,31 @@ function fixRing(feature: Feature<Geometry, { code: string; name: string }>) {
   return feature;
 }
 
-function GeographyMap({ geometry, selected, active, onSelect, label }: {
-  geometry: Geo; selected: string; active: (code: string) => boolean;
+function tallyWinners(contests: Contest[], candidates: Candidate[]) {
+  const ids = new Set(contests.map(contest => contest.contest_id));
+  const counts: Record<string, number> = {};
+  for (const candidate of candidates) if (ids.has(candidate.contest_id) && candidate.elected) {
+    const party = canonicalParty(candidate.party_label);
+    counts[party] = (counts[party] ?? 0) + 1;
+  }
+  return counts;
+}
+
+function leadingParties(counts: Record<string, number>) {
+  const highest = Math.max(0, ...Object.values(counts));
+  return highest ? Object.entries(counts).filter(([, count]) => count === highest).map(([party]) => party).sort() : [];
+}
+
+function turnoutColor(rate: number | null | undefined) {
+  if (rate == null) return "#d6dcde";
+  const fraction = Math.max(0, Math.min(1, (rate - .2) / .5));
+  const low = [206, 229, 228], high = [25, 96, 111];
+  return `rgb(${low.map((value, index) => Math.round(value + (high[index] - value) * fraction)).join(",")})`;
+}
+
+function GeographyMap({ geometry, selected, enabled, dimmed, fill, description, onSelect, label }: {
+  geometry: Geo; selected: string; enabled: (code: string) => boolean; dimmed: (code: string) => boolean;
+  fill: (code: string) => string; description: (code: string, name: string) => string;
   onSelect: (code: string) => void; label: string;
 }) {
   const ref = useRef<SVGSVGElement>(null);
@@ -59,97 +89,183 @@ function GeographyMap({ geometry, selected, active, onSelect, label }: {
   const path = useMemo(() => geoPath(projection), [projection]);
   const current = displayed.features.find(feature => feature.properties.code === selected);
   return <svg ref={ref} className="v2-map" viewBox={`0 0 ${size.width} ${size.height}`} role="img" aria-label={label}>
+    <defs><pattern id="v2-mixed-winners" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="#8d9cab" /><rect width="5" height="10" fill="#eef2f6" /></pattern></defs>
     {displayed.features.map(feature => {
-      const code = feature.properties.code;
-      const enabled = active(code);
-      const name = feature.properties.name;
-      return <path key={code} d={path(feature) ?? ""} fill={enabled ? "#9dc7bf" : "#d6dcde"}
-        stroke="#fff" strokeWidth={1.1} vectorEffect="non-scaling-stroke" tabIndex={enabled ? 0 : -1}
-        role={enabled ? "button" : undefined} aria-label={`${name}${enabled ? ", open area" : ", not in this pilot"}`}
-        aria-disabled={!enabled} onClick={() => { if (enabled) onSelect(code); }}
-        onKeyDown={event => { if (enabled && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect(code); } }}>
-        <title>{name}{enabled ? " · open area" : " · outside pilot"}</title>
-      </path>;
+      const code = feature.properties.code, canOpen = enabled(code), name = feature.properties.name;
+      const text = description(code, name);
+      return <path key={code} d={path(feature) ?? ""} fill={fill(code)} opacity={dimmed(code) ? .18 : 1}
+        stroke="#fff" strokeWidth={1.1} strokeLinejoin="round" vectorEffect="non-scaling-stroke"
+        tabIndex={canOpen ? 0 : -1} role={canOpen ? "button" : undefined} aria-label={text}
+        aria-pressed={canOpen ? code === selected : undefined} aria-disabled={!canOpen}
+        onClick={() => { if (canOpen) onSelect(code); }}
+        onKeyDown={event => { if (canOpen && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect(code); } }}><title>{text}</title></path>;
     })}
     {current && <g pointerEvents="none" aria-hidden="true"><path d={path(current) ?? ""} fill="none" stroke="#fff" strokeWidth={5} vectorEffect="non-scaling-stroke" /><path d={path(current) ?? ""} fill="none" stroke="#1e3038" strokeWidth={2.4} vectorEffect="non-scaling-stroke" /></g>}
   </svg>;
 }
 
-export default function ExplorerV2Page() {
+function PartyBars({ votes, total, winners, multiSeat, compact = false }: { votes: Record<string, number>; total: number; winners: string[]; multiSeat: boolean; compact?: boolean }) {
+  const rows = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+  if (!rows.length || !total) return <p className="sub">No candidate-vote breakdown is imported for this selection.</p>;
+  const shown = compact ? rows.slice(0, 7) : rows;
+  const remainder = compact ? rows.slice(7) : [];
+  const otherVotes = remainder.reduce((sum, [, votes]) => sum + votes, 0);
+  return <><h3>Party candidate-vote shares</h3>{shown.map(([party, count]) => <div className="result" key={party}><div className="result-label"><span><span className="party-swatch" style={{ background: partyColor(party) }} aria-hidden="true" />{party}{winners.includes(party) ? " ✓" : ""}</span><span>{percent(count / total)}</span></div><div className="track"><div className="fill" style={{ width: `${count / total * 100}%`, background: partyColor(party) }} /></div></div>)}{remainder.length > 0 && <><div className="result-label"><span>Other parties ({remainder.length})</span><span>{percent(otherVotes / total)}</span></div><details className="v2-more-parties"><summary>Show remaining parties</summary><ul>{remainder.map(([party, count]) => <li key={party}>{party}: {percent(count / total)}</li>)}</ul></details></>}<p className="footnote">Shares divide each party&apos;s candidate votes by all candidate votes in the selected recorded poll{multiSeat ? "s. Multi-seat polls mean these are not shares of voters." : "."}</p></>;
+}
+
+export default function ExplorerV2Page({ profiles, history, composition }: { profiles: WardProfile[]; history: WardHistory; composition: CompositionData | null }) {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [regionsGeo, setRegionsGeo] = useState<Geo | null>(null);
   const [authoritiesGeo, setAuthoritiesGeo] = useState<Geo | null>(null);
   const [wardsGeo, setWardsGeo] = useState<Geo | null>(null);
   const [level, setLevel] = useState<"country" | "region" | "authority">("country");
-  const [region, setRegion] = useState("");
   const [authority, setAuthority] = useState("");
   const [ward, setWard] = useState("");
   const [year, setYear] = useState("2026");
+  const [view, setView] = useState<View>("map");
+  const [layer, setLayer] = useState<Layer>("winners");
+  const [winningParty, setWinningParty] = useState("");
+  const [sdpOnly, setSdpOnly] = useState(false);
+  const [detailTab, setDetailTab] = useState<DetailTab>("results");
+  const [selectedPoll, setSelectedPoll] = useState("");
   const [resultState, setResultState] = useState<{ authority: string; year: string; data: Result } | null>(null);
+  const [historyState, setHistoryState] = useState<{ authority: string; data: Result[] } | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(true);
+
   useEffect(() => {
     let live = true;
-    Promise.all([
-      load<Catalog>("/api/explorer-v2/catalog"), load<Geo>("/api/explorer-v2/regions"),
-      load<Geo>("/api/explorer-v2/authorities"), load<Geo>("/api/explorer-v2/wards"),
-    ]).then(([c, r, a, w]) => { if (live) { setCatalog(c); setRegionsGeo(r); setAuthoritiesGeo(a); setWardsGeo(w); setBusy(false); } })
+    Promise.all([load<Catalog>("/api/explorer-v2/catalog"), load<Geo>("/api/explorer-v2/regions"), load<Geo>("/api/explorer-v2/authorities"), load<Geo>("/api/explorer-v2/wards")])
+      .then(([c, r, a, w]) => { if (live) { setCatalog(c); setRegionsGeo(r); setAuthoritiesGeo(a); setWardsGeo(w); setBusy(false); } })
       .catch(cause => { if (live) { setError(cause.message); setBusy(false); } });
     return () => { live = false; };
   }, []);
   useEffect(() => {
     if (!authority) return;
     let live = true;
-    load<Result>(`/api/explorer-v2/results?authority=${encodeURIComponent(authority)}&year=${encodeURIComponent(year)}`)
+    load<Result>(`/api/explorer-v2/results?authority=${encodeURIComponent(authority)}&year=${year}`)
       .then(data => { if (live) { setResultState({ authority, year, data }); setError(""); } })
       .catch(cause => { if (live) setError(cause.message); });
     return () => { live = false; };
   }, [authority, year]);
+  useEffect(() => {
+    if (!catalog || !authority || detailTab !== "history" || authority === LEEDS || historyState?.authority === authority) return;
+    let live = true;
+    Promise.all(catalog.years.map(value => load<Result>(`/api/explorer-v2/results?authority=${encodeURIComponent(authority)}&year=${value}`)))
+      .then(data => { if (live) setHistoryState({ authority, data }); })
+      .catch(cause => { if (live) setError(cause.message); });
+    return () => { live = false; };
+  }, [catalog, authority, detailTab, historyState]);
+
   const result = resultState?.authority === authority && resultState.year === year ? resultState.data : null;
-  const selectedAuthority = catalog?.authorities.find(item => item.code === authority);
-  const selectedWard = catalog?.pilot_wards.find(item => item.code === ward);
+  const pilotAuthorities = useMemo(() => catalog?.authorities.filter(item => item.region_code === YORKSHIRE).map(item => ({ ...item, name: displayAreaName(item.code, item.name) })) ?? [], [catalog]);
+  const authorityArea = pilotAuthorities.find(item => item.code === authority);
   const wardOptions = useMemo(() => catalog?.pilot_wards.filter(item => item.authority_code === authority) ?? [], [catalog, authority]);
-  const historicalWardOptions = result?.contests.filter(item => !wardOptions.some(current => current.code === item.ward_code)) ?? [];
-  const authorityOptions = useMemo(() => catalog?.authorities.filter(item => item.region_code === YORKSHIRE) ?? [], [catalog]);
+  const historicalOptions = useMemo(() => [...new Map((result?.contests ?? []).filter(item => !wardOptions.some(current => current.code === item.ward_code)).map(item => [item.ward_code, item.ward_name])).entries()], [result, wardOptions]);
+  const selectedWardName = wardOptions.find(item => item.code === ward)?.name ?? historicalOptions.find(([code]) => code === ward)?.[1];
   const selectedContests = result?.contests.filter(item => !ward || item.ward_code === ward) ?? [];
-  const localWardGeometry = useMemo<Geo | null>(() => wardsGeo && authority ? {
-    type: "FeatureCollection", features: wardsGeo.features.filter(feature => wardOptions.some(item => item.code === feature.properties.code)),
-  } : null, [wardsGeo, authority, wardOptions]);
-  const localAuthorityGeometry = useMemo<Geo | null>(() => authoritiesGeo && level === "region" ? {
-    type: "FeatureCollection", features: authoritiesGeo.features.filter(feature => authorityOptions.some(item => item.code === feature.properties.code)),
-  } : null, [authoritiesGeo, level, authorityOptions]);
-  const openAuthority = (code: string) => { setAuthority(code); setWard(""); setRegion(YORKSHIRE); setLevel("authority"); };
-  const openRegion = () => { setRegion(YORKSHIRE); setAuthority(""); setWard(""); setLevel("region"); };
+  const currentContest = selectedContests.find(item => item.contest_id === selectedPoll) ?? selectedContests[0];
+  const currentEvent = result?.events.find(item => item.event_id === currentContest?.event_id);
+  const currentCandidates = result?.candidates.filter(item => item.contest_id === currentContest?.contest_id).sort((a, b) => (b.votes ?? -1) - (a.votes ?? -1)) ?? [];
+  const activity = catalog?.activity ?? {};
+  const activityFor = (code: string) => activity[code]?.[year];
+  const regionalActivity = pilotAuthorities.map(item => activityFor(item.code)).filter((item): item is Activity => !!item);
+  const availableActivities = level === "authority" ? (activityFor(authority) ? [activityFor(authority)!] : []) : regionalActivity;
+  const areaWinnerCounts: Record<string, number> = {};
+  const areaPartyVotes: Record<string, number> = {};
+  for (const item of availableActivities) {
+    for (const [party, count] of Object.entries(item.winner_counts)) areaWinnerCounts[party] = (areaWinnerCounts[party] ?? 0) + count;
+    for (const [party, votes] of Object.entries(item.party_candidate_votes)) areaPartyVotes[party] = (areaPartyVotes[party] ?? 0) + votes;
+  }
+  const areaTotalVotes = availableActivities.reduce((sum, item) => sum + item.candidate_votes, 0);
+  const areaContestCount = availableActivities.reduce((sum, item) => sum + item.contest_count, 0);
+  const areaSdpCouncils = pilotAuthorities.filter(item => (activityFor(item.code)?.sdp_contested_wards.length ?? 0) > 0).length;
+  const winnerFor = (code: string) => {
+    if (level === "country") return leadingParties(areaWinnerCounts);
+    if (level === "region") return leadingParties(activityFor(code)?.winner_counts ?? {});
+    return result ? leadingParties(tallyWinners(result.contests.filter(item => item.ward_code === code), result.candidates)) : [];
+  };
+  const electedPartiesFor = (code: string) => {
+    if (level === "country") return Object.keys(areaWinnerCounts);
+    if (level === "region") return Object.keys(activityFor(code)?.winner_counts ?? {});
+    return result ? Object.keys(tallyWinners(result.contests.filter(item => item.ward_code === code), result.candidates)) : [];
+  };
+  const mapCodes = level === "country" ? [YORKSHIRE] : level === "region" ? pilotAuthorities.map(item => item.code) : wardOptions.map(item => item.code);
+  const winnerOptions = [...new Set(mapCodes.flatMap(code => electedPartiesFor(code)))].sort();
+  const legendOptions = [...new Set(mapCodes.flatMap(code => winnerFor(code)))].sort();
+  const turnoutFor = (code: string) => {
+    if (level === "country") {
+      const count = regionalActivity.reduce((sum, item) => sum + item.turnout_contests, 0);
+      return code === YORKSHIRE && count ? regionalActivity.reduce((sum, item) => sum + (item.mean_recorded_turnout ?? 0) * item.turnout_contests, 0) / count : null;
+    }
+    if (level === "region") return activityFor(code)?.mean_recorded_turnout;
+    const rates = result?.contests.filter(item => item.ward_code === code && item.turnout_rate != null).map(item => item.turnout_rate!) ?? [];
+    return rates.length ? rates.reduce((sum, rate) => sum + rate, 0) / rates.length : null;
+  };
+  const sdpFor = (code: string) => level === "country" ? (code === YORKSHIRE && areaSdpCouncils > 0)
+    : level === "region" ? (activityFor(code)?.sdp_contested_wards.length ?? 0) > 0
+    : (activityFor(authority)?.sdp_contested_wards ?? []).includes(code);
+  const mapFill = (code: string) => {
+    if (level === "country" && code !== YORKSHIRE) return "#d6dcde";
+    if (layer === "turnout") return turnoutColor(turnoutFor(code));
+    const winners = winnerFor(code);
+    return winners.length > 1 ? "url(#v2-mixed-winners)" : winners.length ? partyColor(winners[0]) : "#d6dcde";
+  };
+  const localWardGeometry = useMemo<Geo | null>(() => wardsGeo && authority ? { type: "FeatureCollection", features: wardsGeo.features.filter(feature => wardOptions.some(item => item.code === feature.properties.code)) } : null, [wardsGeo, authority, wardOptions]);
+  const localAuthorityGeometry = useMemo<Geo | null>(() => authoritiesGeo ? { type: "FeatureCollection", features: authoritiesGeo.features.filter(feature => pilotAuthorities.some(item => item.code === feature.properties.code)) } : null, [authoritiesGeo, pilotAuthorities]);
+  const mapGeometry = level === "country" ? regionsGeo : level === "region" ? localAuthorityGeometry : localWardGeometry;
+  const displayedWard = ward && (selectedContests.some(item => item.display_boundary_id && item.ward_code === ward) || (selectedContests.length === 0 && wardOptions.some(item => item.code === ward))) ? ward : "";
+  const profile = authority === LEEDS ? profiles.find(item => item.ward_code === ward) : undefined;
+  const selectedHistory = authority === LEEDS ? history[ward] ?? [] : (historyState?.authority === authority ? historyState.data.flatMap(data => data.contests.filter(item => item.ward_code === ward).map(contest => ({
+    date: data.events.find(event => event.event_id === contest.event_id)?.election_date ?? "",
+    kind: data.events.find(event => event.event_id === contest.event_id)?.event_kind ?? "ordinary",
+    winners: data.candidates.filter(candidate => candidate.contest_id === contest.contest_id && candidate.elected).map(candidate => canonicalParty(candidate.party_label)).join(", "),
+    status: data.coverage,
+  }))).sort((a, b) => b.date.localeCompare(a.date)) : []);
+  const visibleContests = selectedContests.filter(contest => (!sdpOnly || result?.candidates.some(candidate => candidate.contest_id === contest.contest_id && canonicalParty(candidate.party_label) === "SDP")) && (!winningParty || Object.keys(tallyWinners([contest], result?.candidates ?? [])).includes(winningParty)));
+  const visibleAuthorities = pilotAuthorities.filter(item => (!sdpOnly || (activityFor(item.code)?.sdp_contested_wards.length ?? 0) > 0) && (!winningParty || (activityFor(item.code)?.winner_counts[winningParty] ?? 0) > 0));
+  const sourceUrl = authorityArea?.coverage?.[year]?.source_url;
+
+  const openRegion = () => { setLevel("region"); setAuthority(""); setWard(""); setSelectedPoll(""); setWinningParty(""); setDetailTab("results"); };
+  const openAuthority = (code: string) => { setLevel("authority"); setAuthority(code); setWard(""); setSelectedPoll(""); setWinningParty(""); setDetailTab("results"); };
+  const openWard = (code: string) => { setWard(code); setSelectedPoll(""); setDetailTab("results"); };
 
   return <>
-    <div className="heading"><div><div className="eyebrow">England / Explorer v2 pilot</div><h1>Explore beyond Leeds</h1><p>Navigate the national geography register. Yorkshire and Humber is the first wider test region; every available result carries its review status and source.</p></div><span className="badge">Staged research view</span></div>
-    <div className="notice" role="status"><strong>Staged regional pilot.</strong> Grey regions are outside this pilot. Leeds uses its audited release; other Yorkshire and Humber results come from a secondary compilation and still need council checks. Annual files may omit by-elections. An empty result is not a zero-vote or no-election claim.</div>
+    <div className="heading"><div><div className="eyebrow">England / Explorer v2</div><h1>Explore elections</h1><p>Results, geography and neighbourhood context in one workspace.</p></div><span className="badge">Owner test · Yorkshire and Humber</span></div>
+    <div className="notice v2-notice" role="status"><strong>Regional test data.</strong> Leeds uses its audited release. Other council results are from a secondary source awaiting council checks; by-elections may be missing. Grey regions are outside this release. An empty year does not prove that no poll took place.</div>
     {error && <div className="notice error" role="alert">{error}</div>}
-    {busy && <p role="status">Loading the geography catalogue…</p>}
+    {busy && <p role="status">Loading Explorer v2…</p>}
     {catalog && <>
-      <div className="v2-crumbs" aria-label="Geography"><button onClick={() => { setLevel("country"); setRegion(""); setAuthority(""); setWard(""); }}>England</button>{region && <><span>›</span><button onClick={openRegion}>Yorkshire and Humber</button></>}{authority && <><span>›</span><span>{selectedAuthority?.name}</span></>}</div>
-      <div className="toolbar">
-        <label className="field">Region<select value={region} onChange={event => event.target.value === YORKSHIRE ? openRegion() : (setRegion(""), setAuthority(""), setWard(""), setLevel("country"))}><option value="">England · all regions</option>{catalog.regions.map(item => <option value={item.code} key={item.code} disabled={item.code !== YORKSHIRE}>{item.name}{item.code !== YORKSHIRE ? " · later" : ""}</option>)}</select></label>
-        <label className="field">Council<select value={authority} onChange={event => event.target.value ? openAuthority(event.target.value) : openRegion()} disabled={!region}><option value="">Select a council</option>{authorityOptions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
-        <label className="field">Election type<select value="local_council" onChange={() => {}}>{catalog.election_types.map(item => <option key={item.type_id} value={item.type_id} disabled={item.type_id !== "local_council"}>{item.label}{item.type_id === "local_council" ? "" : " · not yet imported"}</option>)}</select></label>
-        <label className="field">Election year<select value={year} onChange={event => setYear(event.target.value)}>{[...catalog.years].reverse().map(item => <option key={item} value={item}>{item}</option>)}</select></label>
-        {authority && <label className="field">Ward<select value={ward} onChange={event => setWard(event.target.value)}><option value="">All wards</option>{wardOptions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}{historicalWardOptions.length > 0 && <optgroup label="Historical wards · not mapped">{historicalWardOptions.map(item => <option key={item.ward_code} value={item.ward_code}>{item.ward_name}</option>)}</optgroup>}</select></label>}
+      <div className="v2-crumbs" aria-label="Geography"><button onClick={() => { setLevel("country"); setAuthority(""); setWard(""); }}>England</button>{level !== "country" && <><span>›</span><button onClick={openRegion}>Yorkshire and Humber</button></>}{authority && <><span>›</span><span>{authorityArea?.name}</span></>}</div>
+      <div className="toolbar v2-toolbar">
+        <label className="field">Region<select value={level === "country" ? "" : YORKSHIRE} onChange={event => event.target.value ? openRegion() : (setLevel("country"), setAuthority(""), setWard(""))}><option value="">England · all regions</option>{catalog.regions.map(item => <option value={item.code} key={item.code} disabled={item.code !== YORKSHIRE}>{item.name}{item.code !== YORKSHIRE ? " · later" : ""}</option>)}</select></label>
+        <label className="field">Council<select value={authority} onChange={event => event.target.value ? openAuthority(event.target.value) : openRegion()} disabled={level === "country"}><option value="">All councils</option>{pilotAuthorities.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
+        <label className="field">Election type<select value="local_council" onChange={() => {}}>{catalog.election_types.map(item => <option key={item.type_id} value={item.type_id} disabled={item.type_id !== "local_council"}>{item.label}{item.type_id === "local_council" ? "" : " · coming later"}</option>)}</select></label>
+        <label className="field">Year<select value={year} onChange={event => { setYear(event.target.value); setSelectedPoll(""); setWinningParty(""); }}>{[...catalog.years].reverse().map(item => <option key={item} value={item}>{item}</option>)}</select></label>
+        {authority && view !== "composition" && <label className="field">Ward<select value={ward} onChange={event => openWard(event.target.value)}><option value="">All wards</option>{wardOptions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}{historicalOptions.length > 0 && <optgroup label="Historical · no current shape">{historicalOptions.map(([code, name]) => <option key={code} value={code}>{name}</option>)}</optgroup>}</select></label>}
+        {view !== "composition" && <label className="field">Map colour<select value={layer} onChange={event => { setLayer(event.target.value as Layer); setWinningParty(""); }}><option value="winners">Winning party</option><option value="turnout">Turnout</option></select></label>}
+        {view !== "composition" && layer === "winners" && <label className="field">Show winners<select value={winningParty} onChange={event => setWinningParty(event.target.value)}><option value="">All parties</option>{winnerOptions.map(party => <option key={party} value={party}>{party}</option>)}</select></label>}
+        {view !== "composition" && <label className="contested-filter"><input type="checkbox" checked={sdpOnly} onChange={event => setSdpOnly(event.target.checked)} />SDP contested only</label>}
+        <div className="switch" role="group" aria-label="Explorer view">{(["map", "table", "composition"] as const).map(item => <button key={item} className={view === item ? "active" : ""} aria-pressed={view === item} onClick={() => setView(item)}>{item[0].toUpperCase() + item.slice(1)}</button>)}</div>
       </div>
-      <div className="v2-layout"><div className="map-pane"><div className="map-heading"><strong>{level === "country" ? "English regions" : level === "region" ? "Yorkshire and Humber councils" : `${selectedAuthority?.name ?? "Council"} wards`}</strong><span>ONS 2025 boundary editions</span></div>
-        {level === "country" && regionsGeo && <GeographyMap geometry={regionsGeo} selected={region} active={code => code === YORKSHIRE} onSelect={openRegion} label="English regions; Yorkshire and Humber is open for pilot exploration" />}
-        {level === "region" && localAuthorityGeometry && <GeographyMap geometry={localAuthorityGeometry} selected={authority} active={() => true} onSelect={openAuthority} label="Yorkshire and Humber local authorities" />}
-        {level === "authority" && localWardGeometry && <GeographyMap geometry={localWardGeometry} selected={ward} active={() => true} onSelect={setWard} label={`${selectedAuthority?.name ?? "Council"} 2025 wards`} />}
-        <p className="footnote">Boundaries: <a href="https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Local_Authority_Districts_DEC_2025_Boundaries_UK_BSC/FeatureServer" target="_blank" rel="noreferrer">ONS authority dataset</a>, <a href="https://ckan.publishing.service.gov.uk/dataset/wards-may-2025-boundaries-uk-bsc-v2" target="_blank" rel="noreferrer">ONS ward dataset</a>. Historical poll boundaries have not yet been fully reconciled to these shapes.</p>
-      </div><aside className="detail"><div className="kicker">{level === "authority" ? "Council / area record" : "Coverage / exploration"}</div><h2>{level === "country" ? "England" : level === "region" ? "Yorkshire and Humber" : selectedWard?.name ?? result?.contests.find(item => item.ward_code === ward)?.ward_name ?? selectedAuthority?.name}</h2>
-        {level === "country" && <p>{catalog.regions.length} regions, {catalog.authorities.length} local authorities, {catalog.geography_summary.county_or_unitary ?? 0} county areas, {catalog.geography_summary.combined_authority ?? 0} combined authorities and {(catalog.geography_summary.parish_or_non_parished_area ?? 0).toLocaleString("en-GB")} parish or non-parished areas are indexed. Select Yorkshire and Humber to inspect the first regional pilot. Other regions remain grey until a checked release is available.</p>}
-        {level === "region" && <><p>{authorityOptions.length} local authorities and {catalog.pilot_wards.length} current wards are indexed here. Select a council. The status beside each council applies only to the selected year.</p><ul className="v2-area-list">{authorityOptions.map(item => <li key={item.code}><button onClick={() => openAuthority(item.code)}>{item.name}</button><small>{coverageLabel(item.coverage?.[year]?.status)}</small></li>)}</ul></>}
-        {level === "authority" && <><p><strong>{year} coverage:</strong> {coverageLabel(selectedAuthority?.coverage?.[year]?.status)}</p><p className="footnote">{selectedAuthority?.coverage?.[year]?.reason}</p>{selectedAuthority?.coverage?.[year]?.source_url && <p><a href={selectedAuthority.coverage[year].source_url!} target="_blank" rel="noreferrer">Result source and methods</a></p>}{!result && <p role="status">Loading results…</p>}{result && <><p>{selectedContests.length} recorded contest{selectedContests.length === 1 ? "" : "s"} in this selection.</p>{selectedContests.length === 0 && <p className="notice small-notice">{result.explanation ?? "No imported contest for this selection. Check the coverage status; this does not prove no poll occurred."}</p>}{!ward && selectedContests.length > 0 && <><p className="footnote">Choose a ward to see candidate votes. Historical wards that do not match the current map are listed below but cannot be highlighted yet.</p><ul className="v2-area-list">{selectedContests.map(contest => <li key={contest.contest_id}><button onClick={() => setWard(contest.ward_code)}>{contest.ward_name}</button><small>{contest.seats_available} seat{contest.seats_available === 1 ? "" : "s"}{contest.display_boundary_id ? "" : " · historical boundary unmapped"}</small></li>)}</ul></>}{ward && selectedContests.map(contest => {
-          const event = result.events.find(item => item.event_id === contest.event_id);
-          const candidates = result.candidates.filter(item => item.contest_id === contest.contest_id).sort((a, b) => (b.votes ?? -1) - (a.votes ?? -1));
-          return <section className="v2-contest" key={contest.contest_id}><h3>{contest.ward_name}</h3><p>{event?.election_date ?? "Date unavailable"} · {event?.event_kind === "by_election" ? "By-election" : "Council election"} · {contest.seats_available} seat{contest.seats_available === 1 ? "" : "s"} filled · turnout {asPercent(contest.turnout_rate)}</p><ol>{candidates.map(candidate => <li key={candidate.result_id}><span className="party-swatch" style={{ background: partyColor(candidate.party_label) }} aria-hidden="true" />{candidate.candidate_name} · {candidate.party_label}{candidate.elected ? " · elected" : ""}<strong>{candidate.votes == null ? "—" : candidate.votes.toLocaleString("en-GB")}</strong>{candidate.source_url && <a href={candidate.source_url} target="_blank" rel="noreferrer" aria-label={`Source for ${candidate.candidate_name}`}>Source</a>}</li>)}</ol>{event?.source_url && <p className="footnote"><a href={event.source_url} target="_blank" rel="noreferrer">Underlying {year} source series</a></p>}{contest.quality_note && <p className="footnote">{contest.quality_note}</p>}{contest.comparability_note && <p className="footnote">Map note: {contest.comparability_note}</p>}</section>;
-        })}{ward && selectedContests.length === 0 && <p className="footnote">There is no recorded contest for this current ward in the selected year. This does not prove no election took place.</p>}</>}</>}
-      </aside></div>
-      <div className="under"><span>Sources: ONS 2025 geography · Leeds v0.6.0 · <a href="https://electionresults.uk/councils/data" target="_blank" rel="noreferrer">electionresults.uk secondary compilation</a> of Commons Library and Democracy Club results</span><a href="https://www.ons.gov.uk/methodology/geography/licences" target="_blank" rel="noreferrer">Geography licence and attribution</a></div>
+      {view === "composition" ? (authority === LEEDS && composition ? <CompositionView data={composition} year={year} /> : <div className="card composition-missing"><h2>Verified council composition unavailable</h2><p>{authority ? `${authorityArea?.name} does not yet have a dated, checked composition snapshot in this release.` : "Choose a council with a checked composition snapshot. The Yorkshire and Humber figures cannot be inferred by adding the winners of one election year."}</p><p className="footnote">Only Leeds City Council has a verified council composition series in this owner test.</p></div>) : view === "table" ? <div className="table-wrap v2-table-wrap"><table className="results-table"><thead><tr>{level === "authority" ? <><th>Ward / poll</th><th>Candidate</th><th>Party</th><th>Votes</th><th>Share of candidate votes</th><th>Elected</th><th>Turnout</th></> : <><th>Area</th><th>Imported contests</th><th>Most elected candidates</th><th>SDP contested wards</th><th>Coverage</th></>}</tr></thead><tbody>{level === "authority" ? visibleContests.flatMap(contest => {
+        const event = result?.events.find(item => item.event_id === contest.event_id);
+        return (result?.candidates.filter(candidate => candidate.contest_id === contest.contest_id) ?? []).sort((a, b) => (b.votes ?? -1) - (a.votes ?? -1)).map(candidate => <tr key={candidate.result_id}><td><button className="link-button" onClick={() => { openWard(contest.ward_code); setSelectedPoll(contest.contest_id); setView("map"); }}>{contest.ward_name}</button><small className="v2-cell-note">{event?.election_date ? dateText(event.election_date) : "Date unavailable"}</small></td><td>{candidate.candidate_name}</td><td><span className="party-swatch" style={{ background: partyColor(candidate.party_label) }} aria-hidden="true" />{canonicalParty(candidate.party_label)}</td><td>{candidate.votes == null ? "—" : number.format(candidate.votes)}</td><td>{candidate.votes != null && contest.candidate_votes ? percent(candidate.votes / contest.candidate_votes) : "—"}</td><td>{candidate.elected ? <strong aria-label="Elected">✓</strong> : ""}</td><td>{percent(contest.turnout_rate)}</td></tr>);
+      }) : visibleAuthorities.map(item => <tr key={item.code}><td><button className="link-button" onClick={() => openAuthority(item.code)}>{item.name}</button></td><td>{activityFor(item.code)?.contest_count ?? 0}</td><td>{leadingParties(activityFor(item.code)?.winner_counts ?? {}).join(" & ") || "—"}</td><td>{activityFor(item.code)?.sdp_contested_wards.length ?? 0}</td><td>{coverageLabel(item.coverage?.[year]?.status)}</td></tr>)}</tbody></table>{level === "authority" && visibleContests.length === 0 && <p className="v2-empty">No imported contest matches this selection. This is not confirmation that no election took place.</p>}</div> : <div className="work v2-work">
+        <div className="map-pane"><div className="map-heading"><strong>{level === "country" ? "English regions" : level === "region" ? "Yorkshire and Humber councils" : `${authorityArea?.name ?? "Council"} wards`}</strong><span>{layer === "winners" ? "Most elected candidates" : "Mean recorded poll turnout"} · current boundaries</span></div>
+          {mapGeometry && <GeographyMap geometry={mapGeometry} selected={level === "authority" ? displayedWard : level === "country" ? "" : authority} enabled={code => level !== "country" || code === YORKSHIRE} dimmed={code => (sdpOnly && !sdpFor(code)) || (layer === "winners" && !!winningParty && !electedPartiesFor(code).includes(winningParty))} fill={mapFill} description={(code, name) => `${displayAreaName(code, name)}: ${level === "country" && code !== YORKSHIRE ? "outside pilot" : `${layer === "winners" ? `most elected ${winnerFor(code).join(" and ") || "not recorded"}` : `mean recorded turnout ${percent(turnoutFor(code))}`}${sdpFor(code) ? "; SDP stood in an imported poll" : ""}`}`} onSelect={code => level === "country" ? openRegion() : level === "region" ? openAuthority(code) : openWard(code)} label={`${level === "country" ? "England regions" : level === "region" ? "Yorkshire and Humber councils" : `${authorityArea?.name} wards`} coloured by ${layer === "winners" ? "most elected party" : "mean recorded turnout"}`} />}
+          <div className="legend" aria-label="Map legend">{layer === "winners" ? <>{legendOptions.map(party => <span className="legend-item" key={party}><span className="party-swatch" style={{ background: partyColor(party) }} aria-hidden="true" />{party}</span>)}<span className="legend-item"><span className="party-swatch mixed-swatch" />Tied</span><span>Grey: no record or outside pilot</span></> : <><span>Lower</span><span className="v2-turnout-gradient" aria-hidden="true" /><span>Higher</span><span>Grey: unavailable</span></>}</div>
+          <p className="map-note">{level === "authority" ? "Current 2025 ward shapes are a display reference. Historical wards without a safe match stay selectable in the ward list but are not highlighted." : "Council and regional party colours show the party with the most elected candidates in imported polls for this year, not current council control."}{sdpOnly ? " Dim areas have no SDP candidacy in the imported records; that is not proof none stood." : ""}</p>
+        </div><aside className="detail" aria-live="polite"><div className="kicker">{level === "country" ? "England / regional pilot" : level === "region" ? "Yorkshire and Humber" : authorityArea?.name}</div><h2>{level === "country" ? "England" : level === "region" ? "Yorkshire and Humber" : selectedWardName ?? authorityArea?.name}</h2>
+          <div className="detail-tabs" role="group" aria-label="Area information">{(["results", "census", "tribes", "history"] as const).map(item => <button key={item} className={detailTab === item ? "active" : ""} aria-pressed={detailTab === item} onClick={() => setDetailTab(item)}>{item[0].toUpperCase() + item.slice(1)}</button>)}</div>
+          {detailTab === "results" && <>{level === "country" && <p>Nine English regions are indexed. Yorkshire and Humber is the only region released for this owner test; choose it to explore {pilotAuthorities.length} councils.</p>}{level === "region" && <p>{areaContestCount} imported contests in {year} across {pilotAuthorities.length} indexed councils. {areaSdpCouncils} council{areaSdpCouncils === 1 ? " has" : "s have"} an imported SDP candidacy.</p>}{level === "authority" && <><p className="sub">{year} · {coverageLabel(authorityArea?.coverage?.[year]?.status)}</p>{ward ? currentContest ? <><p className="sub">{currentEvent?.election_date ? dateText(currentEvent.election_date) : "Date unavailable"} · {currentEvent?.event_kind === "by_election" ? "By-election" : "Council election"}</p>{selectedContests.length > 1 && <label className="field">Poll<select value={currentContest.contest_id} onChange={event => setSelectedPoll(event.target.value)}>{selectedContests.map(contest => <option key={contest.contest_id} value={contest.contest_id}>{result?.events.find(item => item.event_id === contest.event_id)?.election_date ?? contest.contest_id}</option>)}</select></label>}<div className="meta"><div><span>Turnout</span><strong>{percent(currentContest.turnout_rate)}</strong></div><div><span>Seats filled in poll</span><strong>{currentContest.seats_available} of {authority === LEEDS ? 3 : currentContest.seats_available}</strong></div></div><p className="winner-line"><strong>Elected:</strong> {currentCandidates.filter(item => item.elected).map(item => `${item.candidate_name} (${canonicalParty(item.party_label)})`).join("; ") || "Unavailable"}</p></> : <p>No imported contest for this ward in {year}. Check History for other recorded years.</p> : <p>{activityFor(authority)?.contest_count ?? 0} imported contests in {year}. Select a ward for its result, or open Table for candidate-level records.</p>}</>}
+            {currentContest && ward ? (() => { const votes: Record<string, number> = {}; for (const candidate of currentCandidates) if (candidate.votes != null) { const party = canonicalParty(candidate.party_label); votes[party] = (votes[party] ?? 0) + candidate.votes; } return <PartyBars votes={votes} total={currentContest.candidate_votes} winners={currentCandidates.filter(item => item.elected).map(item => canonicalParty(item.party_label))} multiSeat={currentContest.seats_available > 1} />; })() : <PartyBars votes={areaPartyVotes} total={areaTotalVotes} winners={leadingParties(areaWinnerCounts)} multiSeat={true} compact />}
+            {currentContest?.quality_note && ward && <p className="notice small-notice">{currentContest.quality_note}</p>}{currentContest?.comparability_note && ward && <p className="footnote">{currentContest.comparability_note.replace("code_match_only; historical polygons not certified", "2025 ward code matches; the historical poll boundary has not been certified.")}</p>}{level === "authority" && !result && <p role="status">Loading results…</p>}</>}
+          {detailTab === "census" && (profile ? <><p className="sub">2021 Census · output areas allocated to 2025 Leeds wards</p><div className="census-total"><span>Usual residents</span><strong>{number.format(profile.population)}</strong></div><p className="footnote">{number.format(profile.oa_count)} output areas. Best-fit geography may differ from native ward totals.</p>{["Age", "Households and housing", "Work and education", "Population"].map(group => { const metrics = profile.metrics.filter(item => item.group === group); return metrics.length ? <section className="metric-group" key={group}><h4>{group}</h4>{metrics.map(metric => <div className="metric-row" key={metric.key}><span>{metric.label}</span><strong>{percent(metric.share)}</strong><small>{number.format(metric.count)} of {number.format(metric.denominator)}</small></div>)}</section> : null; })}</> : <p className="sub">{authority === LEEDS ? "Select a Leeds ward to view its 2021 Census profile." : "Ward Census profiles outside Leeds have not yet been prepared for this release."}</p>)}
+          {detailTab === "tribes" && (profile ? <><p className="sub">Exploratory K=7 classification of 2021 Census areas; this does not measure voting intention.</p>{profile.tribes.map(item => <div className="result" key={item.id}><div className="result-label"><span><span className="party-swatch" style={{ background: tribeColors[item.id] }} aria-hidden="true" />{item.name}</span><span>{percent(item.share)}</span></div><div className="track"><div className="fill" style={{ width: `${item.share * 100}%`, background: tribeColors[item.id] }} /></div></div>)}<p className="footnote">Shares are weighted by 2021 Census residents in each output area.</p></> : <p className="sub">{authority === LEEDS ? "Select a Leeds ward to view its Electoral Tribes profile." : "Electoral Tribes profiles outside Leeds have not yet been prepared for this release."}</p>)}
+          {detailTab === "history" && (ward ? selectedHistory.length ? <ol className="history-list">{selectedHistory.map((item, index) => <li key={`${item.date}-${index}`}><strong>{item.date ? dateText(item.date) : "Date unavailable"}</strong><span>{"event_kind" in item ? item.event_kind === "by_election" ? "By-election" : "Council election" : item.kind === "by_election" ? "By-election" : "Council election"} · {item.status === "included" || item.status === "checked_published" || item.status === "secondary_source_staged" ? "Recorded" : item.status}</span>{"winners" in item && item.winners ? <small>{Array.isArray(item.winners) ? item.winners.map(winner => `${winner.candidate_name} (${winner.party_label})`).join("; ") : item.winners}</small> : null}{"reason" in item && item.reason ? <small>{item.reason}</small> : null}</li>)}</ol> : <p className="sub">{authority !== LEEDS && historyState?.authority !== authority ? "Loading recorded history…" : "No imported poll history for this ward. This does not prove there were no elections."}</p> : <><p className="sub">Select a ward for recorded poll history. Council-year status is shown below.</p>{authority ? <ul className="v2-year-list">{[...catalog.years].reverse().map(value => <li key={value}><strong>{value}</strong><span>{coverageLabel(authorityArea?.coverage?.[String(value)]?.status)}</span></li>)}</ul> : <p>Choose a council to see its recorded coverage by year.</p>}</>)}
+        </aside></div>}
+      <div className="under"><span>{year} · {areaContestCount} imported contests in this scope{sourceUrl && level === "authority" ? <> · <a href={sourceUrl} target="_blank" rel="noreferrer">Result source</a></> : null}</span><span>Geography: ONS 2025 · non-Leeds results: <a href="https://electionresults.uk/councils/data" target="_blank" rel="noreferrer">attributed secondary compilation</a></span></div>
     </>}
   </>;
 }

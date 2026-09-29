@@ -12,6 +12,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+from build_pilot_package import party_name
+
 YORKSHIRE = "E12000003"
 YEARS = set(range(2021, 2027))
 
@@ -35,6 +37,7 @@ def check(root: Path) -> dict:
         raise ValueError(f"Unlisted or missing release objects: {sorted(actual ^ (listed | {'manifest.json'}))}")
     objects = {name: read(root, name, sha) for name, sha in manifest["object_sha256"].items()}
     catalog = objects["catalog.json"]
+    activity = catalog.get("activity", {})
     if catalog["pilot_region"] != YORKSHIRE or set(catalog["years"]) != YEARS:
         raise ValueError("Pilot scope or years changed")
     regions = {item["code"] for item in catalog["regions"]}
@@ -67,6 +70,8 @@ def check(root: Path) -> dict:
             if status in {"not_audited", "no_record_in_annual_source"}:
                 if filename in objects:
                     raise ValueError(f"Unreviewed council-year has a published result object: {filename}")
+                if str(year) in activity.get(code, {}):
+                    raise ValueError(f"Unreviewed council-year has an activity summary: {filename}")
                 continue
             if filename not in objects:
                 raise ValueError(f"Covered council-year lacks result: {filename}")
@@ -76,6 +81,9 @@ def check(root: Path) -> dict:
             events = {item["event_id"] for item in result["events"]}
             contests = {item["contest_id"]: item for item in result["contests"]}
             candidates = result["candidates"]
+            stats = activity.get(code, {}).get(str(year))
+            if not stats or stats["contest_count"] != len(contests):
+                raise ValueError(f"Missing or incorrect activity summary: {filename}")
             if len(events) != len(result["events"]) or len(contests) != len(result["contests"]):
                 raise ValueError(f"Duplicate event or contest: {filename}")
             votes = Counter()
@@ -85,6 +93,25 @@ def check(root: Path) -> dict:
                     raise ValueError(f"Bad candidate record: {filename}")
                 votes[item["contest_id"]] += item["votes"] or 0
                 winners[item["contest_id"]] += item["elected"]
+            party_votes = Counter()
+            elected_parties = Counter()
+            sdp_wards = set()
+            for item in candidates:
+                party = party_name(item["party_label"])
+                if item["votes"] is not None:
+                    party_votes[party] += item["votes"]
+                if item["elected"]:
+                    elected_parties[party] += 1
+                if party == "SDP":
+                    sdp_wards.add(contests[item["contest_id"]]["ward_code"])
+            turnout = [item["turnout_rate"] for item in contests.values() if item["turnout_rate"] is not None]
+            if (stats["party_candidate_votes"] != dict(party_votes)
+                    or stats["winner_counts"] != dict(elected_parties)
+                    or stats["sdp_contested_wards"] != sorted(sdp_wards)
+                    or stats["candidate_votes"] != sum(party_votes.values())
+                    or stats["turnout_contests"] != len(turnout)
+                    or stats["mean_recorded_turnout"] != (sum(turnout) / len(turnout) if turnout else None)):
+                raise ValueError(f"Activity summary differs from candidate records: {filename}")
             for item in contests.values():
                 if item["event_id"] not in events or item["seats_available"] < 1:
                     raise ValueError(f"Bad contest reference: {filename}")
