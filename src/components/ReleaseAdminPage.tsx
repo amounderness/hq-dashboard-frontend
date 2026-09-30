@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import ExplorerV2ReleaseAdminPage from "./ExplorerV2ReleaseAdminPage";
 
 type Pointer = { package_id: string; manifest_sha256: string };
 type ReleaseInfo = Pointer & { assembled_on?: string; wards?: number; contests?: number; candidate_records?: number; active: boolean; approved: boolean; changed_paths: string[]; added_paths: string[]; removed_paths: string[]; release_limits: string[] };
@@ -85,5 +86,6 @@ export default function ReleaseAdminPage() {
       </section>
       <section className="card release-stage"><h2>3 · Recover and audit</h2><p>Rollback restores the previous package recorded by these controls, after checking its objects again. The pre-existing manual recovery route remains documented for releases activated before this screen existed.</p><button className="button" disabled={busy || reason.trim().length < 12 || !canRollback} onClick={() => void action("rollback")}>Rollback last activation</button><h3>Recent owner actions</h3><div className="table-wrap"><table className="results-table"><thead><tr><th>When</th><th>Action</th><th>From → to</th><th>Reason</th></tr></thead><tbody>{state.audit.map(item => <tr key={item.id}><td>{new Date(item.at).toLocaleString("en-GB")}</td><td>{item.action}</td><td>{item.from?.package_id ?? "—"} → {item.to?.package_id ?? "—"}</td><td>{item.reason}</td></tr>)}</tbody></table></div></section>
     </>}
+    <ExplorerV2ReleaseAdminPage />
   </>;
 }
