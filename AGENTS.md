@@ -26,7 +26,7 @@ Read the latest hand-off, revised platform plan, docs/explorer-v2-gate-2.md, MVP
 Distinguish live Leeds, locally staged Explorer v2, planned capabilities and independently verified behavior. Dated documents do not establish current deployment or Access policy.
 
 ## Delegation
-Use parallel subagents for independent project tasks when it improves delivery. Keep one coordinator responsible for assignment, integration and final reporting. Start with frontend, data/geography, and independent QA/release review. Give every agent the same verified base commit, explicit outcome, owned files, dependencies and definition of done.
+When the owner explicitly requests parallel agents, use them for independent project tasks where they improve delivery. Keep one coordinator responsible for assignment, integration and final reporting. Suitable assignments are frontend, data/geography, and independent QA/release review. Give every agent the same verified base commit, explicit outcome, owned files, dependencies and definition of done.
 Read-only agents may inspect shared files. Editing agents must have disjoint file ownership; use separate branches/worktrees for independent coding chats. The coordinator owns shared contracts, shared styles, Leeds regression surfaces and integration. Resolve overlaps before edits. Do not simultaneously mutate a shared SQLite store, release directory, active pointer or Git checkout.
 Subagents return concise evidence, file references, findings, validation performed and blockers. Do not present their source inspection as a runtime test.
 
@@ -42,4 +42,3 @@ Release work must retain package ID, manifest hash, code commit, source evidence
 
 ## Logs and hand-off
 Update relevant Gate2, source audit, MVP and development logs only for work actually checked or published. Label staged, source-reviewed, locally tested and live-verified evidence explicitly. Record remaining blockers and next owner. Keep user explanations practical and beginner-friendly.
-
