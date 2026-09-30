@@ -11,18 +11,18 @@ The catalogue's `no_record_in_annual_source` means the secondary annual compilat
 | Barnsley | No annual-source record | Ordinary poll not listed; by-election index has no 2025 entry. Exhaustiveness still to confirm. |
 | Bradford | No annual-source record | Council calls 2025 a scheduled fallow year; unscheduled events still to check. |
 | Calderdale | No annual-source record | **Skircoat council by-election found; missing from rc3.** |
-| Doncaster | Secondary source staged | Candidate and event comparison unchecked. |
+| Doncaster | Secondary source staged | May ordinary poll listed; **Bentley council by-election on 21 August is not in the annual-source staging.** |
 | East Riding of Yorkshire | No annual-source record | Unchecked. |
-| Kingston upon Hull | No annual-source record | Unchecked. |
-| Kirklees | No annual-source record | Unchecked. |
+| Kingston upon Hull | No annual-source record | Council's local-results page lists no 2025 council poll; confirm index completeness. |
+| Kirklees | No annual-source record | Council's previous-results index lists 2025 parish contests only; confirm completeness. |
 | Leeds | Partial by-election only | Audited separately in Leeds v0.6.0; check its release record. |
-| North East Lincolnshire | No annual-source record | Unchecked. |
-| North Lincolnshire | No annual-source record | Unchecked. |
-| North Yorkshire | No annual-source record | Unchecked. |
-| Rotherham | No annual-source record | Unchecked. |
-| Sheffield | No annual-source record | Unchecked. |
-| Wakefield | No annual-source record | Unchecked. |
-| York | No annual-source record | Unchecked. |
+| North East Lincolnshire | No annual-source record | Council's local-results page lists no 2025 district poll; town contest and mayoral poll are separate types. |
+| North Lincolnshire | No annual-source record | Council's results index lists no 2025 unitary poll; mayoral poll and referendum are separate types. |
+| North Yorkshire | No annual-source record | **Eastfield division council by-election on 19 June found; missing from rc3.** |
+| Rotherham | No annual-source record | **Keppel council by-election on 10 July found; missing from rc3.** |
+| Sheffield | No annual-source record | **Stocksbridge and Upper Don council by-election on 26 June found; missing from rc3.** |
+| Wakefield | No annual-source record | Council's by-election index lists a 2025 parish poll but no 2025 district poll; confirm completeness. |
+| York | No annual-source record | Council's recent-results index lists only a business-district ballot in 2025; confirm index completeness. |
 
 ## Barnsley Metropolitan Borough Council
 
@@ -41,6 +41,16 @@ The [council's boundary-review notice](https://new.calderdale.gov.uk/council/ele
 ## City of Bradford Metropolitan District Council
 
 The [council's scheduled-elections page](https://www.bradford.gov.uk/your-council/elections-and-voting/scheduled-elections/) explicitly calls 2025 a fallow year for scheduled elections and says all 90 district seats were elected in May 2026. That page says the highest-voted elected candidate in each ward serves four years, the second serves two years, and the third serves one year, yielding one seat per ward due in May 2027. This term assignment matters for any current-seat or upcoming-contest view; winning an all-out 2026 seat does not imply every elected member remains in office until 2030. The [council's ward-map page](https://www.bradford.gov.uk/your-council/elections-and-voting/ward-maps/) confirms new ward boundaries took effect at the 7 May 2026 poll and provides access to pre-2026 boundaries. Use the correct dated shape for each result year. The scheduled-election statement does not, by itself, certify that no unscheduled 2025 by-election occurred; check the event list separately.
+
+## Other 2025 event-list findings
+
+- [City of Doncaster Council's election index](https://www.doncaster.gov.uk/services/the-council-democracy/election-results-for-doncaster) lists a Bentley Ward local-government by-election on **21 August 2025**, separately from the all-out council election on [1 May 2025](https://www.doncaster.gov.uk/services/the-council-democracy/local-elections-2025). It also lists parish and town elections, which require their own result type. The staged 2025 council result is an annual-source import; reconcile the Bentley result in a new candidate.
+- [Sheffield City Council's election index](https://www.sheffield.gov.uk/your-city-council/elections/election-results) lists the Stocksbridge and Upper Don City Council by-election under **26 June 2025**, although one sentence on that page erroneously says 2024. The [council's dated result article](https://www.sheffield.gov.uk/news/2025/stocksbridge-and-upper-don-election-result-2025-0) confirms the 2025 election and candidate votes (Reform UK 1,789; Liberal Democrats 1,597; Labour 1,324; others listed there) with 36.8% turnout. Use the dated result and official notice to resolve the index typo before importing.
+- [North Yorkshire Council's official Eastfield declaration](https://www.northyorks.gov.uk/sites/default/files/2025-06/Eastfield%20Division%20election%20results%20June%202025_0.pdf) confirms a **19 June 2025** council-division by-election: Tom Seston (Reform UK) elected with 538 votes, one vacant seat, electorate 5,181, 862 ballots issued, four rejected and 16.64% turnout. The council's [division-vacancy page](https://www.northyorks.gov.uk/your-council/elections-and-voting/division-vacancies-and-elections) identifies the vacancy. Its separate [by-election listing](https://www.northyorks.gov.uk/node/8000/election-results) includes parish/town contests in 2025; do not import those as North Yorkshire Council divisions.
+- [City of York Council's recent-results index](https://www.york.gov.uk/RecentElectionResults) lists only a Business Improvement District ballot for 2025 and lists council by-elections in 2024 and 2026. This supports a possible no-council-poll annotation but should not be certified exhaustive without checking the full event register.
+- [Rotherham Metropolitan Borough Council's 2025 index](https://www.rotherham.gov.uk/homepage/293/election-results) lists a **Keppel Ward council by-election on 10 July** alongside several distinct parish contests. Its [official result page](https://www.rotherham.gov.uk/elections-voting/keppel-ward-parish-elections-thursday-10-july-2025) records Tony Harrison (Reform UK) elected with 1,160 votes, electorate 10,557, 2,885 ballots issued, four rejected and 27.33% turnout. Import this council contest separately from the parish events in a new candidate.
+- [Kirklees Council's previous-results index](https://www.kirklees.gov.uk/beta/voting-and-elections/previous-elections.aspx) lists three parish results in 2025 but no district poll; its [election register](https://democracy.kirklees.gov.uk/mgManageElectionResults.aspx) likewise jumps from a 2024 council by-election to 2026 ordinary results. Its [boundary-review report](https://democracy.kirklees.gov.uk/documents/g7992/Public%20reports%20pack%2026th-Sep-2025%2010.30%20Corporate%20Governance%20and%20Audit%20Committee.pdf?T=10) states new district ward boundaries take effect at the May 2026 election, so dated shapes need checking here too.
+- [Hull City Council's local-election page](https://www.hull.gov.uk/localelections), [Wakefield Council's by-election list](https://www.wakefield.gov.uk/elections/election-results/previous-by-election-results), [North East Lincolnshire Council's local-results page](https://www.nelincs.gov.uk/your-council/elections-and-voting/election-dates-and-results/local-elections/) and [North Lincolnshire Council's results index](https://www.northlincs.gov.uk/your-council/about-elections-and-voting/our-election-results/election-results/) do not show a 2025 principal-council poll in the reviewed sections. They do show other election types in or around 2025. Confirm each index is exhaustive before changing a `no_record_in_annual_source` label to certified no-poll.
 
 ## Next source checks
 
