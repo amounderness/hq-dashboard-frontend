@@ -32,7 +32,7 @@ The source register distinguishes a *record not found in the annual source* from
 
 ## Release workflow
 
-The clean sequence is **ingest → validate → stage → review → approve → activate**. An active release pointer is a separate object, so a new build cannot replace what viewers see merely because files were uploaded. The current code prepares and validates packages; it does not yet provide the owner screen for approving and activating an Explorer v2 release in Cloudflare R2. Until that control and access test exist, keep `NEXT_PUBLIC_EXPLORER_V2_ENABLED` and `SWITCHBOARD_V2_ENABLED` disabled in production.
+The clean sequence is **ingest → validate → stage → review → approve → activate**. An active release pointer is a separate object, so a new build cannot replace what viewers see merely because files were uploaded. The v2 owner screen and R2 lifecycle are implemented on the `feature/explorer-v2-owner-releases` branch and pass local package tests; they have **not** been deployed or checked behind live Cloudflare Access. Until source review, deployment and authenticated owner/viewer tests pass, keep `NEXT_PUBLIC_EXPLORER_V2_ENABLED` and `SWITCHBOARD_V2_ENABLED` disabled in production. See [the v2 owner-control record](explorer-v2-owner-release-controls-2026-09-30.md).
 
 For a fresh local build, use a new empty staging directory rather than overwriting an existing audit. The commands below are run from the repository folder. `PATH_TO_LEEDS_RELEASE` means the already approved, local Leeds v0.6.0 package folder.
 
@@ -54,7 +54,7 @@ The working store, source downloads and release packages are under ignored `data
 | All local election types | Seven types and round/list tables modelled; only council ordinary results imported beyond Leeds | Implement generic import adapters for mayoral, parish and London Assembly results, with separate source and method rules. |
 | Annual council results since 2021 | Matched English council records staged; secondary source and winner caveats visible | Compare sampled council declarations, resolve the two Surrey authority IDs and check the 4,625 national unmatched wards before any wider release. |
 | By-elections and absence | Leeds audited; regional annual source is not exhaustive | Reconcile each pilot council's event list, mark verified no-poll years separately, and import missing by-elections. |
-| Release safety | Checksummed package and local staging record pass | Add owner-only R2 staging, approval, activation and rollback controls; test protected assets and role visibility. |
+| Release safety | Checksummed package and local staging record pass; owner-only R2 controls pass local unit and full rc3 package tests on a development branch | Deploy controls without enabling v2, then test protected assets, owner/viewer API denial, staging, approval, activation and rollback on Cloudflare. |
 | Explorer usability | Local Chrome checks passed Map, Table, Composition, ward selection/highlight, year changes, SDP filter, keyboard activation, 390px layout and a non-Leeds council; see browser QA record | Test additional browsers and representative larger councils with invited users; add quick search and council-tier filters. |
 | February 2027 readiness | Yorkshire and Humber is the first expansion | Agree the councils campaigners need first, run source checks by priority, then release council/region slices incrementally instead of waiting until after the 2027 locals. |
 
