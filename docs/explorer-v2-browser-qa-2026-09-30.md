@@ -1,0 +1,20 @@
+# Explorer v2 local browser QA — 30 September 2026
+
+**Candidate:** `explorer-v2-yh-2026-09-29-rc3` with local Leeds `leeds-pulse-v0.6.0`. **Code baseline:** `feature/explorer-v2-national-store` at `9d4fe7e`, plus the lockfile-only reproducibility correction described below. **Environment:** Windows 11, Node 22.18.0, npm 11.5.2, Next.js 16.3.6 default Turbopack local development server, local package directories and localhost-only sign-in bypass. Automated interaction used headless Google Chrome at 1440 × 900 and 390 × 844. This is a local functional/visual check, not a test of Cloudflare Access or a production release.
+
+| Journey | Observed result |
+| --- | --- |
+| Overview → Explorer v2 | Page loaded the England map and nine-region catalogue; only Yorkshire and Humber was coloured, with the secondary-source and missing-coverage notice visible. Geography API requests returned 200. |
+| Yorkshire → Leeds, 2026 | Council view loaded 33 ward paths and 33 imported contests. The map used party colours and the sidebar showed audited Leeds status and candidate-vote share definitions. |
+| Farnley & Wortley ward | Selecting the ward updated the sidebar to the 7 May 2026 result, turnout, “1 of 3” seats and elected candidate. Exactly one map path had `aria-pressed=true`; its black outline was visible above neighbouring borders in the screenshot. |
+| Change to 2025, then 2024 | The selected ward persisted. 2025 displayed “No imported contest for this ward” rather than an error. 2024 offered both the ordinary poll and the 10 October by-election; Table displayed candidate-level rows for both with winner ticks and turnout. |
+| Map, filters and composition | Turnout map mode and SDP-contested filter responded. The SDP filter greyed non-contested regional councils. Leeds Composition showed a dated 99-seat 2024 snapshot and changes against a named prior date. |
+| Keyboard and mobile | A ward map path accepted keyboard Enter and set `aria-pressed=true`. At 390px, the selected Morley South result, map and controls remained accessible; document width equalled viewport width, with no horizontal overflow. |
+| Non-Leeds and absent year | Barnsley 2026 loaded 21 contests with “Secondary source · review needed”. Composition explicitly said no checked snapshot. Barnsley 2025 said “No annual record · check events” and zero *imported* contests, without claiming no poll occurred. |
+| Existing Leeds Explorer and reports | Farnley 2025 showed the by-election-only Leeds context without a fetch error; Farnley 2024 opened the sourced by-election with its secondary turnout caveat. Ward, composition and SDP CSV downloads all completed and contained the expected report headers and package ID. |
+
+No browser page errors or failed application API responses appeared during these journeys. This does not certify every ward, browser, screen size, source record, map geometry or export field. Local unauthenticated access was intentionally restricted to localhost development; owner/viewer role isolation and sign-out checks still require a protected live preview.
+
+The dependency lock was repaired without changing existing package versions: the Windows Rolldown binding was removed from root `dependencies`, and 14 missing optional platform binding records were restored at the already-pinned `1.2.11` version. A fresh `npm ci` in an isolated temporary directory installed 622 packages. ESLint, Next.js build, TypeScript check and vinext Worker build passed. A stale `.next` persistence cache initially caused an “invalid digit found in string” build failure; removing only the generated `.next` directory resolved it. The local app checkout now ignores Windows `desktop.ini` metadata files.
+
+**Still required before live v2 owner testing:** owner-only R2 staging, approval, activation, rollback and audit; authenticated access/asset/API checks; council-source sampling, by-election/event-list reconciliation, historical boundary decisions and the secondary-source licence review. The live Leeds viewer experience and active R2 pointer were not changed by these tests.
