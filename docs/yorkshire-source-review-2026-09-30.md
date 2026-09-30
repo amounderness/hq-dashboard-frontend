@@ -2,6 +2,28 @@
 
 This is a source-check record for a future Yorkshire release. It does not change or approve the immutable `explorer-v2-yh-2026-09-29-rc3` package.
 
+## 2025 council-year coverage queue
+
+The catalogue's `no_record_in_annual_source` means the secondary annual compilation has no row; it is **not** an assertion that no election occurred. This queue covers the 15 Yorkshire and Humber authorities in the pilot. “Unchecked” means the council's ordinary-election and by-election lists have not yet been reconciled here.
+
+| Authority | rc3 2025 label | Official-event review as of 30 September |
+| --- | --- | --- |
+| Barnsley | No annual-source record | Ordinary poll not listed; by-election index has no 2025 entry. Exhaustiveness still to confirm. |
+| Bradford | No annual-source record | Council calls 2025 a scheduled fallow year; unscheduled events still to check. |
+| Calderdale | No annual-source record | **Skircoat council by-election found; missing from rc3.** |
+| Doncaster | Secondary source staged | Candidate and event comparison unchecked. |
+| East Riding of Yorkshire | No annual-source record | Unchecked. |
+| Kingston upon Hull | No annual-source record | Unchecked. |
+| Kirklees | No annual-source record | Unchecked. |
+| Leeds | Partial by-election only | Audited separately in Leeds v0.6.0; check its release record. |
+| North East Lincolnshire | No annual-source record | Unchecked. |
+| North Lincolnshire | No annual-source record | Unchecked. |
+| North Yorkshire | No annual-source record | Unchecked. |
+| Rotherham | No annual-source record | Unchecked. |
+| Sheffield | No annual-source record | Unchecked. |
+| Wakefield | No annual-source record | Unchecked. |
+| York | No annual-source record | Unchecked. |
+
 ## Barnsley Metropolitan Borough Council
 
 The [council election-results index](https://www.barnsley.gov.uk/services/voting-and-elections/election-results/) lists ordinary local polls in 2021, 2022, 2023, 2024 and 2026, with no 2025 ordinary poll listed. Its by-election index lists Dodworth on 12 December 2024 and Penistone East on 20 August 2026, with no 2025 council by-election listed on the page when checked on 30 September 2026. The [council's election-types page](https://www.barnsley.gov.uk/services/voting-and-elections/types-of-elections/) says Barnsley moved to whole-council elections from May 2026, with 21 wards electing three councillors each every four years. The [council's transition notice](https://www.barnsley.gov.uk/media/usxn0rhj/changes-to-whole-council-elections.pdf) supports the change from elections by thirds.
