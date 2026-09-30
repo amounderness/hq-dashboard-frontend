@@ -10,6 +10,16 @@ The rc3 catalogue currently labels Barnsley 2025 `no_record_in_annual_source`. T
 
 The rc3 Barnsley 2026 package contains 21 ward contests and 63 elected places, three per contest. That structure matches the council's whole-council election description. The [council's 2026 results announcement](https://www.barnsley.gov.uk/news/barnsley-s-local-elections-results-2026-announced/) reports the 7 May poll, 188,414 electors, 70,182 voters, 37.25% turnout and resulting council composition of 42 Reform UK, 11 Labour, eight Liberal Democrats and two independents. These aggregate figures are cross-check targets; candidate-level votes and winners still require comparison with the council declarations before release approval.
 
+## Calderdale Metropolitan Borough Council
+
+The [council's election-results data portal](https://dataworks.calderdale.gov.uk/dataset/election-results-e1qn8) lists a **Skircoat Ward council by-election on 8 May 2025**. It separately lists two parish/township contests on 6 February 2025. The rc3 catalogue labels Calderdale 2025 `no_record_in_annual_source`; that label is accurate as a description of the imported annual compilation, but the package is missing a known council by-election. Import and reconcile the official Skircoat return in a new release candidate before treating 2025 Calderdale council coverage as complete. Keep the parish/township elections separate from the council result type.
+
+The [council's boundary-review notice](https://new.calderdale.gov.uk/council/elections-and-voting/review-polling-districts-places-and-stations) describes 18 new wards for the May 2026 election, replacing the earlier 17-ward pattern. The present v2 map uses 2025 display boundaries. Check every 2026 ward-result link against an event-date boundary edition before presenting a 2026 Calderdale ward shape as exact.
+
+## City of Bradford Metropolitan District Council
+
+The [council's scheduled-elections page](https://www.bradford.gov.uk/your-council/elections-and-voting/scheduled-elections/) explicitly calls 2025 a fallow year for scheduled elections and says all 90 district seats were elected in May 2026. That page says the highest-voted elected candidate in each ward serves four years, the second serves two years, and the third serves one year, yielding one seat per ward due in May 2027. This term assignment matters for any current-seat or upcoming-contest view; winning an all-out 2026 seat does not imply every elected member remains in office until 2030. The [council's ward-map page](https://www.bradford.gov.uk/your-council/elections-and-voting/ward-maps/) confirms new ward boundaries took effect at the 7 May 2026 poll and provides access to pre-2026 boundaries. Use the correct dated shape for each result year. The scheduled-election statement does not, by itself, certify that no unscheduled 2025 by-election occurred; check the event list separately.
+
 ## Next source checks
 
 Check each Yorkshire council's official ordinary-election and by-election event lists against the staged 2021–2026 coverage rows. For sampled result years, compare contest dates, ward names, candidate votes, elected flags and turnout with official declarations. Record any secondary-source substitution with a URL, access date and field-level caveat. Keep historical boundary matches separate from current 2025 display polygons.
