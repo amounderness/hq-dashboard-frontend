@@ -126,7 +126,13 @@ def main(root: Path):
                     "authority_code": code, "year": year, "election_type": "local_council",
                     "coverage": coverage["status"], "explanation": coverage["reason"],
                     "events": events, "contests": contests, "candidates": candidates,
-                    "source_release": "leeds-pulse-v0.6.0" if code == "E08000035" else "electionresults.uk 2026-06-04 secondary snapshot",
+                    "source_release": ("leeds-pulse-v0.6.0" if code == "E08000035" else
+                                       "secondary annual source plus council by-election return"
+                                       if any(event["status"] == "council_source_staged" for event in events)
+                                       and any(event["status"] == "secondary_source_staged" for event in events) else
+                                       "council by-election return"
+                                       if any(event["status"] == "council_source_staged" for event in events) else
+                                       "electionresults.uk 2026-06-04 secondary snapshot"),
                 })
             result_council_years += 1
             pilot_contests += len(contests)
@@ -139,7 +145,7 @@ def main(root: Path):
             "coverage_definition": {
                 "not_audited": "No election result source has been audited for this authority and year; this is not evidence of no election.",
                 "checked_published": "The audited Leeds release contains results for this year.",
-                "partial_by_election_only": "Only an audited by-election appears for this year.",
+                "partial_by_election_only": "Only recorded by-election results appear for this year; event-list completeness is not certified.",
                 "secondary_source_staged": "Ordinary election records from a secondary compilation; council checks and by-election coverage remain open.",
                 "no_record_in_annual_source": "No ordinary poll record was found in the pinned annual compilation; by-elections and scheduling still need verification.",
                 "not_released": "The council is indexed nationally but its results are outside this pilot release.",
@@ -150,7 +156,7 @@ def main(root: Path):
         manifest["limits"] = [
             "The 2025 geography is a display edition, not proof that historical contests used the same boundaries.",
             "The local store has a wider national ordinary-election source archive; this release exposes only Yorkshire and Humber results.",
-            "Leeds uses its audited v0.6.0 release. Other Yorkshire and Humber results are secondary-source staging and need council-level checks.",
+            "Leeds uses its audited v0.6.0 release. Other Yorkshire and Humber ordinary results are secondary-source staging; selected by-elections have council-sourced transcriptions with visible caveats.",
             "The annual source is not an exhaustive by-election, mayoral, parish or current council-composition register.",
             "An absent annual record is not proof that no election or by-election occurred.",
         ]

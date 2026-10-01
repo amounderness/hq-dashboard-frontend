@@ -83,8 +83,10 @@ test("v2 staging is immutable and tampering blocks approval", async () => {
   await assert.rejects(admin.v2Approve(bucket, "v2-test-tamper", actor, reason), /Checksum mismatch/);
 });
 
-test("recovered Yorkshire rc3 validates in the same R2 contract when locally available", async t => {
-  const packageRoot = path.join(root, "data/explorer-v2/releases/explorer-v2-yh-2026-09-29-rc3");
+for (const [label, packageRoot, expected] of [
+  ["rc3", path.join(root, "data/explorer-v2/releases/explorer-v2-yh-2026-09-29-rc3"), [58, 54, 1278, 7809]],
+  ["rc4", path.join(root, "data/explorer-v2/work-2026-10-01-byelections/releases/explorer-v2-yh-2026-10-01-rc4"), [62, 58, 1283, 7842]],
+]) test(`recovered Yorkshire ${label} validates in the same R2 contract when locally available`, async t => {
   if (!existsSync(packageRoot)) return t.skip("Ignored local release is not installed");
   const bucket = new Bucket();
   const manifest = await readFile(path.join(packageRoot, "manifest.json"), "utf8");
@@ -95,5 +97,5 @@ test("recovered Yorkshire rc3 validates in the same R2 contract when locally ava
     catch (cause) { throw new Error(`${relative}: ${cause.message}`); }
   }
   const checked = await admin.v2Validate(bucket, id);
-  assert.deepEqual([checked.objects_checked, checked.council_years, checked.contests, checked.candidates], [58, 54, 1278, 7809]);
+  assert.deepEqual([checked.objects_checked, checked.council_years, checked.contests, checked.candidates], expected);
 });
