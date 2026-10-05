@@ -14,6 +14,8 @@
 
 **Sheffield local rc5 candidate (5 October):** The owner approved the reviewed import contract. A new, isolated [rc5 package](explorer-v2-sheffield-rc5-2026-10-05.md) now contains the Southey and Walkley 2026 by-elections and passes package and local API checks. rc4 and Leeds are unchanged. Browser visual QA and wider council event-list reconciliation remain open; rc5 is not uploaded or activated.
 
+**Further source audit (5 October):** The [official Sheffield/Barnsley review](yorkshire-2026-official-event-audit-2026-10-05.md) confirms 28 Sheffield ordinary wards and 196 candidate vote/elected rows against rc5, identifies 28 available official turnout figures, and finds a missing Barnsley Penistone East by-election on 20 August 2026. The [next import contract](explorer-v2-official-html-and-turnout-design-2026-10-05.md) awaits owner review; rc5 and live Leeds remain unchanged.
+
 ## What now works
 
 - A canonical SQLite store indexes England's nine regions, 296 current local authorities, 21 separate county areas, 15 combined authorities, 6,826 2025 English wards, and 10,661 parish or non-civil-parished areas. Yorkshire and Humber has 15 authorities, 410 current wards, and 1,216 parish-area boundary records in local staging.

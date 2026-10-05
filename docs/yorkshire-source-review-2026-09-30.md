@@ -4,6 +4,8 @@ This is a source-check record for a future Yorkshire release. It does not change
 
 **1 October update:** The five 2025 council by-elections marked missing below have been transcribed from council sources into a separate, locally validated [rc4 candidate](explorer-v2-byelection-rc4-2026-10-01.md). The table below remains a record of the rc3 gaps. rc4 is not an exhaustive by-election register and has not been uploaded, approved or activated.
 
+**5 October update:** The [new official-source audit](yorkshire-2026-official-event-audit-2026-10-05.md) compares Sheffield's entire ordinary May 2026 result page with local rc5 and identifies a separate, missing Barnsley Penistone East by-election. These findings do not amend the older rc3 gap table or certify an exhaustive event register.
+
 ## 2025 council-year coverage queue
 
 The catalogue's `no_record_in_annual_source` means the secondary annual compilation has no row; it is **not** an assertion that no election occurred. This queue covers the 15 Yorkshire and Humber authorities in the pilot. “Unchecked” means the council's ordinary-election and by-election lists have not yet been reconciled here.

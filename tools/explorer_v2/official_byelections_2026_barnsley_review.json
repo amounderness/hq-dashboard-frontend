@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "review_status": "source_reviewed_not_imported",
+  "scope": "Penistone East, Barnsley Council, 20 August 2026; this is not an exhaustive council event register",
+  "events": [
+    {
+      "date": "2026-08-20",
+      "authority_id": "E08000038",
+      "ward_id": "E05016245",
+      "ward_name": "Penistone East",
+      "publisher": "Barnsley Council",
+      "source_url": "https://www.barnsley.gov.uk/services/voting-and-elections/election-results/penistone-east-ward-by-election-20-august-2026/",
+      "source_document_file": "penistone-east-result.html",
+      "source_document_type": "text/html",
+      "source_document_sha256": "84a8c7e296079a64fd000e0620e87c13480adbfeba2c84b0c024eacfbee6a032",
+      "seats": 1,
+      "electorate": 8674,
+      "reported_votes_cast": 3346,
+      "rejected": 7,
+      "ballots_issued": null,
+      "declared_turnout_percent": 38.58,
+      "quality_note": "The council page calls 3,346 'votes cast'; candidate votes also sum to 3,346 and 3,346/8,674 = 38.58% rounded. It separately reports seven rejected ballot papers. Do not infer ballots issued as either 3,346 or 3,353 without a returning-officer declaration or council clarification. One councillor was elected. The wider event register and event-date boundary equivalence are not certified.",
+      "candidates": [
+        {"name": "Eunice Asante", "party": "Reform UK", "source_party_label": "Reform UK", "votes": 795, "elected": false},
+        {"name": "Steven John Burkinshaw", "party": "Conservative", "source_party_label": "The Conservative Party", "votes": 387, "elected": false},
+        {"name": "Ehren Holt", "party": "Green", "source_party_label": "Green Party", "votes": 59, "elected": false},
+        {"name": "Peter Millar", "party": "Independent", "source_party_label": "Independent", "votes": 87, "elected": false},
+        {"name": "John Roberts", "party": "Labour", "source_party_label": "Labour Party", "votes": 1728, "elected": true},
+        {"name": "Carlo Turner", "party": "Independent", "source_party_label": "Independent", "votes": 2, "elected": false},
+        {"name": "Andy Waters", "party": "Liberal Democrat", "source_party_label": "Liberal Democrats", "votes": 70, "elected": false},
+        {"name": "David Wood", "party": "Restore Britain", "source_party_label": "Restore Britain", "votes": 218, "elected": false}
+      ]
+    }
+  ]
+}
