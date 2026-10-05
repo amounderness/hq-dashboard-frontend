@@ -84,6 +84,37 @@ class ReviewedCouncilImportTests(unittest.TestCase):
             import_events(self.db, self.fixture, self.raw)
         self.assertEqual(self.db.execute("SELECT COUNT(*) FROM source_record").fetchone()[0], 1)
 
+    def test_reviewed_html_uses_stated_turnout_without_inventing_ballots(self):
+        fixture = copy.deepcopy(self.fixture)
+        item = fixture["events"][0]
+        fixture["events"] = [item]
+        raw = b"<!doctype html><html><body>Reviewed council page</body></html>"
+        item["source_document_type"] = "text/html"
+        item["source_document_file"] = "reviewed.html"
+        item["source_document_sha256"] = hashlib.sha256(raw).hexdigest()
+        item["reported_votes_cast"] = sum(candidate["votes"] for candidate in item["candidates"])
+        item["ballots_issued"] = None
+        item["declared_turnout_percent"] = round(item["reported_votes_cast"] / item["electorate"] * 100, 2)
+        item["quality_note"] = "Council votes cast label is ambiguous beside rejected papers; ballots issued unknown."
+        (self.raw / "reviewed.html").write_bytes(raw)
+        self.assertEqual(import_events(self.db, fixture, self.raw)["inserted_events"], 1)
+        self.assertEqual(import_events(self.db, fixture, self.raw)["unchanged_events"], 1)
+        turnout, note = self.db.execute("SELECT turnout_rate,quality_note FROM contest WHERE contest_id LIKE 'council:%'").fetchone()
+        self.assertAlmostEqual(turnout, item["declared_turnout_percent"] / 100)
+        self.assertIn("ballots issued unknown", note)
+        (self.raw / "reviewed.html").write_bytes(raw + b"changed")
+        with self.assertRaisesRegex(ValueError, "checksum mismatch"):
+            import_events(self.db, fixture, self.raw)
+
+    def test_reviewed_html_refuses_inferred_ballots(self):
+        fixture = copy.deepcopy(self.fixture)
+        item = fixture["events"][0]
+        fixture["events"] = [item]
+        item["source_document_type"] = "text/html"
+        item["reported_votes_cast"] = sum(candidate["votes"] for candidate in item["candidates"])
+        with self.assertRaisesRegex(ValueError, "votes cast do not reconcile"):
+            import_events(self.db, fixture, self.raw)
+
     def test_changed_transcription_requires_new_review(self):
         import_events(self.db, self.fixture, self.raw)
         changed = copy.deepcopy(self.fixture)

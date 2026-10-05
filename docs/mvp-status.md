@@ -2,6 +2,8 @@
 
 Switchboard is a private **owner-only Leeds Pulse pilot**, not yet a complete volunteer or campaign operations MVP. It presents prepared records; the site does not calculate new results or forecasts on demand.
 
+The separate Yorkshire and Humber Explorer v2 [rc6 candidate](explorer-v2-barnsley-sheffield-rc6-2026-10-05.md) was validated locally on 5 October. It has not been published or made visible to Leeds pilot viewers; it does not change the Leeds MVP status below.
+
 | Area | Current state | Next gate |
 |---|---|---|
 | Leeds election results | Six election years (2021–2026), 167 recorded contests and 945 candidate records. The 2025 result view contains only the Morley South by-election. Four historical source-choice cases and the defined published council-archive event check are closed and cited. Each ward poll identifies the number of its three seats filled. | Seek a corrected Farnley declaration and official Morley turnout; keep both secondary figures visibly labelled. A complete person-by-person councillor history is a separate future data set. |

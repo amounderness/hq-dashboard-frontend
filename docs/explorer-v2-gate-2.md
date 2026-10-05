@@ -14,7 +14,9 @@
 
 **Sheffield local rc5 candidate (5 October):** The owner approved the reviewed import contract. A new, isolated [rc5 package](explorer-v2-sheffield-rc5-2026-10-05.md) now contains the Southey and Walkley 2026 by-elections and passes package and local API checks. rc4 and Leeds are unchanged. Browser visual QA and wider council event-list reconciliation remain open; rc5 is not uploaded or activated.
 
-**Further source audit (5 October):** The [official Sheffield/Barnsley review](yorkshire-2026-official-event-audit-2026-10-05.md) confirms 28 Sheffield ordinary wards and 196 candidate vote/elected rows against rc5, identifies 28 available official turnout figures, and finds a missing Barnsley Penistone East by-election on 20 August 2026. The [next import contract](explorer-v2-official-html-and-turnout-design-2026-10-05.md) awaits owner review; rc5 and live Leeds remain unchanged.
+**Further source audit (5 October):** The [official Sheffield/Barnsley review](yorkshire-2026-official-event-audit-2026-10-05.md) confirms 28 Sheffield ordinary wards and 196 candidate vote/elected rows against rc5, identifies 28 available official turnout figures, and finds a missing Barnsley Penistone East by-election on 20 August 2026. The owner approved the [next import contract](explorer-v2-official-html-and-turnout-design-2026-10-05.md) for local rc6 implementation; rc5 and live Leeds remain unchanged.
+
+**Local rc6 candidate (5 October):** The owner approved the HTML/turnout import contract for an unpublished working copy. [rc6](explorer-v2-barnsley-sheffield-rc6-2026-10-05.md) adds Barnsley's 20 August Penistone East by-election and Sheffield's council-reported turnout in 28 ordinary May wards. The package validates with 58 council-years, 1,286 contests and 7,861 candidates. Only the catalog and those two 2026 council result objects changed from rc5; all Leeds objects are byte-identical. No upload, approval, activation or live-site change has occurred. Browser visual QA is blocked by the browser-control runtime; localhost API checks passed.
 
 ## What now works
 

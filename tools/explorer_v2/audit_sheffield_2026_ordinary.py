@@ -94,7 +94,7 @@ class CouncilResults(HTMLParser):
             self.div_depth -= 1
 
 
-def check(db: sqlite3.Connection, raw: bytes) -> dict:
+def check(db: sqlite3.Connection, raw: bytes, allow_existing_turnout: bool = False) -> dict:
     if hashlib.sha256(raw).hexdigest() != SNAPSHOT_SHA256:
         raise ValueError("Official Sheffield HTML snapshot checksum mismatch")
     parser = CouncilResults()
@@ -133,7 +133,7 @@ def check(db: sqlite3.Connection, raw: bytes) -> dict:
         turnout_match = re.search(r"Turnouts?:\s*([\d.]+)%", info)
         if turnout_match:
             turnout_available += 1
-            if turnout is not None:
+            if turnout is not None and not allow_existing_turnout:
                 mismatches.append({"ward": name, "kind": "staged turnout already populated"})
             if seats > 1:
                 multi_seat_wards.append(name)
