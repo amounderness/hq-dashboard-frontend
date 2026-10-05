@@ -43,7 +43,7 @@ def main(root: Path, release_id: str) -> None:
         try:
             with db:
                 db.execute("INSERT INTO release_record VALUES (?,?,?,?,?,?)", (
-                    release_id, 1, "E12000003", manifest["created_at"], digest,
+                    release_id, manifest["schema_version"], "E12000003", manifest["created_at"], digest,
                     "staged_not_published"))
         finally:
             db.close()

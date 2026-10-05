@@ -99,3 +99,19 @@ for (const [label, packageRoot, expected] of [
   const checked = await admin.v2Validate(bucket, id);
   assert.deepEqual([checked.objects_checked, checked.council_years, checked.contests, checked.candidates], expected);
 });
+
+test("dated-ward rc9 validates but cannot be approved before council source review", async t => {
+  const packageRoot = path.join(root, "data/explorer-v2/work-2026-10-05-dated-wards-rc7/releases/explorer-v2-yh-2026-10-05-rc9");
+  if (!existsSync(packageRoot)) return t.skip("Ignored local rc9 release is not installed");
+  const bucket = new Bucket();
+  const manifest = await readFile(path.join(packageRoot, "manifest.json"), "utf8");
+  const { package_id: id, object_sha256, review_status } = JSON.parse(manifest);
+  assert.equal(review_status, "council_source_review_pending");
+  await admin.v2StageManifest(bucket, id, manifest, actor);
+  for (const relative of Object.keys(object_sha256)) {
+    await admin.v2StageObject(bucket, id, relative, await readFile(path.join(packageRoot, relative), "utf8"));
+  }
+  const checked = await admin.v2Validate(bucket, id);
+  assert.deepEqual([checked.objects_checked, checked.council_years, checked.contests, checked.candidates], [63, 58, 1288, 7882]);
+  await assert.rejects(admin.v2Approve(bucket, id, actor, reason), /Council source review is still pending/);
+});

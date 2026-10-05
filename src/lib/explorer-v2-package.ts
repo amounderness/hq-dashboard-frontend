@@ -44,9 +44,9 @@ async function source(): Promise<{ manifest: Manifest; read: (relative: string) 
   return { manifest: JSON.parse(manifestText) as Manifest, read };
 }
 
-export async function explorerV2Resource(kind: string, authority?: string, year?: string): Promise<unknown> {
+export async function explorerV2Resource(kind: string, authority?: string, year?: string, edition?: string): Promise<unknown> {
   const { manifest, read } = await source();
-  if (manifest.schema_version !== 1 || !releaseId.test(manifest.package_id)) throw new Error("Unsupported Explorer v2 release.");
+  if (![1, 2].includes(manifest.schema_version) || !releaseId.test(manifest.package_id)) throw new Error("Unsupported Explorer v2 release.");
   const verified = async (relative: string): Promise<string> => {
     const expected = manifest.object_sha256[relative];
     if (!expected || !/^[a-f0-9]{64}$/.test(expected)) throw new Error("Explorer v2 object is not in the manifest.");
@@ -58,7 +58,11 @@ export async function explorerV2Resource(kind: string, authority?: string, year?
   if (kind === "catalog") relative = "catalog.json";
   else if (kind === "regions") relative = "regions.geojson";
   else if (kind === "authorities") relative = "authorities.geojson";
-  else if (kind === "wards") relative = "yorkshire-wards.geojson";
+  else if (kind === "wards") {
+    if (edition && !["2025-05", "2026-05"].includes(edition)) throw new Error("Unknown ward edition.");
+    if (edition === "2026-05" && manifest.schema_version !== 2) throw new Error("Ward edition is unavailable in this release.");
+    relative = edition === "2026-05" ? "yorkshire-wards-2026.geojson" : "yorkshire-wards.geojson";
+  }
   else if (kind === "results" && authority && areaCode.test(authority) && year && yearPattern.test(year)) {
     const catalog = JSON.parse(await verified("catalog.json")) as Catalog;
     const area = catalog.authorities.find(item => item.code === authority && item.region_code === catalog.pilot_region);

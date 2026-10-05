@@ -22,6 +22,8 @@
 
 **2026 geography and Bradford event gate (5 October):** A [hash-pinned, read-only ward-edition audit](explorer-v2-yorkshire-2026-geography-and-event-review-2026-10-05.md) finds that Barnsley, Bradford, Calderdale, Kirklees and Wakefield replaced all their ward codes for May 2026. Of their 113 May–December contests in local rc6, 92 point to 2025 display boundaries and 21 have no mapped boundary. Bradford's official results index also lists February Worth Valley and June Idle and Thackley polls absent from rc6. The proposed event-date geography/package repair awaits owner architecture review. **Do not upload or activate rc6.** The live Leeds release is unaffected.
 
+**Local dated-ward rc9 candidate (5 October):** The owner approved the architecture. A [new local package](explorer-v2-dated-wards-rc9-2026-10-05.md) holds both ONS ward editions, maps the 113 changed-council 2026 contests to the 2026 edition as explicitly pending council reconciliation, and stages Bradford's February and June events as indexed-council-page transcriptions. It has 58 council-years, 1,288 contests and 7,882 candidates. All Leeds result objects and other unaffected council-year result objects match rc6 byte for byte. Technical package and owner-control validation pass, but the source-review flag blocks approval. Direct Bradford page downloads and automated visual QA remain blocked. **rc9 is not a regional release.**
+
 ## What now works
 
 - A canonical SQLite store indexes England's nine regions, 296 current local authorities, 21 separate county areas, 15 combined authorities, 6,826 2025 English wards, and 10,661 parish or non-civil-parished areas. Yorkshire and Humber has 15 authorities, 410 current wards, and 1,216 parish-area boundary records in local staging.

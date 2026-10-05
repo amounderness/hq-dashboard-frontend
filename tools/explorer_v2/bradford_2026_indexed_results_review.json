@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "review_status": "indexed_official_pages_original_download_blocked",
+  "warning": "The council's Moderngov pages were indexed by search, but direct download returned HTTP 403. Candidate values are a marked local transcription pending a saved original declaration. Never mark this fixture source-reviewed or publish it without that check.",
+  "events": [
+    {
+      "date": "2026-02-12",
+      "kind": "by_election",
+      "authority_id": "E08000032",
+      "ward_id": "E05001369",
+      "ward_name": "Worth Valley",
+      "boundary_edition": "2025-05",
+      "seats": 1,
+      "electorate": 10906,
+      "candidate_votes": 3514,
+      "rejected_papers": 11,
+      "turnout_rate": null,
+      "source_url": "https://bradford.moderngov.co.uk/mgElectionAreaResults.aspx?ID=880",
+      "candidates": [
+        {"name": "Paul Belcome Constantine Golding", "party": "Conservative", "votes": 1815, "elected": true},
+        {"name": "Andrew Mark Judson", "party": "Reform UK", "votes": 917, "elected": false},
+        {"name": "Peter James Kates", "party": "Labour", "votes": 425, "elected": false},
+        {"name": "Josie McMaster", "party": "Green Party", "votes": 245, "elected": false},
+        {"name": "Kay Kirkham", "party": "Liberal Democrats", "votes": 83, "elected": false},
+        {"name": "Sabine Ebert-Forbes", "party": "Independent", "votes": 29, "elected": false}
+      ]
+    },
+    {
+      "date": "2026-06-18",
+      "kind": "postponed_ordinary_election",
+      "authority_id": "E08000032",
+      "ward_id": "E05016466",
+      "ward_name": "Idle & Thackley",
+      "boundary_edition": "2026-05",
+      "seats": 3,
+      "electorate": null,
+      "candidate_votes": 14650,
+      "rejected_papers": 4,
+      "turnout_rate": null,
+      "source_url": "https://bradford.moderngov.co.uk/mgElectionAreaResults.aspx?ID=920&RPID=0",
+      "candidates": [
+        {"name": "Rachel Emma Sunderland", "party": "Liberal Democrats", "votes": 2784, "elected": true},
+        {"name": "Alun Owen Griffiths", "party": "Liberal Democrats", "votes": 2746, "elected": true},
+        {"name": "Aislin Naylor", "party": "Liberal Democrats", "votes": 2714, "elected": true},
+        {"name": "Tom Macpherson Le Maire", "party": "Reform UK", "votes": 1582, "elected": false},
+        {"name": "David Llewelyn Mills", "party": "Reform UK", "votes": 1573, "elected": false},
+        {"name": "John Michael Riley", "party": "Reform UK", "votes": 1528, "elected": false},
+        {"name": "Melissa Jacobs", "party": "Green Party", "votes": 237, "elected": false},
+        {"name": "Tess Lawrence", "party": "Green Party", "votes": 229, "elected": false},
+        {"name": "Evelyne Godfrey", "party": "Labour", "votes": 208, "elected": false},
+        {"name": "Stuart Hurlbut", "party": "Green Party", "votes": 204, "elected": false},
+        {"name": "David Bryant", "party": "Conservative", "votes": 195, "elected": false},
+        {"name": "Paul Wright", "party": "Labour", "votes": 191, "elected": false},
+        {"name": "Gareth David Logan", "party": "Labour", "votes": 190, "elected": false},
+        {"name": "Sally Cook", "party": "Conservative", "votes": 142, "elected": false},
+        {"name": "Richard Edward John Wightman", "party": "Conservative", "votes": 127, "elected": false}
+      ]
+    }
+  ]
+}

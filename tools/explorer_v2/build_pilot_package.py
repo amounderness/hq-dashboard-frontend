@@ -14,6 +14,7 @@ from pathlib import Path
 
 YORKSHIRE = "E12000003"
 YEARS = list(range(2021, 2027))
+REVISED_2026 = {"E08000032", "E08000033", "E08000034", "E08000036", "E08000038"}
 
 
 def party_name(label: str) -> str:
@@ -51,7 +52,13 @@ def main(root: Path):
         for row in db.execute("SELECT area_id AS code, name, region_area_id AS region_code, status "
                               "FROM area WHERE area_type='local_authority' ORDER BY name"):
             area = dict(row)
-            area["ward_count"] = db.execute("SELECT COUNT(*) FROM area WHERE parent_area_id=?", (area["code"],)).fetchone()[0]
+            latest_edition = "2026-05" if area["code"] in REVISED_2026 else "2025-05"
+            area["ward_count"] = db.execute(
+                "SELECT COUNT(*) FROM boundary_version b JOIN area w ON w.area_id=b.area_id "
+                "WHERE w.parent_area_id=? AND b.vintage=?", (area["code"], latest_edition)).fetchone()[0]
+            area["ward_edition_by_year"] = {str(year):
+                ("2026-05" if year == 2026 and area["code"] in REVISED_2026 else "2025-05")
+                for year in YEARS}
             area["coverage"] = {str(c["year"]): {
                 "status": c["status"] if area["region_code"] == YORKSHIRE else "not_released",
                 "reason": c["reason"] if area["region_code"] == YORKSHIRE else "Outside the Yorkshire and Humber pilot release.",
@@ -60,9 +67,16 @@ def main(root: Path):
                                                     "WHERE area_id=? AND election_type='local_council'",
                                                     (area["code"],))}
             authorities.append(area)
-        wards = [dict(row) for row in db.execute(
-            "SELECT area_id AS code, name, parent_area_id AS authority_code "
-            "FROM area WHERE area_type='ward' AND region_area_id=? ORDER BY name", (YORKSHIRE,))]
+        def edition_wards(vintage):
+            return [dict(row) for row in db.execute(
+                "SELECT w.area_id AS code,w.name,w.parent_area_id AS authority_code "
+                "FROM area w JOIN boundary_version b ON b.area_id=w.area_id "
+                "WHERE w.area_type='ward' AND w.region_area_id=? AND b.vintage=? ORDER BY w.name,w.area_id",
+                (YORKSHIRE, vintage))]
+        wards = edition_wards("2025-05")
+        wards_2026 = edition_wards("2026-05")
+        if len(wards) != 410 or len(wards_2026) != 411:
+            raise ValueError("Both pinned Yorkshire ward editions are required for package schema 2")
         sources = [dict(row) for row in db.execute(
             "SELECT source_id,publisher,url,vintage,sha256 FROM source_record ORDER BY source_id")]
         geography_summary = {row["area_type"]: row["count"] for row in db.execute(
@@ -71,6 +85,10 @@ def main(root: Path):
             "SELECT type_id,label,elected_area_type,notes FROM election_type ORDER BY type_id")]
         object_hashes = {key: value for key, value in manifest["object_sha256"].items()
                          if not key.startswith("results/")}
+        if not (pilot / "yorkshire-wards-2026.geojson").is_file():
+            raise ValueError("ONS May 2026 Yorkshire geometry object is missing")
+        object_hashes["yorkshire-wards-2026.geojson"] = hashlib.sha256(
+            (pilot / "yorkshire-wards-2026.geojson").read_bytes()).hexdigest()
         activity = {}
         result_council_years = 0
         pilot_contests = 0
@@ -87,11 +105,14 @@ def main(root: Path):
             contests = [dict(row) for row in db.execute(
                 "SELECT c.contest_id,c.event_id,c.area_id AS ward_code,a.name AS ward_name,"
                 "c.seats_available,c.electorate,c.turnout_rate,c.candidate_votes,c.source_id,"
-                "c.quality_note,c.display_boundary_id,c.comparability_note "
+                "c.quality_note,c.result_boundary_id,c.display_boundary_id,c.comparability_note "
                 "FROM contest c JOIN area a ON a.area_id=c.area_id "
                 "JOIN election_event e ON e.event_id=c.event_id "
                 "WHERE e.authority_id=? AND substr(e.election_date,1,4)=? ORDER BY a.name,e.election_date",
                 (code, str(year)))]
+            if code not in REVISED_2026 or year != 2026:
+                for contest in contests:
+                    contest.pop("result_boundary_id")  # Preserve unchanged v1 result-object bytes, especially Leeds.
             candidates = [dict(row) for row in db.execute(
                 "SELECT cr.result_id,cr.contest_id,cr.candidate_name,cr.party_label,cr.votes,cr.elected,"
                 "cr.source_id,s.url AS source_url FROM candidate_result cr "
@@ -127,6 +148,8 @@ def main(root: Path):
                     "coverage": coverage["status"], "explanation": coverage["reason"],
                     "events": events, "contests": contests, "candidates": candidates,
                     "source_release": ("leeds-pulse-v0.6.0" if code == "E08000035" else
+                                       "secondary annual source plus indexed Bradford council pages; original declaration review pending"
+                                       if any(event["status"] == "council_index_transcription_pending" for event in events) else
                                        "secondary annual source plus council by-election return"
                                        if any(event["status"] == "council_source_staged" for event in events)
                                        and any(event["status"] == "secondary_source_staged" for event in events) else
@@ -137,10 +160,15 @@ def main(root: Path):
             result_council_years += 1
             pilot_contests += len(contests)
         object_hashes["catalog.json"] = write(pilot / "catalog.json", {
-            "schema_version": 1, "country": "England", "pilot_region": YORKSHIRE,
+            "schema_version": 2, "country": "England", "pilot_region": YORKSHIRE,
             "election_types": election_types, "years": YEARS,
             "geography_summary": geography_summary,
             "regions": regions, "authorities": authorities, "pilot_wards": wards,
+            "ward_editions": [
+                {"id": "2025-05", "object": "yorkshire-wards.geojson", "ward_count": 410},
+                {"id": "2026-05", "object": "yorkshire-wards-2026.geojson", "ward_count": 411},
+            ],
+            "pilot_wards_by_edition": {"2025-05": wards, "2026-05": wards_2026},
             "activity": activity, "sources": sources,
             "coverage_definition": {
                 "not_audited": "No election result source has been audited for this authority and year; this is not evidence of no election.",
@@ -152,9 +180,15 @@ def main(root: Path):
             },
         })
         manifest["object_sha256"] = object_hashes
+        manifest["schema_version"] = 2
+        manifest["review_status"] = "council_source_review_pending"
+        manifest["coverage"]["yorkshire_wards_2026_in_pilot"] = len(wards_2026)
+        manifest["source_sha256"]["wards_2026_geometry"] = "48e49138e4c5c3f59ef1772d221b59f4c3d7d7bed418d58fa0fc78208db418c7"
+        manifest["source_urls"]["wards_2026"] = "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/WD_MAY_2026_UK_BSC/FeatureServer/0/query"
         manifest["release_status"] = "staged_not_published"
         manifest["limits"] = [
-            "The 2025 geography is a display edition, not proof that historical contests used the same boundaries.",
+            "Yorkshire 2025 and 2026 ward editions are distinct. Earlier result-boundary equivalence is not certified.",
+            "The five recoded councils' 2026 contest-to-ward mappings are ONS name/date proposals; council candidate-level reconciliation is still pending.",
             "The local store has a wider national ordinary-election source archive; this release exposes only Yorkshire and Humber results.",
             "Leeds uses its audited v0.6.0 release. Other Yorkshire and Humber ordinary results are secondary-source staging; selected by-elections have council-sourced transcriptions with visible caveats.",
             "The annual source is not an exhaustive by-election, mayoral, parish or current council-composition register.",

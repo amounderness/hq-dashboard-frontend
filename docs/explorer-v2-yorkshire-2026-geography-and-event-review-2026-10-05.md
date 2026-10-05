@@ -37,3 +37,5 @@ The present [Barnsley results index](https://www.barnsley.gov.uk/services/voting
 6. Create a **new local rc7 working copy and release ID**. Preserve rc5 and rc6, verify candidate and object checksums, run package, API, visual and build checks, and review an explicit diff before any upload. The feature flags stay off; there is no active v2 pointer to roll back today. Later production rollback must restore both the prior package pointer and its compatible reader/feature flags.
 
 This changes the data and package contract and the Explorer's geography-selection behavior, so it requires the owner review specified in `AGENTS.md` before implementation. It does **not** propose publishing any Yorkshire result or changing the live Leeds pilot.
+
+**Owner decision and local follow-up (5 October):** The owner authorised this architecture and asked for a pre-commit review. The local [rc9 implementation record](explorer-v2-dated-wards-rc9-2026-10-05.md) describes the staged contract, tests and remaining source gates. Approval of the architecture is not approval to merge, upload, activate or deploy rc9.

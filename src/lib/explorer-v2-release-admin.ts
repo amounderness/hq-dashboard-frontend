@@ -4,18 +4,23 @@ import { ReleaseError, sha256, validId, type Pointer, type ReleaseBucket } from 
 type Manifest = {
   schema_version: number; package_id: string; release_status: string; pilot_region: string;
   created_at?: string; limits: string[]; object_sha256: Record<string, string>;
+  review_status?: string;
 };
-type Area = { code: string; region_code: string; coverage: Record<string, { status: string }> };
+type Area = { code: string; region_code: string; coverage: Record<string, { status: string }>;
+  ward_edition_by_year?: Record<string, string> };
 type Catalog = {
   pilot_region: string; years: number[]; regions: { code: string }[];
   authorities: Area[]; pilot_wards: { code: string; authority_code: string }[];
+  pilot_wards_by_edition?: Record<string, { code: string; authority_code: string }[]>;
+  ward_editions?: { id: string; object: string; ward_count: number }[];
   activity: Record<string, Record<string, { contest_count: number }>>;
 };
 type Geo = { features: { properties: { code: string } }[] };
 type Result = {
   authority_code: string; year: number; coverage: string;
-  events: { event_id: string }[];
-  contests: { contest_id: string; event_id: string; ward_code: string; seats_available: number; candidate_votes: number | null }[];
+  events: { event_id: string; election_date: string }[];
+  contests: { contest_id: string; event_id: string; ward_code: string; seats_available: number;
+    candidate_votes: number | null; result_boundary_id?: string | null; display_boundary_id?: string | null }[];
   candidates: { result_id: string; contest_id: string; votes: number | null; elected: boolean }[];
 };
 type Audit = { id: string; at: string; action: string; actor: string; reason: string; from?: Pointer | null; to?: Pointer | null; package_id?: string };
@@ -24,7 +29,9 @@ const prefix = "v2/";
 const digestPattern = /^[a-f0-9]{64}$/;
 const resultPath = /^results\/(E\d{8})\/(20\d{2})\.json$/;
 const geographyPaths = ["catalog.json", "regions.geojson", "authorities.geojson", "yorkshire-wards.geojson"];
-const validV2Path = (path: string) => geographyPaths.includes(path) || resultPath.test(path);
+const datedWardsPath = "yorkshire-wards-2026.geojson";
+const revised2026 = new Set(["E08000032", "E08000033", "E08000034", "E08000036", "E08000038"]);
+const validV2Path = (path: string) => geographyPaths.includes(path) || path === datedWardsPath || resultPath.test(path);
 const releaseKey = (id: string, path: string) => `${prefix}releases/${id}/${path}`;
 const same = (a: Pointer | null, b: Pointer | null) => a?.package_id === b?.package_id && a?.manifest_sha256 === b?.manifest_sha256;
 
@@ -50,11 +57,14 @@ function parse<T>(text: string, label: string): T {
   catch { throw new ReleaseError(`Invalid JSON: ${label}`); }
 }
 function checkManifest(value: Manifest, id: string) {
-  if (!validId(id) || value?.package_id !== id || value.schema_version !== 1 || value.release_status !== "staged_not_published" || value.pilot_region !== "E12000003") throw new ReleaseError("Unsupported Yorkshire Explorer v2 manifest.");
+  if (!validId(id) || value?.package_id !== id || ![1, 2].includes(value.schema_version) || value.release_status !== "staged_not_published" || value.pilot_region !== "E12000003") throw new ReleaseError("Unsupported Yorkshire Explorer v2 manifest.");
+  if (value.schema_version === 2 && !["council_source_review_pending", "source_reviewed"].includes(value.review_status ?? "")) throw new ReleaseError("Dated-ward release review status is missing.");
   if (!Array.isArray(value.limits) || !value.limits.length || value.limits.some(item => typeof item !== "string" || !item.trim())) throw new ReleaseError("Manifest must describe release limits.");
   const objects = value.object_sha256;
   if (!objects || typeof objects !== "object" || Array.isArray(objects) || Object.keys(objects).length < 4 || Object.entries(objects).some(([path, hash]) => !validV2Path(path) || !digestPattern.test(hash))) throw new ReleaseError("Manifest object hashes are invalid.");
   if (geographyPaths.some(path => !objects[path])) throw new ReleaseError("Manifest omits required geography objects.");
+  if (value.schema_version === 2 && !objects[datedWardsPath]) throw new ReleaseError("Manifest omits the 2026 ward edition.");
+  if (value.schema_version === 1 && objects[datedWardsPath]) throw new ReleaseError("Schema 1 cannot include the 2026 ward edition.");
 }
 async function manifestFor(bucket: ReleaseBucket, id: string) {
   if (!validId(id)) throw new ReleaseError("Invalid release ID.");
@@ -152,6 +162,20 @@ export async function v2Validate(bucket: ReleaseBucket, id: string, actor?: stri
     const found = geo?.features?.map(item => item.properties?.code);
     if (!Array.isArray(found) || found.length !== codes.size || new Set(found).size !== codes.size || found.some(code => !codes.has(code))) throw new ReleaseError(`Geometry and catalog disagree: ${path}`);
   }
+  const wards2026 = new Map(catalog.pilot_wards_by_edition?.["2026-05"]?.map(item => [item.code, item]));
+  if (manifest.schema_version === 2) {
+    if (catalog.ward_editions?.length !== 2 || catalog.ward_editions[0]?.object !== "yorkshire-wards.geojson"
+      || catalog.ward_editions[1]?.object !== datedWardsPath || wards2026.size !== 411
+      || catalog.pilot_wards_by_edition?.["2025-05"]?.length !== wards.size
+      || catalog.pilot_wards_by_edition?.["2026-05"]?.length !== 411) throw new ReleaseError("Dated ward catalogue is incomplete.");
+    const geo = objects.get(datedWardsPath) as Geo;
+    const codes = geo?.features?.map(item => item.properties?.code);
+    if (!Array.isArray(codes) || codes.length !== 411 || new Set(codes).size !== 411 || codes.some(code => !wards2026.has(code))) throw new ReleaseError("2026 ward geometry disagrees with catalog.");
+    for (const area of authorities.values()) {
+      const expected = revised2026.has(area.code) ? "2026-05" : "2025-05";
+      if (area.ward_edition_by_year?.["2026"] !== expected) throw new ReleaseError("Council default ward edition is invalid.");
+    }
+  }
   let contests = 0, candidates = 0, councilYears = 0;
   for (const [path, value] of objects) {
     const match = resultPath.exec(path);
@@ -162,12 +186,19 @@ export async function v2Validate(bucket: ReleaseBucket, id: string, actor?: stri
     const result = value as Result;
     if (area?.region_code !== manifest.pilot_region || !catalog.years.includes(year) || result?.authority_code !== code || result.year !== year || result.coverage !== area.coverage[yearText]?.status) throw new ReleaseError(`Result scope does not match catalog: ${path}`);
     if (!Array.isArray(result.events) || !Array.isArray(result.contests) || !Array.isArray(result.candidates)) throw new ReleaseError(`Invalid result arrays: ${path}`);
-    const events = new Set(result.events.map(item => item.event_id));
+    const events = new Map(result.events.map(item => [item.event_id, item]));
     const contestIds = new Set(result.contests.map(item => item.contest_id));
     if (events.size !== result.events.length || contestIds.size !== result.contests.length || catalog.activity?.[code]?.[yearText]?.contest_count !== result.contests.length) throw new ReleaseError(`Result activity or IDs disagree: ${path}`);
     if (result.candidates.some(item => !contestIds.has(item.contest_id) || (item.votes !== null && (!Number.isInteger(item.votes) || item.votes < 0)))) throw new ReleaseError(`Invalid candidate records: ${path}`);
     for (const contest of result.contests) {
-      if (!events.has(contest.event_id) || (!wards.has(contest.ward_code) && !contest.ward_code.startsWith("historic:")) || !Number.isInteger(contest.seats_available) || contest.seats_available < 1) throw new ReleaseError(`Invalid contest reference: ${path}`);
+      if (!events.has(contest.event_id) || (!wards.has(contest.ward_code) && !wards2026.has(contest.ward_code) && !contest.ward_code.startsWith("historic:")) || !Number.isInteger(contest.seats_available) || contest.seats_available < 1) throw new ReleaseError(`Invalid contest reference: ${path}`);
+      if (manifest.schema_version === 2 && revised2026.has(code) && year === 2026) {
+        const date = events.get(contest.event_id)?.election_date;
+        const boundary = `${contest.ward_code}:${date && date >= "2026-05-07" ? "2026-05" : "2025-05"}`;
+        if (!date || (date >= "2026-05-07" && (wards2026.get(contest.ward_code)?.authority_code !== code || contest.result_boundary_id !== boundary))
+          || (date < "2026-05-07" && wards.get(contest.ward_code)?.authority_code !== code)
+          || contest.display_boundary_id !== boundary) throw new ReleaseError(`Dated ward reference is invalid: ${contest.contest_id}`);
+      }
       const rows = result.candidates.filter(item => item.contest_id === contest.contest_id);
       if (rows.filter(item => item.elected).length > contest.seats_available || (contest.candidate_votes !== null && rows.reduce((sum, item) => sum + (item.votes ?? 0), 0) !== contest.candidate_votes)) throw new ReleaseError(`Contest totals disagree: ${path}`);
     }
@@ -188,6 +219,8 @@ export async function v2Validate(bucket: ReleaseBucket, id: string, actor?: stri
 
 export async function v2Approve(bucket: ReleaseBucket, id: string, actor: string, reason: string) {
   if (reason.trim().length < 12) throw new ReleaseError("Record a source-review reason of at least 12 characters.");
+  const { manifest } = await manifestFor(bucket, id);
+  if (manifest.schema_version === 2 && manifest.review_status !== "source_reviewed") throw new ReleaseError("Council source review is still pending for this dated-ward package.", 409);
   const checked = await v2Validate(bucket, id);
   const pointer = { package_id: id, manifest_sha256: checked.manifest_sha256 };
   if (await approved(bucket, pointer)) throw new ReleaseError("This exact v2 package is already approved.", 409);

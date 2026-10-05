@@ -17,11 +17,12 @@ export async function GET(request: NextRequest, context: { params: Promise<{ kin
   const { kind } = await context.params;
   const authority = request.nextUrl.searchParams.get("authority") ?? undefined;
   const year = request.nextUrl.searchParams.get("year") ?? undefined;
+  const edition = request.nextUrl.searchParams.get("edition") ?? undefined;
   if (!["catalog", "regions", "authorities", "wards", "results"].includes(kind)) {
     return NextResponse.json({ error: "Unknown Explorer resource." }, { status: 404 });
   }
   try {
-    return NextResponse.json(await explorerV2Resource(kind, authority, year), {
+    return NextResponse.json(await explorerV2Resource(kind, authority, year, edition), {
       headers: { "Cache-Control": "private, no-store" },
     });
   } catch (error) {
