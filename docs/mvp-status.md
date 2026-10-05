@@ -1,10 +1,10 @@
-# Switchboard MVP status · 26 September 2026
+# Switchboard MVP status · 5 October 2026
 
-Switchboard is a private **owner-only Leeds Pulse pilot**, not yet a complete volunteer or campaign operations MVP. It presents prepared records; the site does not calculate new results or forecasts on demand.
+Switchboard is a private **invited-viewer Leeds Pulse pilot**, not yet a complete volunteer or campaign operations MVP. It presents prepared records; the site does not calculate new results or forecasts on demand.
 
 The separate Yorkshire and Humber Explorer v2 [rc9 candidate](explorer-v2-dated-wards-rc9-2026-10-05.md) was validated locally on 5 October with dated ward editions and two caveated Bradford poll transcriptions. [Local automated browser checks](explorer-v2-visual-qa-2026-10-05.md) now cover the main desktop and mobile flows; council-source and live access checks remain open. It has not been published or made visible to Leeds pilot viewers; it does not change the Leeds MVP status below.
 
-A distinct [Leeds-only Explorer v2 viewer candidate](explorer-v2-leeds-viewer-rc2-2026-10-05.md) now passes local package, permission-scope and browser tests. It uses only the audited Leeds result import and keeps other councils unavailable. It is not merged, uploaded, activated or visible on the live site; authenticated viewer checks and exact release approval remain.
+A distinct [Leeds-only Explorer v2 viewer release](explorer-v2-leeds-viewer-rc2-2026-10-05.md) is now active on the protected live site after exact owner approval. It uses only the audited Leeds result import and keeps other councils unavailable. A separate party test account completed the main Leeds views and received the intended non-Leeds restriction. The wider Yorkshire rc9 candidate remains unpublished.
 
 | Area | Current state | Next gate |
 |---|---|---|
@@ -14,9 +14,9 @@ A distinct [Leeds-only Explorer v2 viewer candidate](explorer-v2-leeds-viewer-rc
 | SDP Results | Descriptive filters, year chart and candidate table for 77 published SDP-contested ward polls, linked to the Explorer. | Review wording and anomalies with pilot users; expand to other geographies only after their source audits. |
 | Electoral Tribes | Seven K7 descriptions and methods/limitations page, with ward-level resident-weighted shares. | Validate any proposed party association before publishing it; do not infer individual voter types. |
 | Development and releases | A portal page shows the current stage plan and dated release history. Its editorial record is updated with each published change. | Keep release notes and stage status aligned with evidence, tests and actual publication. |
-| Sign-in and storage | Owner-only Cloudflare Access on the whole Worker; immutable private R2 release objects with SHA-256 checks. | Exercise invited viewer sign-in and revocation; independent backup restore remains a later resilience check. |
+| Sign-in and storage | Cloudflare Access protects the whole Worker; invited pilot viewers can read published Leeds data, while owner release controls verify the owner identity. Immutable private R2 objects have SHA-256 checks. | Exercise account revocation and independent backup restore; capture an exact HTTP status for owner-API denial in the viewer account. |
 | Forecast | Historical test summary only. | Defer prospective modelling as requested. |
-| Reports and administration | Owner-only package-folder staging, hash and election validation, approval, activation, rollback for screen-managed releases and private audit records are implemented. Ward, council-composition and SDP report views can be printed or downloaded as CSV. | Owner validation, approval, activation and rollback were exercised live. Invited-viewer role checks, source-file ingestion, record-level differences and independent backup restore remain. |
+| Reports and administration | Owner-only package-folder staging, hash and election validation, approval, activation, rollback for screen-managed releases and private audit records are implemented. Ward, council-composition and SDP report views can be printed or downloaded as CSV. | Viewer access to the Leeds v2 screens and Bradford results denial were smoke-tested. Capture the exact owner-API denial status; source-file ingestion, record-level differences and independent backup restore remain. |
 
 “Latest recorded” for a ward means the latest **imported poll**. The council composition tab is a separate **dated council snapshot**, not a derivation from those ward polls. A vacant seat is counted as a vacancy. Historical election results are displayed on 2025 ward shapes; exact historical polygon equivalence has not been verified. The package contains no individual voter or party-supplied data.
 
