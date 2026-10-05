@@ -11,6 +11,7 @@ import ForecastPage from "./ForecastPage";
 import ReportsPage from "./ReportsPage";
 import ReleaseAdminPage from "./ReleaseAdminPage";
 import OverviewPage from "./OverviewPage";
+import ExplorerV2Page from "./ExplorerV2Page";
 import { seatsFilledLabel } from "@/lib/ward-seats";
 import SourceIssues from "./SourceIssues";
 import { partyColor, tribeColors, winningParties } from "@/lib/pulse-colors";
@@ -26,12 +27,14 @@ type PackageManifest = {
   history_source_decisions_resolved?: boolean;
 };
 type Backtest = { status: string; model: string; exclusions: string; evaluated_wards: number; warning: string; by_year: Record<string, { single_seat_wards: number; mean_new_party_vote_share?: number; models: Record<string, { mean_total_variation: number; winner_accuracy: number }> }> };
-type Page = "overview" | "explorer" | "tribesResearch" | "sdpResults" | "forecast" | "reports" | "ownerReleases" | "sources" | "development";
+type Page = "overview" | "explorer" | "explorerV2" | "tribesResearch" | "sdpResults" | "forecast" | "reports" | "ownerReleases" | "sources" | "development";
 type View = "map" | "table" | "composition";
 type DetailTab = "results" | "census" | "tribes" | "history";
 
 const years = ["latest", "2026", "2025", "2024", "2023", "2022", "2021"];
-const pageIds: Page[] = ["overview", "explorer", "sdpResults", "tribesResearch", "forecast", "reports", "ownerReleases", "sources", "development"];
+const explorerV2ViewerEnabled = process.env.NEXT_PUBLIC_EXPLORER_V2_VIEWER_ENABLED === "true";
+const explorerV2Enabled = explorerV2ViewerEnabled || process.env.NEXT_PUBLIC_EXPLORER_V2_ENABLED === "true";
+const pageIds: Page[] = ["overview", "explorer", ...(explorerV2Enabled ? ["explorerV2" as const] : []), "sdpResults", "tribesResearch", "forecast", "reports", "ownerReleases", "sources", "development"];
 const number = new Intl.NumberFormat("en-GB");
 const pct = (value: number | null | undefined) => value == null ? "Unavailable" : `${(value * 100).toFixed(1)}%`;
 const dateText = (value: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${value}T12:00:00Z`));
@@ -170,15 +173,17 @@ export default function Explorer() {
   }, [manifest]);
 
   return <>
-    <header className="top"><a className="brand-lockup" href="#overview" onClick={event => { event.preventDefault(); navigate("overview"); }}><span className="brand-icon" aria-hidden="true" /><span className="brand-copy"><span className="brand">switch<em>board</em></span><span className="strap">Electoral Intelligence</span></span></a><div className="account">{isDemo ? "Owner preview · synthetic data" : "Leeds pilot · published results"}</div></header>
+    <header className="top"><a className="brand-lockup" href="#overview" onClick={event => { event.preventDefault(); navigate("overview"); }}><span className="brand-icon" aria-hidden="true" /><span className="brand-copy"><span className="brand">switch<em>board</em></span><span className="strap">Electoral Intelligence</span></span></a><div className="account">{isDemo ? "Owner preview · synthetic data" : page === "explorerV2" ? explorerV2ViewerEnabled ? "Leeds Explorer v2 pilot" : "England geography · staged regional results" : "Leeds pilot · published results"}</div></header>
     {isDemo && <div className="notice" role="status"><strong>Fictional preview data.</strong> Every ward shape, result and turnout figure is invented for testing the website.</div>}
-    {!isDemo && manifest && <div className="notice" role="status"><strong>Leeds Pulse pilot.</strong> Recorded results, dated council composition, 2021 Census and exploratory neighbourhood groups. Source gaps are flagged; the latest ward result is not a current-seat record or a future forecast.</div>}
+    {!isDemo && manifest && page !== "explorerV2" && <div className="notice" role="status"><strong>Leeds Pulse pilot.</strong> Recorded results, dated council composition, 2021 Census and exploratory neighbourhood groups. Source gaps are flagged; the latest ward result is not a current-seat record or a future forecast.</div>}
     <div className="shell"><nav className="side" aria-label="Main navigation">
-      {([["overview", "Overview"], ["explorer", "Explorer"], ["sdpResults", "SDP Results"], ["tribesResearch", "Electoral Tribes"], ["forecast", "Forecast"], ["reports", "Reports"], ["ownerReleases", "Owner releases"], ["sources", "Data & sources"], ["development", "Development"]] as const).filter(([id]) => id !== "ownerReleases" || isOwner).map(([id, label]) =>
+      {([["overview", "Overview"], ["explorer", "Explorer"], ["explorerV2", explorerV2ViewerEnabled ? "Explorer v2 · Leeds pilot" : "Explorer v2 · owner test"], ["sdpResults", "SDP Results"], ["tribesResearch", "Electoral Tribes"], ["forecast", "Forecast"], ["reports", "Reports"], ["ownerReleases", "Owner releases"], ["sources", "Data & sources"], ["development", "Development"]] as const).filter(([id]) => (id !== "ownerReleases" || isOwner) && (id !== "explorerV2" || (explorerV2Enabled && (explorerV2ViewerEnabled || isOwner || process.env.NODE_ENV === "development")))).map(([id, label]) =>
         <a key={id} href={`#${id}`} className={page === id ? "active" : ""} aria-current={page === id ? "page" : undefined} onClick={event => { event.preventDefault(); navigate(id); }}>{label}</a>)}
-      <div className="side-note">{isDemo ? "SYNTHETIC PREVIEW" : "LEEDS PILOT"}<br />Viewer workspace<br /><br />Release actions require owner sign-in.</div>
+      <div className="side-note">{isDemo ? "SYNTHETIC PREVIEW" : page === "explorerV2" && !explorerV2ViewerEnabled ? "REGIONAL STAGING" : "LEEDS PILOT"}<br />Viewer workspace<br /><br />Release actions require owner sign-in.</div>
     </nav><main className="content">
       {page === "overview" && <OverviewPage isDemo={isDemo} manifest={manifest} profiles={profiles} sdpResults={sdpResults} wards={wards} history={history} onNavigate={navigate} onOpenWardHistory={code => { selectWard(code); setDetailTab("history"); navigate("explorer"); }} />}
+
+      {page === "explorerV2" && explorerV2Enabled && (explorerV2ViewerEnabled || isOwner || process.env.NODE_ENV === "development" ? <ExplorerV2Page profiles={profiles} history={history} composition={composition} /> : <p className="notice">Explorer v2 is available to the owner during testing.</p>)}
 
       {page === "explorer" && <>
         <div className="heading"><div><div className="eyebrow">{isDemo ? "Synthetic sample" : "England / Leeds City Council"}</div><h1>Explore Leeds</h1><p>Results, Census and neighbourhood context in one place.</p></div><span className="badge">Pulse · {isDemo ? "Fictional sample" : "Recorded information"}</span></div>

@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "scope": "Yorkshire and Humber principal-council by-elections found in the 2025 source review; not an exhaustive event register",
+  "events": [
+    {
+      "date": "2025-05-08", "authority_id": "E08000033", "ward_id": "E05001383", "ward_name": "Skircoat",
+      "publisher": "Calderdale Metropolitan Borough Council", "source_url": "https://dataworks.calderdale.gov.uk/download/e1qn8/zgc/election-results-777-20250508%20Skircoat%20Ward%20By%20Election.csv",
+      "corroboration_url": "https://calderdale.moderngov.co.uk/ieListDocuments.aspx?CId=172&MId=3416&Ver=4",
+      "seats": 1, "electorate": null, "ballots_issued": null, "rejected": 8, "declared_turnout_percent": null,
+      "quality_note": "Council CSV lists the Skircoat result but mislabels ELECTION_TYPE as Parish. The council's official return names Paul Hawkaluk as a Calderdale councillor. CSV omits electorate and ballot papers issued, so turnout is unavailable. By-election list is not certified exhaustive.",
+      "candidates": [
+        {"name": "Stephen Alexander Gow", "party": "Liberal Democrat", "votes": 411, "elected": false},
+        {"name": "Vishal Gupta", "party": "Conservative", "votes": 355, "elected": false},
+        {"name": "Paul Hawkaluk", "party": "Reform UK", "votes": 1392, "elected": true},
+        {"name": "David John Mendes Da Costa", "party": "Labour", "votes": 1059, "elected": false},
+        {"name": "Roseanne Marie Sweeney", "party": "Green", "votes": 566, "elected": false}
+      ]
+    },
+    {
+      "date": "2025-06-19", "authority_id": "E06000065", "ward_id": "E05014271", "ward_name": "Eastfield",
+      "publisher": "North Yorkshire Council", "source_url": "https://www.northyorks.gov.uk/sites/default/files/2025-06/Eastfield%20Division%20election%20results%20June%202025_0.pdf",
+      "seats": 1, "electorate": 5181, "ballots_issued": 862, "rejected": 4, "declared_turnout_percent": 16.64,
+      "quality_note": "Eastfield is a North Yorkshire Council division. The council declaration gives candidate votes, one vacant seat, ballots, rejected papers and turnout. By-election list is not certified exhaustive.",
+      "candidates": [
+        {"name": "Helen Susan Baker", "party": "Conservative", "votes": 40, "elected": false},
+        {"name": "Mark Harrison", "party": "Liberal Democrat", "votes": 24, "elected": false},
+        {"name": "Jordan Thomas Seston (Tom Seston)", "party": "Reform UK", "votes": 538, "elected": true},
+        {"name": "Hazel Anne Smith", "party": "Labour", "votes": 121, "elected": false},
+        {"name": "Kieran Wade", "party": "Green", "votes": 17, "elected": false},
+        {"name": "Helen Mary Williams", "party": "Social Justice Party", "votes": 118, "elected": false}
+      ]
+    },
+    {
+      "date": "2025-06-26", "authority_id": "E08000039", "ward_id": "E05016246", "ward_name": "Stocksbridge and Upper Don",
+      "publisher": "Sheffield City Council", "source_url": "https://www.sheffield.gov.uk/sites/default/files/2025-06/notice_of_result_-_stocksbridge_and_upper_don_by-election_1.pdf",
+      "seats": 1, "electorate": 14782, "ballots_issued": 5444, "rejected": 7, "declared_turnout_percent": 36.83,
+      "quality_note": "Official declaration dated 27 June confirms a 26 June poll. The council results index has a sentence saying 2024 under its 2025 heading; the signed declaration is used for the date. By-election list is not certified exhaustive.",
+      "candidates": [
+        {"name": "Adam James Allcroft", "party": "Yorkshire Party", "votes": 58, "elected": false},
+        {"name": "John Charles Booker (John Booker)", "party": "Reform UK", "votes": 1789, "elected": true},
+        {"name": "Andrew Alan Davies (Andy Davies)", "party": "Green", "votes": 294, "elected": false},
+        {"name": "Matthew Philip Dixon (Matt Dixon)", "party": "Conservative", "votes": 332, "elected": false},
+        {"name": "Josiah Tomasz Lenton", "party": "Labour", "votes": 1324, "elected": false},
+        {"name": "Stuart Andrew Shepherd", "party": "Liberal Democrat", "votes": 1597, "elected": false},
+        {"name": "Claire Suzanne Wraith", "party": "TUSC", "votes": 43, "elected": false}
+      ]
+    },
+    {
+      "date": "2025-07-10", "authority_id": "E08000018", "ward_id": "E05013004", "ward_name": "Keppel",
+      "publisher": "Rotherham Metropolitan Borough Council", "source_url": "https://www.rotherham.gov.uk/elections-voting/keppel-ward-parish-elections-thursday-10-july-2025",
+      "seats": 1, "electorate": 10557, "ballots_issued": 2885, "rejected": 4, "declared_turnout_percent": 27.33,
+      "quality_note": "The council page also lists parish elections; this record is the Keppel borough-council poll only. By-election list is not certified exhaustive.",
+      "candidates": [
+        {"name": "Kieran David Bold", "party": "Labour", "votes": 558, "elected": false},
+        {"name": "Neil Mark Collett", "party": "Independent", "votes": 801, "elected": false},
+        {"name": "Khoulod Ghanem", "party": "Liberal Democrat", "votes": 80, "elected": false},
+        {"name": "Tony Harrison", "party": "Reform UK", "votes": 1160, "elected": true},
+        {"name": "Peter Robert Key", "party": "Yorkshire Party", "votes": 100, "elected": false},
+        {"name": "Antony Paul Mabbott", "party": "Green", "votes": 77, "elected": false},
+        {"name": "Lewis Lennard Henry Malcolm Mills", "party": "Conservative", "votes": 105, "elected": false}
+      ]
+    },
+    {
+      "date": "2025-08-21", "authority_id": "E08000017", "ward_id": "E05010731", "ward_name": "Bentley",
+      "publisher": "City of Doncaster Council", "source_url": "https://www.doncaster.gov.uk/services/the-council-democracy/local-government-by-election-bentley-ward",
+      "seats": 1, "electorate": 12758, "ballots_issued": 2432, "rejected": 6, "declared_turnout_percent": 19.08,
+      "turnout_discrepancy_accepted": true,
+      "quality_note": "The council page states 19.08% turnout, but its 2,432 ballots and 12,758 electorate imply 19.06%. The package uses the ballot-derived rate and flags the disagreement. By-election list is not certified exhaustive.",
+      "candidates": [
+        {"name": "Vanessa Aradia", "party": "Green", "votes": 79, "elected": false},
+        {"name": "Andy Hiles", "party": "TUSC", "votes": 29, "elected": false},
+        {"name": "Ahsan Jamil", "party": "Workers Party", "votes": 15, "elected": false},
+        {"name": "Matthew Peter Jones", "party": "Labour", "votes": 912, "elected": false},
+        {"name": "Christine Helen Lunney", "party": "Conservative", "votes": 121, "elected": false},
+        {"name": "Jane Nightingale", "party": "Independent", "votes": 169, "elected": false},
+        {"name": "Isaiah-John Reasbeck", "party": "Reform UK", "votes": 1062, "elected": true},
+        {"name": "Giulia Savini", "party": "Liberal Democrat", "votes": 39, "elected": false}
+      ]
+    }
+  ]
+}
