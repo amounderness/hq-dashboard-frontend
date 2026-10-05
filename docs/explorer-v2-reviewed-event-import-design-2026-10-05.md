@@ -1,6 +1,6 @@
 # Reviewed council-event import: owner design decision
 
-**State:** Proposed importer contract for review. Source transcription and its read-only verifier exist; no 2026 result has been imported, packaged, uploaded or activated. This proposal changes the import workflow, not the SQLite schema or the forecast model.
+**State:** Owner approved this import contract on 5 October 2026. The importer and an unpublished local rc5 candidate are implemented; no v2 package has been uploaded or activated. This changes the import workflow, not the SQLite schema or the forecast model. See the [rc5 validation record](explorer-v2-sheffield-rc5-2026-10-05.md).
 
 ## Immediate need
 
@@ -14,6 +14,6 @@ The rc4 Yorkshire package lacks two completed Sheffield City Council by-election
 4. Use one database transaction for all events in a fixture. Identify each imported event by council, date and ward; rerunning identical input is safe, while changed transcription bytes or partial prior records stop with an error. Preserve the existing ordinary 2026 Sheffield results. Update the Sheffield 2026 coverage reason to say council-sourced by-elections have been added, but keep `secondary_source_staged` and state that the event register is **not exhaustive**.
 5. Work from a **copy** of the rc4 local store in a new dated staging directory. Build and validate a new package ID; never overwrite rc4 or its manifest. Verify ordinary and by-election records together, Leeds regressions, object hashes, and the resulting browser views before owner release review. No upload, approval, activation or production flag change follows merely from a successful build.
 
-## Decision requested
+## Approved scope and next release decision
 
-Approve this no-schema-change import contract for implementation, including a new local rc5 candidate for the two Sheffield results. The source fixture is ready; approval of the contract does **not** approve publication or activation of rc5. The exact package hash, validation, browser checks and rollback path will be presented separately before any release action.
+The owner approved implementation and a new local rc5 candidate. This did **not** approve publication or activation. The importer takes a fixture path, new working-store directory and original PDF directory; the third argument makes the mandatory source-file hash check explicit. The exact package hash, checks and rollback path are in the rc5 record. Visual browser QA, source-completeness and release-control gates remain before a release decision.

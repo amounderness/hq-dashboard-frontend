@@ -55,7 +55,9 @@ def check(fixture: dict, db: sqlite3.Connection | None = None, raw_dir: Path | N
         if not event["quality_note"].strip() or len(event["source_document_sha256"]) != 64:
             raise ValueError(f"Missing provenance: {key}")
         if raw_dir is not None:
-            pdf = (raw_dir / EXPECTED[key]).read_bytes()
+            if event.get("source_document_file") != EXPECTED[key]:
+                raise ValueError(f"Unexpected declaration file: {key}")
+            pdf = (raw_dir / event["source_document_file"]).read_bytes()
             if not pdf.startswith(b"%PDF-") or hashlib.sha256(pdf).hexdigest() != event["source_document_sha256"]:
                 raise ValueError(f"Declaration PDF checksum mismatch: {key}")
         if db is not None:
