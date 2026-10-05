@@ -24,6 +24,8 @@
 
 **Local dated-ward rc9 candidate (5 October):** The owner approved the architecture. A [new local package](explorer-v2-dated-wards-rc9-2026-10-05.md) holds both ONS ward editions, maps the 113 changed-council 2026 contests to the 2026 edition as explicitly pending council reconciliation, and stages Bradford's February and June events as indexed-council-page transcriptions. It has 58 council-years, 1,288 contests and 7,882 candidates. All Leeds result objects and other unaffected council-year result objects match rc6 byte for byte. Technical package and owner-control validation pass, but the source-review flag blocks approval. Direct Bradford page downloads and automated visual QA remain blocked. **rc9 is not a regional release.**
 
+**Automated visual QA restored (5 October):** A [headless Chrome check](explorer-v2-visual-qa-2026-10-05.md) now covers v1/v2 comparison, both dated Bradford ward maps, Leeds year changes, filters, Results/Census/Tribes/History, Table, Composition and a 390px viewport. Explorer v2 gained Leeds's Latest recorded and Electoral Tribes map views, and the SDP filter now tests all imported polls in the selected ward/year/edition. This is local browser evidence; source reconciliation, viewer API denial and live release checks are still open. The native computer-use helper remains broken on this host, but it is no longer the browser-test blocker.
+
 ## What now works
 
 - A canonical SQLite store indexes England's nine regions, 296 current local authorities, 21 separate county areas, 15 combined authorities, 6,826 2025 English wards, and 10,661 parish or non-civil-parished areas. Yorkshire and Humber has 15 authorities, 410 current wards, and 1,216 parish-area boundary records in local staging.

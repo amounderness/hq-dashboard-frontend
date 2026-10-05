@@ -17,7 +17,7 @@ type Candidate = { result_id: string; contest_id: string; candidate_name: string
 type Result = { authority_code: string; year: number; coverage: string; explanation?: string; source_release?: string; events: { event_id: string; election_date: string; event_kind: string; status: string; source_url?: string }[]; contests: Contest[]; candidates: Candidate[] };
 type Geo = FeatureCollection<Geometry, { code: string; name: string }>;
 type View = "map" | "table" | "composition";
-type Layer = "winners" | "turnout";
+type Layer = "winners" | "turnout" | "tribes";
 type DetailTab = "results" | "census" | "tribes" | "history";
 
 const YORKSHIRE = "E12000003";
@@ -58,6 +58,29 @@ function tallyWinners(contests: Contest[], candidates: Candidate[]) {
     counts[party] = (counts[party] ?? 0) + 1;
   }
   return counts;
+}
+
+function latestLeedsResult(results: Result[]): Result {
+  const newestDate = new Map<string, string>();
+  for (const result of results) {
+    const dates = new Map(result.events.map(event => [event.event_id, event.election_date]));
+    for (const contest of result.contests) {
+      const date = dates.get(contest.event_id) ?? "";
+      if (date > (newestDate.get(contest.ward_code) ?? "")) newestDate.set(contest.ward_code, date);
+    }
+  }
+  const contests = results.flatMap(result => {
+    const dates = new Map(result.events.map(event => [event.event_id, event.election_date]));
+    return result.contests.filter(contest => dates.get(contest.event_id) === newestDate.get(contest.ward_code));
+  });
+  const contestIds = new Set(contests.map(contest => contest.contest_id));
+  const eventIds = new Set(contests.map(contest => contest.event_id));
+  return {
+    ...results.at(-1)!,
+    events: results.flatMap(result => result.events.filter(event => eventIds.has(event.event_id))),
+    contests,
+    candidates: results.flatMap(result => result.candidates.filter(candidate => contestIds.has(candidate.contest_id))),
+  };
 }
 
 function leadingParties(counts: Record<string, number>) {
@@ -151,11 +174,14 @@ export default function ExplorerV2Page({ profiles, history, composition }: { pro
   useEffect(() => {
     if (!authority) return;
     let live = true;
-    load<Result>(`/api/explorer-v2/results?authority=${encodeURIComponent(authority)}&year=${year}`)
+    const request = year === "latest" && authority === LEEDS && catalog
+      ? Promise.all(catalog.years.map(value => load<Result>(`/api/explorer-v2/results?authority=${authority}&year=${value}`))).then(latestLeedsResult)
+      : load<Result>(`/api/explorer-v2/results?authority=${encodeURIComponent(authority)}&year=${year}`);
+    request
       .then(data => { if (live) { setResultState({ authority, year, data }); setResultFailure(null); } })
       .catch(cause => { if (live) setResultFailure({ authority, year, message: cause.message }); });
     return () => { live = false; };
-  }, [authority, year]);
+  }, [authority, year, catalog]);
   useEffect(() => {
     if (!catalog || !authority || detailTab !== "history" || authority === LEEDS || historyState?.authority === authority || historyFailure?.authority === authority) return;
     let live = true;
@@ -173,7 +199,7 @@ export default function ExplorerV2Page({ profiles, history, composition }: { pro
   const authorityArea = pilotAuthorities.find(item => item.code === authority);
   const selectedContests = result?.contests.filter(item => !ward || item.ward_code === ward) ?? [];
   const currentContest = selectedContests.find(item => item.contest_id === selectedPoll) ?? selectedContests.at(-1);
-  const defaultWardEdition = authorityArea?.ward_edition_by_year?.[year] ?? "2025-05";
+  const defaultWardEdition = authorityArea?.ward_edition_by_year?.[year === "latest" ? String(catalog?.years.at(-1)) : year] ?? "2025-05";
   const mapEdition = ward && currentContest?.display_boundary_id?.endsWith(":2026-05") ? "2026-05"
     : ward && currentContest?.display_boundary_id?.endsWith(":2025-05") ? "2025-05" : defaultWardEdition;
   const wardOptions = (catalog?.pilot_wards_by_edition?.[mapEdition] ?? catalog?.pilot_wards ?? [])
@@ -183,7 +209,23 @@ export default function ExplorerV2Page({ profiles, history, composition }: { pro
   const currentEvent = result?.events.find(item => item.event_id === currentContest?.event_id);
   const currentCandidates = result?.candidates.filter(item => item.contest_id === currentContest?.contest_id).sort((a, b) => (b.votes ?? -1) - (a.votes ?? -1)) ?? [];
   const activity = catalog?.activity ?? {};
-  const activityFor = (code: string) => activity[code]?.[year];
+  const latestActivity: Activity | null = year === "latest" && authority === LEEDS && result ? (() => {
+    const party_candidate_votes: Record<string, number> = {};
+    for (const candidate of result.candidates) if (candidate.votes != null) {
+      const party = canonicalParty(candidate.party_label);
+      party_candidate_votes[party] = (party_candidate_votes[party] ?? 0) + candidate.votes;
+    }
+    const sdpIds = new Set(result.candidates.filter(candidate => canonicalParty(candidate.party_label) === "SDP").map(candidate => candidate.contest_id));
+    const rates = result.contests.map(contest => contest.turnout_rate).filter((rate): rate is number => rate != null);
+    return { contest_count: result.contests.length,
+      sdp_contested_wards: [...new Set(result.contests.filter(contest => sdpIds.has(contest.contest_id)).map(contest => contest.ward_code))],
+      winner_counts: tallyWinners(result.contests, result.candidates), party_candidate_votes,
+      candidate_votes: result.contests.reduce((sum, contest) => sum + contest.candidate_votes, 0),
+      mean_recorded_turnout: rates.length ? rates.reduce((sum, rate) => sum + rate, 0) / rates.length : null,
+      turnout_contests: rates.length };
+  })() : null;
+  const activityFor = (code: string) => code === LEEDS && latestActivity
+    ? latestActivity : activity[code]?.[year === "latest" ? String(catalog?.years.at(-1)) : year];
   const regionalActivity = pilotAuthorities.map(item => activityFor(item.code)).filter((item): item is Activity => !!item);
   const availableActivities = level === "authority" ? (activityFor(authority) ? [activityFor(authority)!] : []) : regionalActivity;
   const areaWinnerCounts: Record<string, number> = {};
@@ -228,9 +270,14 @@ export default function ExplorerV2Page({ profiles, history, composition }: { pro
   };
   const sdpFor = (code: string) => level === "country" ? (code === YORKSHIRE && areaSdpCouncils > 0)
     : level === "region" ? (activityFor(code)?.sdp_contested_wards.length ?? 0) > 0
-    : latestWardContests(code).some(contest => result?.candidates.some(candidate => candidate.contest_id === contest.contest_id && canonicalParty(candidate.party_label) === "SDP"));
+    : result?.contests.some(contest => contest.ward_code === code && contest.display_boundary_id === `${code}:${mapEdition}`
+      && result.candidates.some(candidate => candidate.contest_id === contest.contest_id && canonicalParty(candidate.party_label) === "SDP")) ?? false;
   const mapFill = (code: string) => {
     if (level === "country" && code !== YORKSHIRE) return "#d6dcde";
+    if (layer === "tribes") {
+      const profile = authority === LEEDS ? profiles.find(item => item.ward_code === code) : null;
+      return profile ? tribeColors[profile.dominant_tribe_id] : "#d6dcde";
+    }
     if (layer === "turnout") return turnoutColor(turnoutFor(code));
     const winners = winnerFor(code);
     return winners.length > 1 ? "url(#v2-mixed-winners)" : winners.length ? partyColor(winners[0]) : "#d6dcde";
@@ -252,10 +299,23 @@ export default function ExplorerV2Page({ profiles, history, composition }: { pro
   }))).sort((a, b) => b.date.localeCompare(a.date)) : []);
   const visibleContests = selectedContests.filter(contest => (!sdpOnly || result?.candidates.some(candidate => candidate.contest_id === contest.contest_id && canonicalParty(candidate.party_label) === "SDP")) && (!winningParty || Object.keys(tallyWinners([contest], result?.candidates ?? [])).includes(winningParty)));
   const visibleAuthorities = pilotAuthorities.filter(item => (!sdpOnly || (activityFor(item.code)?.sdp_contested_wards.length ?? 0) > 0) && (!winningParty || (activityFor(item.code)?.winner_counts[winningParty] ?? 0) > 0));
-  const sourceUrl = authorityArea?.coverage?.[year]?.source_url;
+  const sourceUrl = year === "latest" ? null : authorityArea?.coverage?.[year]?.source_url;
+  const yearLabel = year === "latest" ? "Latest recorded" : year;
+  const mapDescription = (code: string, name: string) => {
+    const tribe = authority === LEEDS ? profiles.find(item => item.ward_code === code) : null;
+    const detail = level === "country" && code !== YORKSHIRE ? "outside pilot"
+      : layer === "tribes" ? `dominant neighbourhood group ${tribe?.tribes.find(item => item.id === tribe.dominant_tribe_id)?.name ?? "unavailable"}`
+      : level === "authority" && resultsLoading ? "loading results"
+      : level === "authority" && resultError ? "results unavailable"
+      : layer === "winners" ? `most elected ${winnerFor(code).join(" and ") || "not recorded"}`
+      : `mean recorded turnout ${percent(turnoutFor(code))}`;
+    return `${displayAreaName(code, name)}: ${detail}${sdpFor(code) ? "; SDP stood in an imported poll" : ""}`;
+  };
+  const mapLabel = `${level === "country" ? "England regions" : level === "region" ? "Yorkshire and Humber councils" : `${authorityArea?.name} wards`} coloured by ${layer === "tribes" ? "dominant Electoral Tribe" : layer === "winners" ? "most elected party" : "mean recorded turnout"}`;
 
-  const openRegion = () => { setLevel("region"); setAuthority(""); setWard(""); setSelectedPoll(""); setWinningParty(""); setDetailTab("results"); };
-  const openAuthority = (code: string) => { setResultFailure(null); setLevel("authority"); setAuthority(code); setWard(""); setSelectedPoll(""); setWinningParty(""); setDetailTab("results"); };
+  const openCountry = () => { setLevel("country"); setAuthority(""); setWard(""); if (year === "latest") setYear(String(catalog?.years.at(-1) ?? 2026)); if (layer === "tribes") setLayer("winners"); };
+  const openRegion = () => { setLevel("region"); setAuthority(""); setWard(""); setSelectedPoll(""); setWinningParty(""); setDetailTab("results"); if (year === "latest") setYear(String(catalog?.years.at(-1) ?? 2026)); if (layer === "tribes") setLayer("winners"); };
+  const openAuthority = (code: string) => { setResultFailure(null); setLevel("authority"); setAuthority(code); setWard(""); setSelectedPoll(""); setWinningParty(""); setDetailTab("results"); if (year === "latest" && code !== LEEDS) setYear(String(catalog?.years.at(-1) ?? 2026)); if (layer === "tribes" && code !== LEEDS) setLayer("winners"); };
   const openWard = (code: string) => { setWard(code); setSelectedPoll(""); setDetailTab("results"); };
 
   return <>
@@ -264,14 +324,14 @@ export default function ExplorerV2Page({ profiles, history, composition }: { pro
     {error && <div className="notice error" role="alert">{error}</div>}
     {busy && <p role="status">Loading Explorer v2…</p>}
     {catalog && <>
-      <div className="v2-crumbs" aria-label="Geography"><button onClick={() => { setLevel("country"); setAuthority(""); setWard(""); }}>England</button>{level !== "country" && <><span>›</span><button onClick={openRegion}>Yorkshire and Humber</button></>}{authority && <><span>›</span><span>{authorityArea?.name}</span></>}</div>
+      <div className="v2-crumbs" aria-label="Geography"><button onClick={openCountry}>England</button>{level !== "country" && <><span>›</span><button onClick={openRegion}>Yorkshire and Humber</button></>}{authority && <><span>›</span><span>{authorityArea?.name}</span></>}</div>
       <div className="toolbar v2-toolbar">
-        <label className="field">Region<select value={level === "country" ? "" : YORKSHIRE} onChange={event => event.target.value ? openRegion() : (setLevel("country"), setAuthority(""), setWard(""))}><option value="">England · all regions</option>{catalog.regions.map(item => <option value={item.code} key={item.code} disabled={item.code !== YORKSHIRE}>{item.name}{item.code !== YORKSHIRE ? " · later" : ""}</option>)}</select></label>
+        <label className="field">Region<select value={level === "country" ? "" : YORKSHIRE} onChange={event => event.target.value ? openRegion() : openCountry()}><option value="">England · all regions</option>{catalog.regions.map(item => <option value={item.code} key={item.code} disabled={item.code !== YORKSHIRE}>{item.name}{item.code !== YORKSHIRE ? " · later" : ""}</option>)}</select></label>
         <label className="field">Council<select value={authority} onChange={event => event.target.value ? openAuthority(event.target.value) : openRegion()} disabled={level === "country"}><option value="">All councils</option>{pilotAuthorities.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
         <label className="field">Election type<select value="local_council" onChange={() => {}}>{catalog.election_types.map(item => <option key={item.type_id} value={item.type_id} disabled={item.type_id !== "local_council"}>{item.label}{item.type_id === "local_council" ? "" : " · coming later"}</option>)}</select></label>
-        <label className="field">Year<select value={year} onChange={event => { setResultFailure(null); setYear(event.target.value); setSelectedPoll(""); setWinningParty(""); }}>{[...catalog.years].reverse().map(item => <option key={item} value={item}>{item}</option>)}</select></label>
+        <label className="field">Year<select value={year} onChange={event => { setResultFailure(null); setYear(event.target.value); setSelectedPoll(""); setWinningParty(""); }}>{authority === LEEDS && <option value="latest">Latest recorded</option>}{[...catalog.years].reverse().map(item => <option key={item} value={item}>{item}</option>)}</select></label>
         {authority && view !== "composition" && <label className="field">Ward<select value={ward} onChange={event => openWard(event.target.value)}><option value="">All wards</option>{wardOptions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}{historicalOptions.length > 0 && <optgroup label="Other poll editions or unmapped">{historicalOptions.map(([code, name]) => <option key={code} value={code}>{name}</option>)}</optgroup>}</select></label>}
-        {view !== "composition" && <label className="field">Map colour<select value={layer} onChange={event => { setLayer(event.target.value as Layer); setWinningParty(""); }}><option value="winners">Winning party</option><option value="turnout">Turnout</option></select></label>}
+        {view !== "composition" && <label className="field">Map colour<select value={layer} onChange={event => { setLayer(event.target.value as Layer); setWinningParty(""); }}><option value="winners">Winning party</option><option value="turnout">Turnout</option><option value="tribes" disabled={authority !== LEEDS || profiles.length === 0}>{authority === LEEDS ? "Electoral Tribes" : "Electoral Tribes · Leeds only"}</option></select></label>}
         {view !== "composition" && layer === "winners" && <label className="field">Show winners<select value={winningParty} onChange={event => setWinningParty(event.target.value)}><option value="">All parties</option>{winnerOptions.map(party => <option key={party} value={party}>{party}</option>)}</select></label>}
         {view !== "composition" && <label className="contested-filter"><input type="checkbox" checked={sdpOnly} onChange={event => setSdpOnly(event.target.checked)} />SDP contested only</label>}
         <div className="switch" role="group" aria-label="Explorer view">{(["map", "table", "composition"] as const).map(item => <button key={item} className={view === item ? "active" : ""} aria-pressed={view === item} onClick={() => setView(item)}>{item[0].toUpperCase() + item.slice(1)}</button>)}</div>
@@ -280,20 +340,20 @@ export default function ExplorerV2Page({ profiles, history, composition }: { pro
         const event = result?.events.find(item => item.event_id === contest.event_id);
         return (result?.candidates.filter(candidate => candidate.contest_id === contest.contest_id) ?? []).sort((a, b) => (b.votes ?? -1) - (a.votes ?? -1)).map(candidate => <tr key={candidate.result_id}><td><button className="link-button" onClick={() => { openWard(contest.ward_code); setSelectedPoll(contest.contest_id); setView("map"); }}>{contest.ward_name}</button><small className="v2-cell-note">{event?.election_date ? dateText(event.election_date) : "Date unavailable"}</small></td><td>{candidate.candidate_name}</td><td><span className="party-swatch" style={{ background: partyColor(candidate.party_label) }} aria-hidden="true" />{canonicalParty(candidate.party_label)}</td><td>{candidate.votes == null ? "—" : number.format(candidate.votes)}</td><td>{candidate.votes != null && contest.candidate_votes ? percent(candidate.votes / contest.candidate_votes) : "—"}</td><td>{candidate.elected ? <strong aria-label="Elected">✓</strong> : ""}</td><td>{percent(contest.turnout_rate)}</td></tr>);
       }) : level === "country" ? catalog.regions.filter(item => (!sdpOnly && !winningParty) || (item.code === YORKSHIRE && (!sdpOnly || areaSdpCouncils > 0) && (!winningParty || (areaWinnerCounts[winningParty] ?? 0) > 0))).map(item => <tr key={item.code}><td>{item.code === YORKSHIRE ? <button className="link-button" onClick={openRegion}>{item.name}</button> : item.name}</td><td>{item.code === YORKSHIRE ? areaContestCount : "—"}</td><td>{item.code === YORKSHIRE ? leadingParties(areaWinnerCounts).join(" & ") || "—" : "—"}</td><td>{item.code === YORKSHIRE ? regionalActivity.reduce((sum, activity) => sum + activity.sdp_contested_wards.length, 0) : "—"}</td><td>{item.code === YORKSHIRE ? "Regional staging · partial coverage" : "Outside this release"}</td></tr>) : visibleAuthorities.map(item => <tr key={item.code}><td><button className="link-button" onClick={() => openAuthority(item.code)}>{item.name}</button></td><td>{activityFor(item.code)?.contest_count ?? 0}</td><td>{leadingParties(activityFor(item.code)?.winner_counts ?? {}).join(" & ") || "—"}</td><td>{activityFor(item.code)?.sdp_contested_wards.length ?? 0}</td><td>{coverageLabel(item.coverage?.[year]?.status)}</td></tr>)}</tbody></table>{level === "authority" && resultsLoading && <p role="status">Loading results…</p>}{level === "authority" && resultError && <p role="alert">Unable to load results: {resultError} Reload to try again.</p>}{level === "authority" && result && visibleContests.length === 0 && <p className="v2-empty">No imported contest matches this selection. This is not confirmation that no election took place.</p>}</div> : <div className="work v2-work">
-        <div className="map-pane"><div className="map-heading"><strong>{level === "country" ? "English regions" : level === "region" ? "Yorkshire and Humber councils" : `${authorityArea?.name ?? "Council"} wards`}</strong><span>{level === "authority" ? `Latest recorded poll in year · ${mapEdition} wards` : layer === "winners" ? "Most elected candidates" : "Mean recorded poll turnout"}</span></div>
-          {mapGeometry && <GeographyMap geometry={mapGeometry} selected={level === "authority" ? displayedWard : level === "country" ? "" : authority} enabled={code => level !== "country" || code === YORKSHIRE} dimmed={code => (sdpOnly && !sdpFor(code)) || (layer === "winners" && !!winningParty && !electedPartiesFor(code).includes(winningParty))} fill={mapFill} description={(code, name) => `${displayAreaName(code, name)}: ${level === "country" && code !== YORKSHIRE ? "outside pilot" : `${level === "authority" && resultsLoading ? "loading results" : level === "authority" && resultError ? "results unavailable" : layer === "winners" ? `most elected ${winnerFor(code).join(" and ") || "not recorded"}` : `mean recorded turnout ${percent(turnoutFor(code))}`}${sdpFor(code) ? "; SDP stood in an imported poll" : ""}`}`} onSelect={code => level === "country" ? openRegion() : level === "region" ? openAuthority(code) : openWard(code)} label={`${level === "country" ? "England regions" : level === "region" ? "Yorkshire and Humber councils" : `${authorityArea?.name} wards`} coloured by ${layer === "winners" ? "most elected party" : "mean recorded turnout"}`} />}
-          <div className="legend" aria-label="Map legend">{layer === "winners" ? <>{legendOptions.map(party => <span className="legend-item" key={party}><span className="party-swatch" style={{ background: partyColor(party) }} aria-hidden="true" />{party}</span>)}<span className="legend-item"><span className="party-swatch mixed-swatch" />Tied</span><span>Grey: no record or outside pilot</span></> : <><span>Lower</span><span className="v2-turnout-gradient" aria-hidden="true" /><span>Higher</span><span>Grey: unavailable</span></>}</div>
-          <p className="map-note">{level === "authority" ? `Ward colours use the latest imported poll on the selected ${mapEdition} ward edition. Choosing a poll on another edition switches the map. Unmapped historical wards remain selectable without a highlight; earlier boundary equivalence is not certified.` : "Council and regional party colours show the party with the most elected candidates in imported polls for this year, not current council control."}{sdpOnly ? " Dim areas have no SDP candidacy in the imported records; that is not proof none stood." : ""}</p>
+        <div className="map-pane"><div className="map-heading"><strong>{level === "country" ? "English regions" : level === "region" ? "Yorkshire and Humber councils" : `${authorityArea?.name ?? "Council"} wards`}</strong><span>{layer === "tribes" ? "2021 Census groups · 2025-05 wards" : level === "authority" ? `${year === "latest" ? "Latest imported poll per ward" : "Latest recorded poll in year"} · ${mapEdition} wards` : layer === "winners" ? "Most elected candidates" : "Mean recorded poll turnout"}</span></div>
+          {mapGeometry && <GeographyMap geometry={mapGeometry} selected={level === "authority" ? displayedWard : level === "country" ? "" : authority} enabled={code => level !== "country" || code === YORKSHIRE} dimmed={code => (sdpOnly && !sdpFor(code)) || (layer === "winners" && !!winningParty && !electedPartiesFor(code).includes(winningParty))} fill={mapFill} description={mapDescription} onSelect={code => level === "country" ? openRegion() : level === "region" ? openAuthority(code) : openWard(code)} label={mapLabel} />}
+          <div className="legend" aria-label="Map legend">{layer === "winners" ? <>{legendOptions.map(party => <span className="legend-item" key={party}><span className="party-swatch" style={{ background: partyColor(party) }} aria-hidden="true" />{party}</span>)}<span className="legend-item"><span className="party-swatch mixed-swatch" />Tied</span><span>Grey: no record or outside pilot</span></> : layer === "tribes" ? <>{profiles[0]?.tribes.map(tribe => <span className="legend-item" key={tribe.id}><span className="party-swatch" style={{ background: tribeColors[tribe.id] }} aria-hidden="true" />{tribe.name}</span>)}<span>Grey: no profile</span></> : <><span>Lower</span><span className="v2-turnout-gradient" aria-hidden="true" /><span>Higher</span><span>Grey: unavailable</span></>}</div>
+          <p className="map-note">{layer === "tribes" ? "Dominant Electoral Tribe is an exploratory classification of 2021 Census areas allocated to 2025 Leeds wards. It describes neighbourhood context, not individuals or voting intention." : level === "authority" ? `Ward colours use the latest imported poll on the selected ${mapEdition} ward edition. Choosing a poll on another edition switches the map. Unmapped historical wards remain selectable without a highlight; earlier boundary equivalence is not certified.` : "Council and regional party colours show the party with the most elected candidates in imported polls for this year, not current council control."}{sdpOnly ? " Dim areas have no SDP candidacy in the imported records; that is not proof none stood." : ""}</p>
         </div><aside className="detail" aria-live="polite"><div className="kicker">{level === "country" ? "England / regional pilot" : level === "region" ? "Yorkshire and Humber" : authorityArea?.name}</div><h2>{level === "country" ? "England" : level === "region" ? "Yorkshire and Humber" : selectedWardName ?? authorityArea?.name}</h2>
           <div className="detail-tabs" role="group" aria-label="Area information">{(["results", "census", "tribes", "history"] as const).map(item => <button key={item} className={detailTab === item ? "active" : ""} aria-pressed={detailTab === item} onClick={() => setDetailTab(item)}>{item[0].toUpperCase() + item.slice(1)}</button>)}</div>
-          {detailTab === "results" && <>{level === "country" && <p>Nine English regions are indexed. Yorkshire and Humber is the only region released for this owner test; choose it to explore {pilotAuthorities.length} councils.</p>}{level === "region" && <p>{areaContestCount} imported contests in {year} across {pilotAuthorities.length} indexed councils. {areaSdpCouncils} council{areaSdpCouncils === 1 ? " has" : "s have"} an imported SDP candidacy.</p>}{level === "authority" && <><p className="sub">{year} · {coverageLabel(authorityArea?.coverage?.[year]?.status)}</p>{resultsLoading ? <p role="status">Loading results…</p> : resultError ? <p role="alert">Unable to load results: {resultError} Reload to try again.</p> : ward ? currentContest ? <><p className="sub">{currentEvent?.election_date ? dateText(currentEvent.election_date) : "Date unavailable"} · {eventKindLabel(currentEvent?.event_kind)}{currentEvent?.source_url ? <> · <a href={currentEvent.source_url} target="_blank" rel="noreferrer">Poll source</a></> : null}</p>{selectedContests.length > 1 && <label className="field">Poll<select value={currentContest.contest_id} onChange={event => setSelectedPoll(event.target.value)}>{selectedContests.map(contest => <option key={contest.contest_id} value={contest.contest_id}>{result?.events.find(item => item.event_id === contest.event_id)?.election_date ?? contest.contest_id}</option>)}</select></label>}<div className="meta"><div><span>Turnout</span><strong>{percent(currentContest.turnout_rate)}</strong></div><div><span>Seats filled in poll</span><strong>{currentContest.seats_available}{authority === LEEDS ? " of 3" : ""}</strong></div></div><p className="winner-line"><strong>Elected:</strong> {currentCandidates.filter(item => item.elected).map(item => `${item.candidate_name} (${canonicalParty(item.party_label)})`).join("; ") || "Unavailable"}</p></> : <p>No imported contest for this ward in {year}. Check History for other recorded years.</p> : <p>{activityFor(authority)?.contest_count ?? 0} imported contests in {year}. Select a ward for its result, or open Table for candidate-level records.</p>}</>}
+          {detailTab === "results" && <>{level === "country" && <p>Nine English regions are indexed. Yorkshire and Humber is the only region released for this owner test; choose it to explore {pilotAuthorities.length} councils.</p>}{level === "region" && <p>{areaContestCount} imported contests in {year} across {pilotAuthorities.length} indexed councils. {areaSdpCouncils} council{areaSdpCouncils === 1 ? " has" : "s have"} an imported SDP candidacy.</p>}{level === "authority" && <><p className="sub">{yearLabel} · {year === "latest" ? "Latest imported poll per ward" : coverageLabel(authorityArea?.coverage?.[year]?.status)}</p>{resultsLoading ? <p role="status">Loading results…</p> : resultError ? <p role="alert">Unable to load results: {resultError} Reload to try again.</p> : ward ? currentContest ? <><p className="sub">{currentEvent?.election_date ? dateText(currentEvent.election_date) : "Date unavailable"} · {eventKindLabel(currentEvent?.event_kind)}{currentEvent?.source_url ? <> · <a href={currentEvent.source_url} target="_blank" rel="noreferrer">Poll source</a></> : null}</p>{selectedContests.length > 1 && <label className="field">Poll<select value={currentContest.contest_id} onChange={event => setSelectedPoll(event.target.value)}>{selectedContests.map(contest => <option key={contest.contest_id} value={contest.contest_id}>{result?.events.find(item => item.event_id === contest.event_id)?.election_date ?? contest.contest_id}</option>)}</select></label>}<div className="meta"><div><span>Turnout</span><strong>{percent(currentContest.turnout_rate)}</strong></div><div><span>Seats filled in poll</span><strong>{currentContest.seats_available}{authority === LEEDS ? " of 3" : ""}</strong></div></div><p className="winner-line"><strong>Elected:</strong> {currentCandidates.filter(item => item.elected).map(item => `${item.candidate_name} (${canonicalParty(item.party_label)})`).join("; ") || "Unavailable"}</p></> : <p>No imported contest for this ward {year === "latest" ? "in the release" : `in ${year}`}. Check History for other recorded years.</p> : <p>{activityFor(authority)?.contest_count ?? 0} imported contests in {yearLabel}. Select a ward for its result, or open Table for candidate-level records.</p>}</>}
             {(!authority || result) && (currentContest && ward ? (() => { const votes: Record<string, number> = {}; for (const candidate of currentCandidates) if (candidate.votes != null) { const party = canonicalParty(candidate.party_label); votes[party] = (votes[party] ?? 0) + candidate.votes; } return <PartyBars votes={votes} total={currentContest.candidate_votes} winners={currentCandidates.filter(item => item.elected).map(item => canonicalParty(item.party_label))} multiSeat={currentContest.seats_available > 1} />; })() : <PartyBars votes={areaPartyVotes} total={areaTotalVotes} winners={leadingParties(areaWinnerCounts)} multiSeat={true} compact />)}
             {currentContest?.quality_note && ward && <p className="notice small-notice">{currentContest.quality_note}</p>}{currentContest?.comparability_note && ward && <p className="footnote">{currentContest.comparability_note.replace("code_match_only; historical polygons not certified", "2025 ward code matches; the historical poll boundary has not been certified.")}</p>}</>}
           {detailTab === "census" && (profile ? <><p className="sub">2021 Census · output areas allocated to 2025 Leeds wards</p><div className="census-total"><span>Usual residents</span><strong>{number.format(profile.population)}</strong></div><p className="footnote">{number.format(profile.oa_count)} output areas. Best-fit geography may differ from native ward totals.</p>{["Age", "Households and housing", "Work and education", "Population"].map(group => { const metrics = profile.metrics.filter(item => item.group === group); return metrics.length ? <section className="metric-group" key={group}><h4>{group}</h4>{metrics.map(metric => <div className="metric-row" key={metric.key}><span>{metric.label}</span><strong>{percent(metric.share)}</strong><small>{number.format(metric.count)} of {number.format(metric.denominator)}</small></div>)}</section> : null; })}</> : <p className="sub">{authority === LEEDS ? "Select a Leeds ward to view its 2021 Census profile." : "Ward Census profiles outside Leeds have not yet been prepared for this release."}</p>)}
           {detailTab === "tribes" && (profile ? <><p className="sub">Exploratory K=7 classification of 2021 Census areas; this does not measure voting intention.</p>{profile.tribes.map(item => <div className="result" key={item.id}><div className="result-label"><span><span className="party-swatch" style={{ background: tribeColors[item.id] }} aria-hidden="true" />{item.name}</span><span>{percent(item.share)}</span></div><div className="track"><div className="fill" style={{ width: `${item.share * 100}%`, background: tribeColors[item.id] }} /></div></div>)}<p className="footnote">Shares are weighted by 2021 Census residents in each output area.</p></> : <p className="sub">{authority === LEEDS ? "Select a Leeds ward to view its Electoral Tribes profile." : "Electoral Tribes profiles outside Leeds have not yet been prepared for this release."}</p>)}
           {detailTab === "history" && (ward ? historyError ? <p role="alert">Unable to load recorded history: {historyError} Reload to try again.</p> : selectedHistory.length ? <ol className="history-list">{selectedHistory.map((item, index) => <li key={`${item.date}-${index}`}><strong>{item.date ? dateText(item.date) : "Date unavailable"}</strong><span>{eventKindLabel("event_kind" in item ? item.event_kind : item.kind)} · {item.status === "included" || item.status === "checked_published" || item.status === "secondary_source_staged" || item.status === "council_source_staged" ? "Recorded" : item.status}</span>{"winners" in item && item.winners ? <small>{Array.isArray(item.winners) ? item.winners.map(winner => `${winner.candidate_name} (${winner.party_label})`).join("; ") : item.winners}</small> : null}{"reason" in item && item.reason ? <small>{item.reason}</small> : null}</li>)}</ol> : <p className="sub">{authority !== LEEDS && historyState?.authority !== authority ? "Loading recorded history…" : "No imported poll history for this ward. This does not prove there were no elections."}</p> : <><p className="sub">Select a ward for recorded poll history. Council-year status is shown below.</p>{authority ? <ul className="v2-year-list">{[...catalog.years].reverse().map(value => <li key={value}><strong>{value}</strong><span>{coverageLabel(authorityArea?.coverage?.[String(value)]?.status)}</span></li>)}</ul> : <p>Choose a council to see its recorded coverage by year.</p>}</>)}
         </aside></div>}
-      <div className="under"><span>{year} · {areaContestCount} imported contests in this scope{sourceUrl && level === "authority" ? <> · <a href={sourceUrl} target="_blank" rel="noreferrer">Council-year source</a></> : null}</span><span>Geography: ONS {level === "authority" ? mapEdition : "2025/2026"} · non-Leeds ordinary results: <a href="https://electionresults.uk/councils/data" target="_blank" rel="noreferrer">attributed secondary compilation</a>; selected by-elections: council returns</span></div>
+      <div className="under"><span>{yearLabel} · {areaContestCount} imported contests in this scope{sourceUrl && level === "authority" ? <> · <a href={sourceUrl} target="_blank" rel="noreferrer">Council-year source</a></> : null}</span><span>Geography: ONS {level === "authority" ? mapEdition : "2025/2026"} · non-Leeds ordinary results: <a href="https://electionresults.uk/councils/data" target="_blank" rel="noreferrer">attributed secondary compilation</a>; selected by-elections: council returns</span></div>
     </>}
   </>;
 }

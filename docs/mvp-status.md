@@ -2,7 +2,7 @@
 
 Switchboard is a private **owner-only Leeds Pulse pilot**, not yet a complete volunteer or campaign operations MVP. It presents prepared records; the site does not calculate new results or forecasts on demand.
 
-The separate Yorkshire and Humber Explorer v2 [rc9 candidate](explorer-v2-dated-wards-rc9-2026-10-05.md) was validated locally on 5 October with dated ward editions and two caveated Bradford poll transcriptions. Council-source and visual checks remain open. It has not been published or made visible to Leeds pilot viewers; it does not change the Leeds MVP status below.
+The separate Yorkshire and Humber Explorer v2 [rc9 candidate](explorer-v2-dated-wards-rc9-2026-10-05.md) was validated locally on 5 October with dated ward editions and two caveated Bradford poll transcriptions. [Local automated browser checks](explorer-v2-visual-qa-2026-10-05.md) now cover the main desktop and mobile flows; council-source and live access checks remain open. It has not been published or made visible to Leeds pilot viewers; it does not change the Leeds MVP status below.
 
 | Area | Current state | Next gate |
 |---|---|---|
