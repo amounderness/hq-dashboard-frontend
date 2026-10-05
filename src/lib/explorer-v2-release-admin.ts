@@ -4,7 +4,7 @@ import { ReleaseError, sha256, validId, type Pointer, type ReleaseBucket } from 
 type Manifest = {
   schema_version: number; package_id: string; release_status: string; pilot_region: string;
   created_at?: string; limits: string[]; object_sha256: Record<string, string>;
-  review_status?: string;
+  review_status?: string; audience_scope?: string;
 };
 type Area = { code: string; region_code: string; coverage: Record<string, { status: string }>;
   ward_edition_by_year?: Record<string, string> };
@@ -57,6 +57,7 @@ function parse<T>(text: string, label: string): T {
   catch { throw new ReleaseError(`Invalid JSON: ${label}`); }
 }
 function checkManifest(value: Manifest, id: string) {
+  if (value?.audience_scope === "leeds_viewers") throw new ReleaseError("Leeds viewer packages must use the separate viewer release panel.");
   if (!validId(id) || value?.package_id !== id || ![1, 2].includes(value.schema_version) || value.release_status !== "staged_not_published" || value.pilot_region !== "E12000003") throw new ReleaseError("Unsupported Yorkshire Explorer v2 manifest.");
   if (value.schema_version === 2 && !["council_source_review_pending", "source_reviewed"].includes(value.review_status ?? "")) throw new ReleaseError("Dated-ward release review status is missing.");
   if (!Array.isArray(value.limits) || !value.limits.length || value.limits.some(item => typeof item !== "string" || !item.trim())) throw new ReleaseError("Manifest must describe release limits.");

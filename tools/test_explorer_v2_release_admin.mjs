@@ -100,6 +100,13 @@ for (const [label, packageRoot, expected] of [
   assert.deepEqual([checked.objects_checked, checked.council_years, checked.contests, checked.candidates], expected);
 });
 
+test("Yorkshire owner panel cannot stage a Leeds viewer package", async () => {
+  const bucket = new Bucket();
+  const data = await fixture("v2-test-wrong-audience");
+  const manifest = { ...JSON.parse(data.manifest), audience_scope: "leeds_viewers" };
+  await assert.rejects(admin.v2StageManifest(bucket, manifest.package_id, JSON.stringify(manifest), actor), /separate viewer release panel/);
+});
+
 test("dated-ward rc9 validates but cannot be approved before council source review", async t => {
   const packageRoot = path.join(root, "data/explorer-v2/work-2026-10-05-dated-wards-rc7/releases/explorer-v2-yh-2026-10-05-rc9");
   if (!existsSync(packageRoot)) return t.skip("Ignored local rc9 release is not installed");

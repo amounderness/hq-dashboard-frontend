@@ -26,6 +26,8 @@
 
 **Automated visual QA restored (5 October):** A [headless Chrome check](explorer-v2-visual-qa-2026-10-05.md) now covers v1/v2 comparison, both dated Bradford ward maps, Leeds year changes, filters, Results/Census/Tribes/History, Table, Composition and a 390px viewport. Explorer v2 gained Leeds's Latest recorded and Electoral Tribes map views, and the SDP filter now tests all imported polls in the selected ward/year/edition. This is local browser evidence; source reconciliation, viewer API denial and live release checks are still open. The native computer-use helper remains broken on this host, but it is no longer the browser-test blocker.
 
+**Separate Leeds viewer candidate (5 October):** The owner approved the [Leeds-only publication design](explorer-v2-leeds-viewer-pilot-proposal-2026-10-05.md). The [rc2 implementation record](explorer-v2-leeds-viewer-rc2-2026-10-05.md) documents a new immutable viewer package with 167 audited Leeds contests, a separate private pointer, owner release controls and server-side Leeds-only denial. Local release and browser checks pass. It is not merged, uploaded or live; exact owner approval and authenticated live checks remain before viewer publication. Yorkshire rc9 is unchanged and still source-review pending.
+
 ## What now works
 
 - A canonical SQLite store indexes England's nine regions, 296 current local authorities, 21 separate county areas, 15 combined authorities, 6,826 2025 English wards, and 10,661 parish or non-civil-parished areas. Yorkshire and Humber has 15 authorities, 410 current wards, and 1,216 parish-area boundary records in local staging.

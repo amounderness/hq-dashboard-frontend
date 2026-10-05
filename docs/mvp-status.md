@@ -4,6 +4,8 @@ Switchboard is a private **owner-only Leeds Pulse pilot**, not yet a complete vo
 
 The separate Yorkshire and Humber Explorer v2 [rc9 candidate](explorer-v2-dated-wards-rc9-2026-10-05.md) was validated locally on 5 October with dated ward editions and two caveated Bradford poll transcriptions. [Local automated browser checks](explorer-v2-visual-qa-2026-10-05.md) now cover the main desktop and mobile flows; council-source and live access checks remain open. It has not been published or made visible to Leeds pilot viewers; it does not change the Leeds MVP status below.
 
+A distinct [Leeds-only Explorer v2 viewer candidate](explorer-v2-leeds-viewer-rc2-2026-10-05.md) now passes local package, permission-scope and browser tests. It uses only the audited Leeds result import and keeps other councils unavailable. It is not merged, uploaded, activated or visible on the live site; authenticated viewer checks and exact release approval remain.
+
 | Area | Current state | Next gate |
 |---|---|---|
 | Leeds election results | Six election years (2021–2026), 167 recorded contests and 945 candidate records. The 2025 result view contains only the Morley South by-election. Four historical source-choice cases and the defined published council-archive event check are closed and cited. Each ward poll identifies the number of its three seats filled. | Seek a corrected Farnley declaration and official Morley turnout; keep both secondary figures visibly labelled. A complete person-by-person councillor history is a separate future data set. |

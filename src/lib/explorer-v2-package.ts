@@ -5,7 +5,7 @@ import path from "node:path";
 type StoredObject = { text(): Promise<string> };
 type Bucket = { get(key: string): Promise<StoredObject | null> };
 type Pointer = { package_id: string; manifest_sha256: string };
-type Manifest = { package_id: string; schema_version: number; object_sha256: Record<string, string> };
+type Manifest = { package_id: string; schema_version: number; audience_scope?: string; released_authorities?: string[]; object_sha256: Record<string, string> };
 type Catalog = { years: number[]; pilot_region: string; authorities: { code: string; region_code: string; coverage: Record<string, { status: string; reason: string }> }[] };
 
 const releaseId = /^[a-z0-9][a-z0-9.-]{0,79}$/;
@@ -17,23 +17,23 @@ async function digest(text: string): Promise<string> {
   return Array.from(new Uint8Array(bytes), value => value.toString(16).padStart(2, "0")).join("");
 }
 
-async function source(): Promise<{ manifest: Manifest; read: (relative: string) => Promise<string> }> {
+async function source(viewer: boolean): Promise<{ manifest: Manifest; read: (relative: string) => Promise<string> }> {
   if (process.env.SWITCHBOARD_V2_PACKAGE_DIR && process.env.NODE_ENV === "development") {
     const root = process.env.SWITCHBOARD_V2_PACKAGE_DIR;
     const read = (relative: string) => readFile(path.join(root, relative), "utf8");
     return { manifest: JSON.parse(await read("manifest.json")) as Manifest, read };
   }
-  if (process.env.SWITCHBOARD_V2_ENABLED !== "true") throw new Error("Explorer v2 has not been activated.");
+  if (viewer ? process.env.SWITCHBOARD_V2_VIEWER_ENABLED !== "true" : process.env.SWITCHBOARD_V2_ENABLED !== "true") throw new Error("Explorer v2 has not been activated.");
   const { env } = await import("cloudflare:workers");
   const bucket = env.SWITCHBOARD_PACKAGES as Bucket | undefined;
   if (!bucket) throw new Error("Private package storage is unavailable.");
-  const pointerObject = await bucket.get("v2/active.json");
+  const pointerObject = await bucket.get(viewer ? "v2/viewer/active.json" : "v2/active.json");
   if (!pointerObject) throw new Error("No Explorer v2 release is active.");
   const pointer = JSON.parse(await pointerObject.text()) as Pointer;
   if (!releaseId.test(pointer.package_id) || !/^[a-f0-9]{64}$/.test(pointer.manifest_sha256)) {
     throw new Error("Invalid Explorer v2 release pointer.");
   }
-  const prefix = `v2/releases/${pointer.package_id}/`;
+  const prefix = viewer ? `v2/viewer/releases/${pointer.package_id}/` : `v2/releases/${pointer.package_id}/`;
   const read = async (relative: string) => {
     const object = await bucket.get(prefix + relative);
     if (!object) throw new Error("Explorer v2 release object is missing.");
@@ -44,9 +44,10 @@ async function source(): Promise<{ manifest: Manifest; read: (relative: string) 
   return { manifest: JSON.parse(manifestText) as Manifest, read };
 }
 
-export async function explorerV2Resource(kind: string, authority?: string, year?: string, edition?: string): Promise<unknown> {
-  const { manifest, read } = await source();
+export async function explorerV2Resource(kind: string, authority?: string, year?: string, edition?: string, viewer = false): Promise<unknown> {
+  const { manifest, read } = await source(viewer);
   if (![1, 2].includes(manifest.schema_version) || !releaseId.test(manifest.package_id)) throw new Error("Unsupported Explorer v2 release.");
+  if (viewer && (manifest.audience_scope !== "leeds_viewers" || manifest.released_authorities?.length !== 1 || manifest.released_authorities[0] !== "E08000035")) throw new Error("Explorer v2 viewer scope is invalid.");
   const verified = async (relative: string): Promise<string> => {
     const expected = manifest.object_sha256[relative];
     if (!expected || !/^[a-f0-9]{64}$/.test(expected)) throw new Error("Explorer v2 object is not in the manifest.");
@@ -66,7 +67,7 @@ export async function explorerV2Resource(kind: string, authority?: string, year?
   else if (kind === "results" && authority && areaCode.test(authority) && year && yearPattern.test(year)) {
     const catalog = JSON.parse(await verified("catalog.json")) as Catalog;
     const area = catalog.authorities.find(item => item.code === authority && item.region_code === catalog.pilot_region);
-    if (!area || !catalog.years.includes(Number(year))) throw new Error("Authority or year is outside the Explorer v2 pilot.");
+    if (!area || !catalog.years.includes(Number(year)) || (viewer && authority !== "E08000035")) throw new Error("Authority or year is outside the Explorer v2 pilot.");
     relative = `results/${authority}/${year}.json`;
     if (!manifest.object_sha256[relative]) {
       return { authority_code: authority, year: Number(year), election_type: "local_council",

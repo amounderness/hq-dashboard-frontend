@@ -10,6 +10,7 @@ import { join, resolve } from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
 
 const base = (process.argv[2] ?? "http://localhost:3045").replace(/\/$/, "");
+const viewerMode = process.env.SWITCHBOARD_VISUAL_SCOPE === "viewer";
 const output = resolve(`data/explorer-v2/browser-qa-${new Date().toISOString().replace(/[:.]/g, "-")}`);
 const profile = join(output, "chrome-profile");
 const chromePath = process.env.CHROME_PATH ?? (process.platform === "win32"
@@ -113,7 +114,12 @@ try {
   await until(() => evaluate(`document.querySelector('.v2-map')?.querySelectorAll('path[role="button"]').length === 1`), "England map");
   await snapshot("v2-england-desktop");
   assert.ok(await data(`const region = document.querySelector('.v2-map path[role="button"]'); if (!region) return false; region.dispatchEvent(new MouseEvent('click', { bubbles: true })); return true;`), "Yorkshire map region is not selectable");
-  await until(() => evaluate(`document.querySelector('.v2-map')?.querySelectorAll('path[role="button"]').length === 15`), "Yorkshire councils map");
+  await until(() => evaluate(`document.querySelector('.v2-map')?.querySelectorAll('path[role="button"]').length === ${viewerMode ? 1 : 15}`), "Yorkshire councils map");
+  if (viewerMode) {
+    assert.equal(await evaluate(`document.querySelectorAll('.v2-map path[aria-disabled="true"]').length`), 14, "Unreleased councils should not be selectable");
+    assert.ok(await evaluate(`!![...document.querySelectorAll('.v2-toolbar label')].find(node => node.textContent.trim().startsWith('Council'))?.querySelector('option[value="E08000032"]:disabled')`), "Bradford selector should be disabled");
+    assert.equal(await evaluate(`fetch('/api/explorer-v2/results?authority=E08000032&year=2026').then(response => response.status)`), 403, "Direct Bradford result request should be denied");
+  }
   await snapshot("v2-yorkshire-desktop");
   assert.ok(await data(`const checkbox = document.querySelector('.v2-toolbar .contested-filter input'); if (!checkbox) return false; checkbox.click(); return checkbox.checked;`), "SDP filter cannot be enabled");
   assert.ok(await evaluate(`document.querySelectorAll('.v2-map path[opacity="0.18"]').length > 0`), "SDP filter did not dim any council");
@@ -168,6 +174,7 @@ try {
   await snapshot("v2-leeds-composition-desktop");
 
   await click("Map", "document.querySelector('.switch')");
+  if (!viewerMode) {
   await choose("Council", "E08000032");
   await until(() => evaluate(`document.querySelector('.map-heading')?.innerText.includes('2026-05 wards')`), "Bradford 2026 map edition");
   await until(() => evaluate(`!!document.querySelector('.v2-toolbar label select option[value="E05001369"]')`), "Bradford February poll option");
@@ -180,13 +187,14 @@ try {
   await until(() => evaluate(`document.querySelector('.map-heading')?.innerText.includes('2026-05 wards')`), "Idle and Thackley new map edition");
   await waitText("Postponed council election");
   await snapshot("v2-bradford-june-desktop");
+  }
 
   await command("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   await pause(500);
-  await snapshot("v2-bradford-mobile");
+  await snapshot(viewerMode ? "v2-leeds-viewer-mobile" : "v2-bradford-mobile");
   await data(`window.scrollTo(0, document.querySelector('.v2-work').getBoundingClientRect().top + window.scrollY - 12); return true;`);
   await pause(150);
-  await snapshot("v2-bradford-mobile-map");
+  await snapshot(viewerMode ? "v2-leeds-viewer-mobile-map" : "v2-bradford-mobile-map");
   const mobile = await data(`return { width: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth,
     mapWidth: Math.round(document.querySelector('.v2-map').getBoundingClientRect().width) };`);
   assert.ok(mobile.scrollWidth <= mobile.width + 2, `Mobile page overflows horizontally: ${JSON.stringify(mobile)}`);
