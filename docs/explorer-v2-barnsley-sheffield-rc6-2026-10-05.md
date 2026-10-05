@@ -2,6 +2,8 @@
 
 **State:** Locally staged and validated on 5 October 2026. `explorer-v2-yh-2026-10-05-rc6` has **not** been uploaded, approved, activated or shown to trial viewers. Manifest SHA-256: `36177ef3208992e02aec00353b64dd991d42d180c8585fb8ae95af0eedb4d0bf`. The rc5 release is preserved; the live Leeds release and v2 production flags were not changed.
 
+Importer and test code was committed as `0fc71ff` on `feature/explorer-v2-national-store`; this release note is a follow-up record on the same branch.
+
 The owner approved the [HTML and ordinary-turnout import contract](explorer-v2-official-html-and-turnout-design-2026-10-05.md) for this local candidate. The new working store is `data/explorer-v2/work-2026-10-05-barnsley-sheffield-rc6/switchboard.sqlite3`; its immutable package is in that folder's `releases/explorer-v2-yh-2026-10-05-rc6/`. These files and the pinned HTML snapshots are ignored by Git and need separate backup. The versioned scripts, fixture and review record are in Git.
 
 | Change | Source and treatment |
