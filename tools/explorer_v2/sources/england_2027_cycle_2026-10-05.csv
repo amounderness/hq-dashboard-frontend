@@ -1,0 +1,228 @@
+source_name,cycle_group
+Bolton,metropolitan_thirds
+Bradford,metropolitan_thirds
+Bury,metropolitan_thirds
+Dudley,metropolitan_thirds
+Gateshead,metropolitan_thirds
+Kirklees,metropolitan_thirds
+Knowsley,metropolitan_thirds
+Leeds,metropolitan_thirds
+Manchester,metropolitan_thirds
+Newcastle Upon Tyne,metropolitan_thirds
+North Tyneside,metropolitan_thirds
+Oldham,metropolitan_thirds
+Rochdale,metropolitan_thirds
+Salford,metropolitan_thirds
+Sandwell,metropolitan_thirds
+Sefton,metropolitan_thirds
+Sheffield,metropolitan_thirds
+Solihull,metropolitan_thirds
+South Tyneside,metropolitan_thirds
+Stockport,metropolitan_thirds
+Sunderland,metropolitan_thirds
+Tameside,metropolitan_thirds
+Trafford,metropolitan_thirds
+Wakefield,metropolitan_thirds
+Walsall,metropolitan_thirds
+Wigan,metropolitan_thirds
+Wolverhampton,metropolitan_thirds
+Liverpool,metropolitan_whole
+Wirral,metropolitan_whole
+Calderdale,metropolitan_review
+Coventry,metropolitan_review
+Amber Valley,district_whole
+Arun,district_whole
+Ashfield,district_whole
+Ashford,district_whole
+Babergh,district_whole
+Bassetlaw,district_whole
+Blaby,district_whole
+Bolsover,district_whole
+Boston,district_whole
+Braintree,district_whole
+Breckland,district_whole
+Broadland,district_whole
+Bromsgrove,district_whole
+Broxtowe,district_whole
+Canterbury City,district_whole
+Charnwood,district_whole
+Chelmsford,district_whole
+Chesterfield,district_whole
+Chichester,district_whole
+Cotswold,district_whole
+Dacorum,district_whole
+Dartford,district_whole
+Derbyshire Dales,district_whole
+Dover,district_whole
+East Cambridgeshire,district_whole
+East Devon,district_whole
+East Hampshire,district_whole
+East Hertfordshire,district_whole
+East Lindsey,district_whole
+East Staffordshire,district_whole
+East Suffolk,district_whole
+Eastbourne,district_whole
+Epsom and Ewell,district_whole
+Erewash,district_whole
+Fenland,district_whole
+Folkestone and Hythe,district_whole
+Forest of Dean,district_whole
+Fylde,district_whole
+Gedling,district_whole
+Gravesham,district_whole
+Great Yarmouth,district_whole
+Guildford,district_whole
+Harborough,district_whole
+Hertsmere,district_whole
+High Peak,district_whole
+Hinckley and Bosworth,district_whole
+Horsham,district_whole
+King’s Lynn and West Norfolk,district_whole
+Lancaster City,district_whole
+Lewes,district_whole
+Lichfield,district_whole
+Maldon,district_whole
+Malvern Hills,district_whole
+Mansfield,district_whole
+Melton,district_whole
+Mid Devon,district_whole
+Mid Suffolk,district_whole
+Mid Sussex,district_whole
+New Forest,district_whole
+Newark and Sherwood,district_whole
+North Devon,district_whole
+North East Derbyshire,district_whole
+North Kesteven,district_whole
+North Norfolk,district_whole
+North Warwickshire,district_whole
+North West Leicestershire,district_whole
+Oadby and Wigston,district_whole
+Ribble Valley,district_whole
+Rother,district_whole
+Rushcliffe,district_whole
+Sevenoaks,district_whole
+South Derbyshire,district_whole
+South Hams,district_whole
+South Holland,district_whole
+South Kesteven,district_whole
+South Norfolk,district_whole
+South Oxfordshire,district_whole
+South Ribble,district_whole
+South Staffordshire,district_whole
+Spelthorne,district_whole
+Stafford,district_whole
+Staffordshire Moorlands,district_whole
+Stratford upon Avon,district_whole
+Surrey Heath,district_whole
+Swale,district_whole
+Teignbridge,district_whole
+Tendring,district_whole
+Test Valley,district_whole
+Tewkesbury (North Gloucestershire from December 2024),district_whole
+Thanet,district_whole
+Tonbridge and Malling,district_whole
+Torridge,district_whole
+Uttlesford,district_whole
+Vale Of White Horse,district_whole
+Warwick,district_whole
+Waverley,district_whole
+Wealden,district_whole
+West Devon,district_whole
+West Lindsey,district_whole
+West Suffolk,district_whole
+Wychavon,district_whole
+Wyre,district_whole
+Wyre Forest,district_whole
+Basildon,district_thirds
+Basingstoke and Deane,district_thirds
+Brentwood,district_thirds
+Broxbourne,district_thirds
+Burnley,district_thirds
+Cambridge,district_thirds
+Cannock Chase,district_thirds
+Cherwell,district_thirds
+Chorley,district_thirds
+Colchester,district_thirds
+Crawley,district_thirds
+Eastleigh,district_thirds
+Elmbridge,district_thirds
+Epping Forest,district_thirds
+Exeter,district_thirds
+Harlow,district_thirds
+Hart,district_thirds
+Havant,district_thirds
+Hyndburn,district_thirds
+Ipswich,district_thirds
+Lincoln,district_thirds
+Mole Valley,district_thirds
+Norwich,district_thirds
+Pendle,district_thirds
+Preston,district_thirds
+Redditch,district_thirds
+Reigate and Banstead,district_thirds
+Rochford,district_thirds
+Rugby,district_thirds
+Runnymede,district_thirds
+Rushmoor,district_thirds
+St Albans,district_thirds
+Stevenage,district_thirds
+Tamworth,district_thirds
+Tandridge,district_thirds
+Three Rivers,district_thirds
+Tunbridge Wells,district_thirds
+Watford,district_thirds
+Welwyn Hatfield,district_thirds
+West Lancashire,district_thirds
+West Oxfordshire,district_thirds
+Winchester,district_thirds
+Woking,district_thirds
+Worthing,district_thirds
+Bath and North East Somerset,unitary_whole
+Bedford,unitary_whole
+Blackpool,unitary_whole
+"Bournemouth, Christchurch and Poole",unitary_whole
+Bracknell Forest,unitary_whole
+Brighton and Hove,unitary_whole
+Central Bedfordshire,unitary_whole
+Cheshire East,unitary_whole
+Cheshire West and Chester,unitary_whole
+Darlington,unitary_whole
+Derby,unitary_whole
+East Riding of Yorkshire,unitary_whole
+Herefordshire,unitary_whole
+Leicester,unitary_whole
+Luton,unitary_whole
+Medway,unitary_whole
+Middlesbrough,unitary_whole
+North Lincolnshire,unitary_whole
+North Somerset,unitary_whole
+Nottingham,unitary_whole
+Redcar and Cleveland,unitary_whole
+Rutland,unitary_whole
+Slough,unitary_whole
+South Gloucestershire,unitary_whole
+Stockton-on-Tees,unitary_whole
+Stoke-on-Trent,unitary_whole
+Telford and The Wrekin,unitary_whole
+Torbay,unitary_whole
+West Berkshire,unitary_whole
+Windsor and Maidenhead,unitary_whole
+York,unitary_whole
+Cumberland,new_unitary_whole
+North Yorkshire,new_unitary_whole
+Somerset,new_unitary_whole
+Westmorland and Furness,new_unitary_whole
+Blackburn with Darwen,unitary_thirds
+Halton,unitary_thirds
+Hartlepool,unitary_thirds
+Hull,unitary_thirds
+Milton Keynes,unitary_thirds
+North East Lincolnshire,unitary_thirds
+Peterborough,unitary_thirds
+Plymouth,unitary_thirds
+Portsmouth,unitary_thirds
+Reading,unitary_thirds
+Southampton,unitary_thirds
+Southend,unitary_thirds
+Swindon,unitary_thirds
+Wokingham,unitary_thirds

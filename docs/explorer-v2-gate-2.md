@@ -6,6 +6,8 @@
 
 **Status (1 October):** A new local `explorer-v2-yh-2026-10-01-rc4` candidate adds five council-sourced 2025 by-elections; rc3 remains immutable. The live Leeds pilot is unchanged. See [the rc4 source and validation record](explorer-v2-byelection-rc4-2026-10-01.md). This document does not approve publication of the regional results.
 
+**Audit update (5 October):** A read-only [national authority-year coverage inventory](explorer-v2-national-coverage-audit-2026-10-05.md) now identifies 1,902 local-council authority-year entries for 2021–2026 and a separate, provisional list of 227 authorities on the government's recurring 2027 cycle page. It does not certify poll dates, source completeness or event-date boundaries; the rc4 package and live Leeds release have not changed.
+
 ## What now works
 
 - A canonical SQLite store indexes England's nine regions, 296 current local authorities, 21 separate county areas, 15 combined authorities, 6,826 2025 English wards, and 10,661 parish or non-civil-parished areas. Yorkshire and Humber has 15 authorities, 410 current wards, and 1,216 parish-area boundary records in local staging.
@@ -54,7 +56,7 @@ The working store, source downloads and release packages are under ignored `data
 | --- | --- | --- |
 | National geography and dated relationships | Current ONS layers indexed; 2025 display edition only for most areas | Add 2021–2026 boundary editions and event-date crosswalks, especially redrawn wards and new authorities. |
 | All local election types | Seven types and round/list tables modelled; only council ordinary results imported beyond Leeds | Implement generic import adapters for mayoral, parish and London Assembly results, with separate source and method rules. |
-| Annual council results since 2021 | Matched English council records staged; secondary source and winner caveats visible | Compare sampled council declarations, resolve the two Surrey authority IDs and check the 4,625 national unmatched wards before any wider release. |
+| Annual council results since 2021 | Matched English council records staged; secondary source and winner caveats visible. A reproducible 1,902-row authority-year audit and provisional 2027 cycle roster are available for prioritisation. | Confirm actual 2027 council schedules; compare sampled council declarations, resolve the two Surrey authority IDs and check the 4,625 national unmatched wards before any wider release. |
 | By-elections and absence | Leeds audited; five 2025 council by-elections are in local rc4. The regional event register is not exhaustive. | Reconcile each pilot council's event list, mark verified no-poll years separately, and import remaining by-elections. |
 | Release safety | Checksummed package and local staging record pass; owner-only R2 controls pass local unit and full rc3 package tests. Controls are deployed with v2 off; signed-out requests redirect to Access, the owner release panel reads live v2 state, the party test account hides owner-only content and Leeds remains active. | Capture exact viewer API denial; test staging, approval, activation and rollback on Cloudflare. Do not activate rc3 until source review clears it. |
 | Explorer usability | Local Chrome checks passed Map, Table, Composition, ward selection/highlight, year changes, SDP filter, keyboard activation, 390px layout and a non-Leeds council; see browser QA record | Test additional browsers and representative larger councils with invited users; add quick search and council-tier filters. |
