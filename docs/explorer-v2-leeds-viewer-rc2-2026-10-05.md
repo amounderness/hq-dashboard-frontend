@@ -24,6 +24,8 @@ The viewer route reads a **separate** `v2/viewer/active.json` pointer and `v2/vi
 
 The publication steps are complete. The owner's activation was confirmed both on the panel and by reading the exact viewer pointer and approval record from R2. A party test account completed the Leeds screens and saw the intended Bradford restriction. The exact owner-API denial status, live mobile layout and current Access invite list were not independently captured in this run. First-release recovery is to redeploy the previously verified flag-off build; there is no older viewer package to point to.
 
+**For the next deployment:** the release flags were supplied to the build and generated Worker configuration for this deployment; they are not permanent values in tracked `wrangler.jsonc`. Before rebuilding, set `NEXT_PUBLIC_EXPLORER_V2_VIEWER_ENABLED=true` for the client and `SWITCHBOARD_V2_VIEWER_ENABLED=true` for the Worker. Keep `NEXT_PUBLIC_EXPLORER_V2_ENABLED=false` and `SWITCHBOARD_V2_ENABLED=false` for unpublished Yorkshire results. Inspect the generated `dist/server/wrangler.json` before deployment and confirm it contains the Worker viewer flag. A rebuild without these settings can hide Explorer v2 from viewers even while the rc2 pointer remains active. Longer term, make these environment-specific release flags explicit in a tested deployment procedure.
+
 ## Repeat the Leeds viewer check on this PC
 
 Open PowerShell in the repository folder, then run these lines in order:
