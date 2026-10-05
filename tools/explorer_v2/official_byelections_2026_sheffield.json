@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "scope": "Two Sheffield City Council by-elections identified in the October 2026 source review; not an exhaustive Yorkshire event register",
+  "review_status": "source_reviewed_not_imported",
+  "events": [
+    {
+      "date": "2026-08-27",
+      "authority_id": "E08000039",
+      "ward_id": "E05010879",
+      "ward_name": "Southey",
+      "publisher": "Sheffield City Council",
+      "source_url": "https://www.sheffield.gov.uk/sites/default/files/2026-08/declaration-of-result-southey-by-election-27-august-2026.pdf",
+      "source_document_sha256": "88b4ceac735e56c33ece0f34af7bce2dd06d064ca386d116febf13df4a17e8f4",
+      "corroboration_url": "https://www.sheffield.gov.uk/your-city-council/elections/southey-by-election-results",
+      "seats": 1,
+      "electorate": 14348,
+      "ballots_issued": 2243,
+      "rejected": 3,
+      "declared_turnout_percent": 15.63,
+      "quality_note": "Returning officer declaration identifies one Sheffield City Council seat. Candidate votes and rejected ballots reconcile exactly with issued ballots. Event-date ward geometry remains to be verified. The wider event register is not certified exhaustive.",
+      "candidates": [
+        {"name": "Jayne Patricia Dunn (Jayne Dunn)", "party": "Labour", "source_party_label": "Labour Party", "votes": 836, "elected": false},
+        {"name": "Daniel Kevin Gage (Daniel Gage)", "party": "Conservative", "source_party_label": "The Conservative Party Candidate", "votes": 69, "elected": false},
+        {"name": "Oliver Edward George", "party": "Liberal Democrat", "source_party_label": "Liberal Democrats", "votes": 56, "elected": false},
+        {"name": "Paul Simon Jakeman (Paul Jakeman)", "party": "Reform UK", "source_party_label": "Reform UK", "votes": 1133, "elected": true},
+        {"name": "Daniel John Moy", "party": "Green", "source_party_label": "Green Party", "votes": 146, "elected": false}
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "authority_id": "E08000039",
+      "ward_id": "E05010882",
+      "ward_name": "Walkley",
+      "publisher": "Sheffield City Council",
+      "source_url": "https://www.sheffield.gov.uk/sites/default/files/2026-09/declaration_of_result_-_walkley_by-election_17_september_2026.pdf",
+      "source_document_sha256": "92df3b174d0b30ef9935cc97667805c1a8b05bd0140ee0090f84ac0ecb806699",
+      "corroboration_url": "https://www.sheffield.gov.uk/your-city-council/elections/walkley-by-election-results",
+      "seats": 1,
+      "electorate": 15401,
+      "ballots_issued": 4340,
+      "rejected": 8,
+      "declared_turnout_percent": 28.18,
+      "quality_note": "The aggregated council results index lists Andrew John Telford on 258 votes. The individual result page and returning officer declaration list 541; 541 is used because candidate votes plus rejected ballots then equal issued ballots. Event-date ward geometry remains to be verified. The wider event register is not certified exhaustive.",
+      "candidates": [
+        {"name": "Hannah Cawley", "party": "Labour", "source_party_label": "Labour and Co-operative Party", "votes": 2315, "elected": true},
+        {"name": "Isabelle Amy France", "party": "TUSC", "source_party_label": "Trade Unionist and Socialist Coalition", "votes": 56, "elected": false},
+        {"name": "Alexander William Albert Purvis (Alex Purvis)", "party": "Liberal Democrat", "source_party_label": "Liberal Democrats", "votes": 112, "elected": false},
+        {"name": "Andrew John Telford", "party": "Reform UK", "source_party_label": "Reform UK", "votes": 541, "elected": false},
+        {"name": "Sana Ullah (Sonny Ullah)", "party": "Conservative", "source_party_label": "The Conservative Party Candidate", "votes": 59, "elected": false},
+        {"name": "Sebastian Van Bilsen Irias (Seb Van Bilsen Irias)", "party": "Green", "source_party_label": "Green Party", "votes": 1249, "elected": false}
+      ]
+    }
+  ]
+}

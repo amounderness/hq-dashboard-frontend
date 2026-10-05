@@ -10,6 +10,8 @@
 
 **Yorkshire schedule update (5 October):** The [twelve-council source review](yorkshire-2027-schedule-review-2026-10-05.md) separates exact council dates from month-only and general-cycle evidence. East Riding, North Yorkshire and York need 2027 boundary editions. Two completed Sheffield 2026 by-elections are missing from rc4; the Walkley aggregated council index conflicts with its declaration on one candidate's votes. No result or package has been changed by this review.
 
+**Sheffield source preparation (5 October):** Both 2026 declarations have been downloaded to ignored research storage and matched by hash to a versioned [11-candidate transcription](../tools/explorer_v2/official_byelections_2026_sheffield.json). A read-only checker validates votes, turnout, source files and canonical wards. The [generic dated-event import contract](explorer-v2-reviewed-event-import-design-2026-10-05.md) awaits owner design review; there is still no rc5 package or imported Sheffield by-election result.
+
 ## What now works
 
 - A canonical SQLite store indexes England's nine regions, 296 current local authorities, 21 separate county areas, 15 combined authorities, 6,826 2025 English wards, and 10,661 parish or non-civil-parished areas. Yorkshire and Humber has 15 authorities, 410 current wards, and 1,216 parish-area boundary records in local staging.
