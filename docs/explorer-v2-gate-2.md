@@ -8,6 +8,8 @@
 
 **Audit update (5 October):** A read-only [national authority-year coverage inventory](explorer-v2-national-coverage-audit-2026-10-05.md) now identifies 1,902 local-council authority-year entries for 2021–2026 and a separate, provisional list of 227 authorities on the government's recurring 2027 cycle page. It does not certify poll dates, source completeness or event-date boundaries; the rc4 package and live Leeds release have not changed.
 
+**Yorkshire schedule update (5 October):** The [twelve-council source review](yorkshire-2027-schedule-review-2026-10-05.md) separates exact council dates from month-only and general-cycle evidence. East Riding, North Yorkshire and York need 2027 boundary editions. Two completed Sheffield 2026 by-elections are missing from rc4; the Walkley aggregated council index conflicts with its declaration on one candidate's votes. No result or package has been changed by this review.
+
 ## What now works
 
 - A canonical SQLite store indexes England's nine regions, 296 current local authorities, 21 separate county areas, 15 combined authorities, 6,826 2025 English wards, and 10,661 parish or non-civil-parished areas. Yorkshire and Humber has 15 authorities, 410 current wards, and 1,216 parish-area boundary records in local staging.

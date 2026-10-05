@@ -3,7 +3,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from build_coverage_inventory import audit, map_cycle_names, parse_cycle_lists, read_pinned_roster
+from build_coverage_inventory import (
+    audit, attach_schedule_review, map_cycle_names, parse_cycle_lists,
+    read_pinned_roster, read_schedule_review,
+)
 
 
 class CycleListTests(unittest.TestCase):
@@ -37,6 +40,24 @@ class CycleListTests(unittest.TestCase):
             path.write_text("source_name,cycle_group\nA,district_whole\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "SHA-256"):
                 read_pinned_roster(path)
+
+    def test_schedule_review_preserves_date_precision(self):
+        review = read_schedule_review()
+        self.assertEqual(len(review), 12)
+        self.assertEqual(review["E08000035"]["reported_poll_date"], "2027-05-06")
+        self.assertEqual(review["E08000039"]["reported_poll_date"], "")
+        self.assertEqual(review["E06000011"]["boundary_review_status"], "2027_new_wards")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "changed.csv"
+            original = Path(__file__).parent / "sources" / "yorkshire_2027_schedule_review_2026-10-05.csv"
+            path.write_text(original.read_text(encoding="utf-8").replace(
+                "E08000039,national_cycle_only,,,", "E08000039,national_cycle_only,2027-05-06,2027-05,"), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "precision exceeds"):
+                read_schedule_review(path)
+
+    def test_schedule_review_requires_matching_cycle_council(self):
+        with self.assertRaisesRegex(ValueError, "missing from the canonical"):
+            attach_schedule_review([], {"E08000035": {}})
 
 
 class CoverageTests(unittest.TestCase):

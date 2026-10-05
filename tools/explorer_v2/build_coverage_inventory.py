@@ -20,6 +20,11 @@ CYCLE_URL = "https://www.gov.uk/government/publications/election-timetable-in-en
 CYCLE_SHA256 = "46b2d5ef6506348863140b96bd42e88e1b00c95ad51d5937940c71117aa63d07"
 ROSTER_SHA256 = "2c343a08fb1875cdfe478f452659a54d3415f64a678b6ff3ee1000391555ebfd"
 ROSTER_PATH = Path(__file__).resolve().parent / "sources" / "england_2027_cycle_2026-10-05.csv"
+SCHEDULE_REVIEW_PATH = Path(__file__).resolve().parent / "sources" / "yorkshire_2027_schedule_review_2026-10-05.csv"
+YORKSHIRE_2027_IDS = {
+    "E08000032", "E08000034", "E08000035", "E08000039", "E08000036", "E08000033",
+    "E06000011", "E06000013", "E06000014", "E06000065", "E06000010", "E06000012",
+}
 EXPECTED_GROUPS = (
     (27, "metropolitan_thirds", "metropolitan district councils elect by thirds"),
     (2, "metropolitan_whole", "Metropolitan District Councils will hold whole council elections"),
@@ -89,6 +94,40 @@ def read_pinned_roster(path: Path = ROSTER_PATH) -> list[dict[str, str]]:
     return rows
 
 
+def read_schedule_review(path: Path = SCHEDULE_REVIEW_PATH) -> dict[str, dict[str, str]]:
+    with path.open(encoding="utf-8", newline="") as file:
+        rows = list(csv.DictReader(file))
+    ids = [row["area_id"] for row in rows]
+    if len(ids) != len(set(ids)) or set(ids) != YORKSHIRE_2027_IDS:
+        raise ValueError("Yorkshire 2027 review must contain exactly the 12 expected authorities")
+    levels = {"council_exact_date", "council_month", "commission_2027_election", "national_cycle_only"}
+    boundary_states = {"not_checked", "2026_new_wards", "2027_new_wards", "review_in_progress"}
+    for row in rows:
+        level = row["evidence_level"]
+        if level not in levels or row["boundary_review_status"] not in boundary_states:
+            raise ValueError(f"Invalid review classification: {row['area_id']}")
+        if (row["reported_poll_date"] != ("2027-05-06" if level == "council_exact_date" else "")
+                or row["reported_poll_month"] != ("2027-05" if level in {"council_exact_date", "council_month"} else "")):
+            raise ValueError(f"Poll date precision exceeds source evidence: {row['area_id']}")
+        if (not row["schedule_source_url"].startswith("https://")
+                or (row["boundary_review_status"] != "not_checked"
+                    and not row["boundary_source_url"].startswith("https://"))
+                or row["checked_on"] != "2026-10-05"):
+            raise ValueError(f"Incomplete 2027 source review: {row['area_id']}")
+    return {row["area_id"]: row for row in rows}
+
+
+def attach_schedule_review(cycle_rows: list[dict[str, str]], review: dict[str, dict[str, str]]) -> list[dict[str, str]]:
+    mapped_ids = {row["area_id"] for row in cycle_rows}
+    if not set(review).issubset(mapped_ids):
+        raise ValueError("Reviewed council is missing from the canonical 2027 cycle list")
+    fields = ("reported_poll_date", "reported_poll_month", "schedule_source_url",
+              "boundary_review_status", "boundary_source_url", "schedule_review_note", "checked_on")
+    return [{**row, "evidence_level": review[row["area_id"]]["evidence_level"] if row["area_id"] in review else "unreviewed",
+             **{field: review[row["area_id"]][field] if row["area_id"] in review else "" for field in fields}}
+            for row in cycle_rows]
+
+
 def map_cycle_names(rows: list[dict[str, str]], authorities: list[sqlite3.Row]) -> list[dict[str, str]]:
     by_id = {area["area_id"]: area for area in authorities}
     by_name = defaultdict(list)
@@ -117,11 +156,11 @@ def map_cycle_names(rows: list[dict[str, str]], authorities: list[sqlite3.Row]) 
     return mapped
 
 
-def audit(db: sqlite3.Connection, cycle_rows: list[dict[str, str]]) -> tuple[list[dict], dict]:
+def audit(db: sqlite3.Connection, cycle_rows: list[dict[str, str]], schedule_review: dict[str, dict[str, str]] | None = None) -> tuple[list[dict], dict]:
     db.row_factory = sqlite3.Row
     areas = list(db.execute("SELECT area_id,area_type,name,region_area_id,status FROM area "
                             "WHERE area_type IN ('local_authority','county_or_unitary') ORDER BY area_id"))
-    mapped = map_cycle_names(cycle_rows, areas)
+    mapped = attach_schedule_review(map_cycle_names(cycle_rows, areas), schedule_review or {})
     by_area = {row["area_id"]: row for row in mapped}
     coverage = {(row["area_id"], row["year"]): row for row in db.execute(
         "SELECT area_id,year,status,reason,source_url FROM coverage "
@@ -177,6 +216,7 @@ def audit(db: sqlite3.Connection, cycle_rows: list[dict[str, str]]) -> tuple[lis
                "unlinked_historical_contests": sum(r["unlinked_historical_contests"] for r in result),
                "unverified_boundary_contests": sum(r["unverified_boundary_contests"] for r in result),
                "provisional_2027_cycle_authorities": len(mapped),
+               "2027_schedule_evidence_counts": dict(sorted(Counter(r["evidence_level"] for r in mapped).items())),
                "2027_cycle_group_counts": dict(sorted(Counter(r["cycle_group"] for r in mapped).items())),
                "cycle_source_url": CYCLE_URL, "cycle_snapshot_sha256": CYCLE_SHA256,
                "reviewed_roster_sha256": ROSTER_SHA256,
@@ -205,7 +245,7 @@ def main() -> None:
         if parse_cycle_lists(source.decode("utf-8")) != cycles:
             raise ValueError("Reviewed roster differs from the official HTML snapshot")
     with sqlite3.connect(f"file:{args.database.resolve().as_posix()}?mode=ro", uri=True) as db:
-        matrix, result = audit(db, cycles)
+        matrix, result = audit(db, cycles, read_schedule_review())
     args.output.mkdir(parents=True, exist_ok=True)
     write_csv(args.output / "council_year_coverage.csv", matrix)
     write_csv(args.output / "cycle_2027_review.csv", result["cycle_rows"])
