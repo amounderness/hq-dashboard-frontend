@@ -1,6 +1,6 @@
-# Switchboard · Leeds Pulse pilot
+# Switchboard · Electoral Intelligence
 
-Switchboard is a private Leeds electoral information portal. The live owner preview is at [switchboard-owner-preview.keenanrclough.workers.dev](https://switchboard-owner-preview.keenanrclough.workers.dev/) behind Cloudflare Access. Its Explorer, SDP Results, Electoral Tribes and Development pages read prepared information; they do not run new election models when a viewer opens a page. The current private data package is `leeds-pulse-v0.6.0`. Forecast contains retrospective research only.
+Switchboard is a private electoral information workspace for a select England-wide trial, expanding area by area as sources and releases are verified. The live site is at [switchboard-owner-preview.keenanrclough.workers.dev](https://switchboard-owner-preview.keenanrclough.workers.dev/) behind Cloudflare Access. Detailed viewer data currently covers Leeds City Council: Pulse uses `leeds-pulse-v0.6.0`, and Explorer v2 uses a separate Leeds-only checked viewer release. Yorkshire and Humber rc9 is an unpublished regional candidate. Explorer, SDP Results, Electoral Tribes and Development read prepared information; they do not run new election models when a viewer opens a page. Forecast contains retrospective research only.
 
 The repository contains the website, package builders and audit documents. Validated Leeds release files are kept in private R2 storage and in the local audit workspace, not in Git. The original `leeds-local-elections-v0.1.0` development package remains unpublished.
 

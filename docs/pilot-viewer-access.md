@@ -1,11 +1,11 @@
 # Switchboard pilot viewer access
 
-This is the owner checklist for inviting 5–10 named viewers to the private Leeds pilot. There is no public sign-up page. Keep the existing Cloudflare Access protection on **all Worker traffic**, including assets and previews. The first viewer role can read the published Leeds package, reports and exports; only the owner email configured on the server can open the release controls or call their API.
+This is the owner checklist for inviting 5–10 named viewers to the private select England-wide trial. Detailed published data currently covers Leeds City Council; further areas open only after separate verification and release. There is no public sign-up page. Keep the existing Cloudflare Access protection on **all Worker traffic**, including assets and previews. The first viewer role can read the published Leeds package, reports and exports; only the owner email configured on the server can open the release controls or call their API.
 
 ## Before inviting anyone
 
 1. Ask the person through a contact route you already trust for the exact email address they will use and their name. A request from an unknown address alone is not proof of identity. Confirm it with the known person through an existing channel (for example, a call or a conversation you initiated).
-2. Decide whether the person needs **Viewer** access to the current published Leeds pilot. Do not offer owner/release access to a tester. The current published package has one viewer scope; do not upload restricted party-fed or individual-level data until separate dataset permissions are built and tested.
+2. Decide whether the person needs **Viewer** access to currently published information. Do not offer owner/release access to a tester. The current published package has one viewer scope; do not upload restricted party-fed or individual-level data until separate dataset permissions are built and tested.
 3. Keep a private invite record outside the Git repository: name, exact email, who verified the identity, date invited, role `Viewer`, date access was tested, and date removed. Keep the completed feedback forms with that private record if they identify a person.
 
 ## Add one verified viewer

@@ -18,7 +18,7 @@ export type DevelopmentRelease = {
 // Update this record with each published website or data release. Keep future
 // work in stages until it has actually shipped and passed its release checks.
 export const developmentLog = {
-  reviewedOn: "2026-09-26",
+  reviewedOn: "2026-10-06",
   stages: [
     {
       id: "leeds-quality",
@@ -47,29 +47,36 @@ export const developmentLog = {
     {
       id: "viewer-pilot",
       title: "Run a small viewer pilot",
-      period: "Next",
-      status: "Next",
-      purpose: "Invite a small group of named viewers to try the Explorer, SDP Results, Electoral Tribes, reports and exports. Gather feedback on clarity, missing information and usability.",
+      period: "October 2026 onward · alongside expansion",
+      status: "In progress",
+      purpose: "Invite a small group of named viewers to try both Explorers, SDP Results, Electoral Tribes, reports and exports while selected England-wide coverage is prepared. Gather feedback on clarity, missing information and usability.",
       doneWhen: "Invited viewers complete agreed tasks, access and revocation are tested, and feedback is logged and prioritised.",
     },
     {
       id: "coverage",
-      title: "Expand beyond Leeds",
-      period: "Later",
-      status: "Later",
-      purpose: "Add further areas and election tiers in stages, only after their results, boundaries, context data and release checks are ready.",
+      title: "Expand selected England coverage",
+      period: "October 2026–February 2027 · staged releases",
+      status: "In progress",
+      purpose: "Build England-wide geography, source and release capability while reviewing new council results and boundaries. Publish selected areas in stages as their evidence and access checks pass; Leeds remains the regression example.",
       doneWhen: "Each new area has a documented source audit, validated package and viewer-tested presentation.",
     },
     {
       id: "forecast",
       title: "Develop Forecast models",
-      period: "After the Leeds pilot and expansion work",
+      period: "Later research lane",
       status: "Deferred",
       purpose: "Develop and backtest prospective party vote-share models, assess party-specific error and uncertainty, then investigate vote counts, seats and council control.",
       doneWhen: "Any future forecast has time-ordered tests, calibrated uncertainty and an agreed accuracy measure before users rely on it.",
     },
   ] satisfies DevelopmentStage[],
   releases: [
+    {
+      date: "2026-10-05",
+      title: "Explorer v2 Leeds viewer release",
+      category: "Data release",
+      summary: "Published a separate, audited Leeds-only Explorer v2 package with England geography for context. Invited viewers can use Leeds Map, Table, Composition and ward context; unreleased councils remain unavailable. The Yorkshire regional candidate remains under source review.",
+      recordUrl: "https://github.com/amounderness/hq-dashboard-frontend/blob/feature/switchboard-leeds-explorer/docs/explorer-v2-leeds-viewer-rc2-2026-10-05.md",
+    },
     {
       date: "2026-09-26",
       title: "Switchboard identity and favicon",

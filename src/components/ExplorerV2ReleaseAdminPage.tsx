@@ -70,7 +70,7 @@ export default function ExplorerV2ReleaseAdminPage({ audience = "owner" }: { aud
   }
   const canRollback = !!state?.active && state.audit.some(item => ["activated", "rolled-back"].includes(item.action) && item.to?.package_id === state.active?.package_id && item.to?.manifest_sha256 === state.active?.manifest_sha256 && item.from);
   return <section className="card release-stage" aria-label={viewer ? "Explorer v2 Leeds viewer release controls" : "Explorer v2 release controls"}>
-    <h2>Explorer v2 · {viewer ? "Leeds viewer pilot" : "Yorkshire owner test"}</h2>
+    <h2>Explorer v2 · {viewer ? "Leeds viewer release" : "Yorkshire owner test"}</h2>
     <p>{viewer ? "Stage only a verified Leeds viewer package. Its separate pointer cannot activate Yorkshire data or replace the current Leeds Explorer. Viewer visibility remains controlled by the production flags." : "Stage the verified package folder in private storage. Approval records your source-review decision against its exact checksum. Activation only switches the v2 pointer; the live Leeds package and v2 feature flags stay separate."}</p>
     {error && <p className="notice error" role="alert">{error}</p>}{message && <p className="notice" role="status">{message}</p>}
     {!state ? !error && <p role="status">Loading v2 releases…</p> : <>

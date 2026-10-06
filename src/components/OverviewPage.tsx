@@ -65,10 +65,10 @@ export default function OverviewPage({ isDemo, manifest, profiles, sdpResults, w
   const residents = profiles.length ? profiles.reduce((total, item) => total + item.population, 0) : null;
 
   return <div className="overview-page">
-    <div className="eyebrow">{isDemo ? "Owner preview" : "Leeds City Council · Pulse pilot"}</div>
+    <div className="eyebrow">{isDemo ? "Owner preview" : "England-wide electoral workspace"}</div>
     <h1>Your electoral workspace</h1>
     <p className="overview-lead">Switchboard brings recorded election results, local context and research into one private workspace for SDP officers and campaigners. Use it to see what happened, check the evidence behind each figure, and prepare for the next electoral cycle.</p>
-    <p className="muted overview-qualifier">{isDemo ? "This owner preview uses invented records to demonstrate the interface." : "The Leeds pilot covers published local results, 2021 Census context and exploratory Electoral Tribes. Forecast is currently historical research; it does not provide a live projection."}</p>
+    <p className="muted overview-qualifier">{isDemo ? "This owner preview uses invented records to demonstrate the interface." : "Detailed released information currently covers Leeds City Council: recorded results, 2021 Census context and exploratory Electoral Tribes. We are testing selected areas across England before further release. Forecast is historical research, not a live projection."}</p>
 
     <section aria-labelledby="overview-numbers">
       <div className="overview-section-head"><h2 id="overview-numbers">Leeds at a glance</h2><span>Approved package · {manifest?.package_id ?? "loading"}</span></div>
