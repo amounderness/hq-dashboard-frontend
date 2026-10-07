@@ -11,19 +11,16 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Switchboard agent coordination
 
 ## Owner-approved action and review rules
-Adopted by Keenan on 29 September 2026. These rules apply to the coordinator and every delegated agent. A technical Allow all actions setting does not expand project authorization.
-- Proceed with reading, audits, source investigation and read-only delegation; report findings.
-- Prepare fixes and run local checks within an agreed task; provide a reviewable diff.
-- Create isolated development branches and draft PRs within the agreed task. Verify write outcomes and never imply changes were committed when blocked.
-- Present architecture, dependency, data-schema and modelling-method changes for owner review before implementation.
-- Obtain explicit owner approval for the exact tested change before merging, deploying, activating packages or enabling production flags.
-- Obtain specific owner approval before changing access, credentials or billing, or deleting/overwriting important data. Routine task-scoped working edits are covered by the agreed development task.
-- At each major-action checkpoint, present the concrete change, affected commit/package, completed checks, remaining limitations and rollback route. Approval applies to that result, not an unspecified later version; carry forward approval unless scope or material risk changes.
-- The coordinator enforces these boundaries across all subagents and remains responsible for integration and reporting.
+Adopted by Keenan on 29 September 2026; revised on 6 October to support a select England-wide pilot. These rules apply to the coordinator and every delegated agent. A technical Allow all actions setting does not expand project authorization.
+- Within an agreed task, proceed with reading, source investigation, reversible local implementation, tests, commits, pushes and draft PRs. This includes exploratory architecture, dependencies and data schemas on an isolated branch. Present the concrete design, trade-offs and test evidence for owner review before adopting a material contract for a live release. Ask before implementing a change that itself alters privacy, security, spending, irreversible data migration or published Forecast methodology.
+- Merge checked documentation, tests and routine reversible fixes into the active development branch when they are within the user's agreed task. An existing approval carries through non-material corrections; do not ask again for the same action. Obtain explicit owner approval for the exact tested candidate before merging to a protected/release branch, deploying code, activating a data pointer, or enabling a production capability. State the commit/package, checks, known limits and rollback route at that checkpoint.
+- Obtain specific owner approval before changing access policy, credentials or billing, deleting or overwriting important data, or publishing a new model or restricted dataset. A request to audit alone authorizes investigation, not a release; a request to audit and fix authorizes the reversible fix work described above.
+- Stage a package in private storage within an agreed release task only after checking its scope and hashes. Staging does not approve or activate it. Keep review, approval and activation separate, with an exact manifest and audit trail.
+- Verify write outcomes. Never imply a commit, merge, deployment or activation occurred when it did not. The coordinator remains responsible for integration and reporting across agents.
 
 ## Read before work
-Read the latest hand-off, revised platform plan, docs/explorer-v2-gate-2.md, MVP status, and relevant source/release decisions. Confirm repository remotes, branch and exact commit. Missing files are blockers to their dependent tasks; never claim to have read them.
-Distinguish live Leeds, locally staged Explorer v2, planned capabilities and independently verified behavior. Dated documents do not establish current deployment or Access policy.
+Read the [current hand-off](docs/SWITCHBOARD-HANDOFF-2026-10-06.md) and the documents relevant to the task. For architecture or coverage work, include the [revised platform plan](../docs/switchboard-platform-plan-2026-09-27-revision.md) and Explorer v2 Gate 2 record; for publication, include the current MVP status and source/release decisions. Confirm remotes, branch and exact commit before repository writes. Missing material blocks only work that depends on it; never claim to have read it.
+Distinguish released Leeds data, unpublished regional candidates, planned capabilities and independently verified behavior. Dated documents do not establish current deployment or Access policy.
 
 ## Delegation
 When the owner explicitly requests parallel agents, use them for independent project tasks where they improve delivery. Keep one coordinator responsible for assignment, integration and final reporting. Suitable assignments are frontend, data/geography, and independent QA/release review. Give every agent the same verified base commit, explicit outcome, owned files, dependencies and definition of done.
@@ -36,9 +33,9 @@ Use a new staging directory and release ID for rebuilds. Preserve original immut
 Do not infer no poll from a missing annual record, council composition from election winners, or historical geometry equivalence from a current/name-matched polygon. Keep secondary-source attribution and caveats visible. Forecast remains research until validated.
 
 ## Verification and release
-Use relevant package validators plus npm run typecheck, npm run lint, npm run build and npm run build:vinext for code changes, following current repo commands. Browser-test the affected flow when data and an authorized environment are available. Record blocked checks honestly.
-Preserve Leeds behavior as the regression fixture. Keep v2 production flags off until source, owner-access and release-control gates pass. Stage, validate, review, approve and activate are separate steps; uploading never implicitly approves a package.
-Release work must retain package ID, manifest hash, code commit, source evidence, audit and rollback route. Verify owner/viewer API denial as well as UI visibility. Do not merge or activate during an audit task.
+Run checks proportionate to the change. For application code, use relevant package validators plus npm run typecheck, npm run lint, npm run build and npm run build:vinext; browser-test affected flows when an authorized environment is available. Documentation-only changes need review and link/consistency checks, not four application builds. Record blocked checks honestly.
+Preserve Leeds behavior as the regression fixture. The approved Leeds viewer release has its viewer flags on; the unreleased Yorkshire/regional flags remain off until their source, access and release-control gates pass. Verify the effective build and Worker flags before each deployment so a rebuild cannot silently hide a released view or expose an unreleased one. Stage, validate, review, approve and activate remain separate steps.
+Release work must retain package ID, manifest hash, code commit, source evidence, audit and rollback route. Verify owner/viewer API denial as well as UI visibility when permissions or release scope change. Do not merge or activate during an audit-only task.
 
 ## Logs and hand-off
 Update relevant Gate2, source audit, MVP and development logs only for work actually checked or published. Label staged, source-reviewed, locally tested and live-verified evidence explicitly. Record remaining blockers and next owner. Keep user explanations practical and beginner-friendly.

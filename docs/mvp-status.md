@@ -1,8 +1,8 @@
-# Switchboard MVP status · 5 October 2026
+# Switchboard MVP status · 6 October 2026
 
-Switchboard is a private **invited-viewer Leeds Pulse pilot**, not yet a complete volunteer or campaign operations MVP. It presents prepared records; the site does not calculate new results or forecasts on demand.
+Switchboard is a private **select England-wide trial in ongoing development**, not yet a complete volunteer or campaign operations MVP. Detailed published viewer results and context currently cover **Leeds City Council**. Areas elsewhere in England are indexed or being checked, not automatically released. The site presents prepared records; it does not calculate new results or forecasts on demand.
 
-The separate Yorkshire and Humber Explorer v2 [rc9 candidate](explorer-v2-dated-wards-rc9-2026-10-05.md) was validated locally on 5 October with dated ward editions and two caveated Bradford poll transcriptions. [Local automated browser checks](explorer-v2-visual-qa-2026-10-05.md) now cover the main desktop and mobile flows; council-source and live access checks remain open. It has not been published or made visible to Leeds pilot viewers; it does not change the Leeds MVP status below.
+The separate Yorkshire and Humber Explorer v2 [rc9 candidate](explorer-v2-dated-wards-rc9-2026-10-05.md) was validated locally on 5 October with dated ward editions and two caveated Bradford poll transcriptions. [Local automated browser checks](explorer-v2-visual-qa-2026-10-05.md) now cover the main desktop and mobile flows; council-source and live access checks remain open. It has not been published or made visible to invited viewers; it does not change the released Leeds coverage below.
 
 A distinct [Leeds-only Explorer v2 viewer release](explorer-v2-leeds-viewer-rc2-2026-10-05.md) is now active on the protected live site after exact owner approval. It uses only the audited Leeds result import and keeps other councils unavailable. A separate party test account completed the main Leeds views and received the intended non-Leeds restriction. The wider Yorkshire rc9 candidate remains unpublished.
 
